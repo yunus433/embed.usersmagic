@@ -1,0 +1,31 @@
+{
+  "name": "usersmagic",
+  "version": "2.0.0",
+  "description": "#usersmagic\n The ultimate way of testing",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": "14.17.0"
+  },
+  "author": "Yunus Gürlek",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^3.2.0",
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.19.0",
+    "cluster": "^0.7.7",
+    "connect-mongo": "^4.4.1",
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.2",
+    "mongoose": "^5.13.5",
+    "node-fetch": "^2.6.1",
+    "os": "^0.1.2",
+    "pug": "^3.0.2",
+    "serve-favicon": "^2.5.0",
+    "validator": "^13.6.0"
+  }
+}

@@ -1,0 +1,163 @@
+.all-content-wrapper {
+  overflow: scroll;
+}
+
+.content-wrapper {
+  height: fit-content;
+  min-height: fit-content;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 50px;
+  background-color: rgb(254, 254, 254);
+  padding-bottom: 100px;
+}
+
+.domain-setup-each-step {
+  margin-left: 20px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+}
+.domain-setup-each-number {
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  background-color: rgb(254, 211, 85);
+  color: rgb(254, 254, 254);
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+}
+.domain-setup-each-text {
+  font-weight: 600;
+  font-size: 14px;
+  color: rgb(98, 98, 103);
+}
+
+.domain-name-input {
+  padding: 10px 15px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 16px;
+  color: rgb(98, 98, 103);
+  width: 450px;
+  border-radius: 10px;
+  border: 1px solid rgb(134, 146, 166);
+  outline: none;
+  margin-top: -10px;
+  margin-bottom: 30px;
+  margin-left: 60px;
+}
+.domain-name-input:focus {
+  box-shadow: 0px 4px 10px 3px rgba(0, 0, 0, 0.05);
+  border-color: rgb(140, 212, 224);
+}
+.domain-name-input::placeholder {
+  color: rgb(167, 167, 168);
+  font-weight: 600;
+}
+
+.domain-setup-each-value {
+  margin-left: 60px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.domain-setup-each-value-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: rgb(1, 1, 1);
+  margin-right: 5px;
+}
+.domain-setup-each-value-text {
+  font-weight: 600;
+  font-size: 13px;
+  color: rgb(98, 98, 103);
+}
+
+.domain-setup-approve-button {
+  margin-left: 20px;
+  width: 200px;
+  height: 40px;
+  background-color: rgb(140, 212, 224);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 15px;
+  color: rgb(254, 254, 254);
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  box-shadow: 0px 4px 10px 3px rgba(0, 0, 0, 0.05);
+}
+.domain-setup-approve-button:hover {
+  box-shadow: 0px 4px 10px 3px rgba(0, 0, 0, 0.11);
+}
+
+.domain-name-wrapper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.domain-name-text {
+  font-weight: 600;
+  font-size: 16px;
+  color: rgb(1, 1, 1);
+  margin-right: 5px;
+}
+.domain-name {
+  font-weight: 500;
+  color: rgb(254, 211, 85);
+  font-size: 16px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.domain-name:hover {
+  text-decoration: underline;
+}
+
+.domain-buttons-wrapper {
+  display: flex;
+  align-items: center;
+}
+.delete-domain-button {
+  width: 150px;
+  height: 40px;
+  border: 1px solid rgb(220, 0, 0);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  color: rgb(220, 0, 0);
+  background-color: rgb(254, 254, 254);
+  cursor: pointer;
+}
+.delete-domain-button:hover {
+  box-shadow:  0 0 5px rgba(220, 0, 0, 0.3);
+}
+.check-domain-button {
+  width: 150px;
+  height: 40px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: rgb(254, 254, 254);
+  background-color: rgb(140, 212, 224);
+  margin-left: 10px;
+  cursor: pointer;
+}
+.check-domain-button:hover {
+  box-shadow: 0 0 5px rgba(140, 212, 224, 0.8);
+}

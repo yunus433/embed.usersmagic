@@ -1,0 +1,166 @@
+/*
+  This file is created for usersmagic.com server connections
+  File is public, however the access is only granted through usersmagic.com TXT record verified domains
+  For more information visit usersmagic.com
+  The project is open source, visit https://github.com/usersmagic
+*/
+
+.usersmagic {
+  -webkit-font-smoothing: antialiased !important;
+  -webkit-box-sizing: border-box !important;
+  -moz-box-sizing: border-box !important;
+  box-sizing: border-box !important;
+  font-family: 'Manrope', 'Open Sans', 'Helvetica Neue', sans-serif !important;
+}
+.usersmagic i {
+  font-family: 'Font Awesome 5 Free' !important;
+}
+
+.usersmagic-content-outer-wrapper {
+  position: absolute;
+  top: 50px;
+  left: 50vw;
+  transform: translateX(-50%);
+  height: fit-content;
+  min-height: fit-content;
+  z-index: 10000;
+  background-color: rgb(254, 254, 254);
+  min-width: calc(max(260px, 33vw));
+  width: calc(max(260px, 33vw));
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 20px rgba(30, 30, 30, 0.3);
+  border-radius: 15px;
+}
+
+.usersmagic-title {
+  font-weight: 800;
+  color: rgb(78, 75, 102);
+  font-size: 16px;
+  letter-spacing: 0.25px;
+  line-height: 24px;
+  margin-bottom: 5px;
+}
+.usersmagic-text {
+  font-weight: 600;
+  font-size: 14px;
+  color: rgb(78, 75, 102);
+  line-height: 20px;
+  margin-bottom: 5px;
+}
+.usersmagic-button {
+  margin-top: 10px;
+  margin-bottom: -10px;
+  align-self: center;
+  background-color: rgb(254, 211, 85);
+  font-weight: 800;
+  color: rgb(254, 254, 254);
+  font-size: 14px;
+  padding: 7px 20px;
+  border-radius: 20px;
+  box-shadow: 0 0 10px rgba(254, 211, 85, 0.2);
+  cursor: pointer;
+}
+.usersmagic-button:hover {
+  box-shadow: 0 0 10px rgba(254, 211, 85, 0.4);
+}
+.usersmagic-input {
+  margin: 10px 0px;
+  padding: 10px 15px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 16px;
+  color: rgb(98, 98, 103);
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgb(134, 146, 166);
+  outline: none;
+}
+.usersmagic-input:focus {
+  box-shadow: 0px 4px 10px 3px rgba(0, 0, 0, 0.05);
+  border-color: rgb(140, 212, 224);
+}
+.usersmagic-input::placeholder {
+  color: rgb(167, 167, 168);
+  font-weight: 600;
+}
+
+.usersmagic-header-wrapper {
+  height: 40px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 0px 20px;
+}
+.usersmagic-close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(98, 98, 103, 0.6);
+  cursor: pointer;
+}
+.usersmagic-close-button:hover {
+  color: rgba(98, 98, 103, 0.8);
+}
+.usersmagic-close-button i {
+  font-size: 12px;
+}
+.usersmagic-close-button span {
+  font-size: 14px;
+  font-weight: 700;
+  margin-left: 5px;
+  margin-bottom: 2px;
+}
+
+.usersmagic-content-inner-wrapper {
+  padding: 0px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.usersmagic-question-text {
+  font-weight: 600;
+  font-size: 15px;
+  color: rgb(78, 75, 102);
+  line-height: 20px;
+  margin-bottom: 10px;
+}
+
+.usersmagic-choices-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-column-gap: 15px;
+  margin-top: 10px;
+}
+.usersmagic-each-choice {
+  height: 40px;
+  min-height: 40px;
+  border: 1px solid rgb(151, 151, 151);
+  box-shadow: 0 0 7px rgba(151, 151, 151, 0.3);
+  border-radius: 5px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  padding: 0px 10px;
+  cursor: pointer;
+}
+.usersmagic-selected-choice {
+  border-color: rgb(140, 212, 224) !important;
+}
+.usersmagic-each-choice:hover {
+  box-shadow: 0 0 7px rgba(151, 151, 151, 0.5);
+}
+.usersmagic-choice-text {
+  font-weight: 600;
+  font-size: 13px;
+  color: rgb(78, 75, 102);
+}
+
+.usersmagic-footer-wrapper {
+  height: 40px;
+  margin-top: 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 0px 20px;
+}

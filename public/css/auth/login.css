@@ -1,0 +1,28 @@
+.forgot-password-link {
+  width: 450px;
+  margin-top: 15px;
+  margin-bottom: -5px;
+  display: flex;
+  justify-content: flex-end;
+}
+.forgot-password-link a {
+  font-weight: 600;
+  font-size: 12px;
+  color: rgb(167, 167, 168);
+  text-decoration: none;
+}
+.forgot-password-link a:hover {
+  /* color: rgb(140, 212, 224); */
+  text-decoration: underline;
+}
+
+@media only screen and (max-width: 500px) and (min-width: 400px) {
+  .forgot-password-link {
+    width: 350px;
+  }
+}
+@media only screen and (max-width: 400px) and (min-width: 300px) {
+  .forgot-password-link {
+    width: 300px;
+  }
+}

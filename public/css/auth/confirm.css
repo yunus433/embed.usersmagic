@@ -1,0 +1,39 @@
+.time-left-text {
+  font-weight: 700;
+  font-size: 14px;
+  color: rgb(167, 167, 168);
+  margin-top: 15px;
+  margin-bottom: -15px;
+  width: 450px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.code-input-wrapper {
+  width: 450px;
+  height: 65px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+.code-input-wrapper input {
+  width: 65px;
+  height: 65px;
+  text-align: center;
+  border: 1px solid rgb(134, 146, 166);
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 20px;
+  color: rgb(98, 98, 103);
+  outline: none;
+}
+.code-input-wrapper input:focus {
+  box-shadow: 0px 4px 10px 3px rgba(0, 0, 0, 0.05);
+  border-color: rgb(140, 212, 224);
+}
+.code-input-wrapper input::placeholder {
+  color: rgb(167, 167, 168);
+  font-weight: 600;
+}

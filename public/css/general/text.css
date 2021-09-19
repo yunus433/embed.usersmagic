@@ -1,0 +1,28 @@
+.general-title {
+  font-weight: 800;
+  font-size: 36px;
+  color: rgb(1, 1, 1);
+}
+
+.general-subtitle {
+  font-weight: 700;
+  font-size: 18px;
+  color: rgb(1, 1, 1);
+}
+
+.general-text {
+  font-weight: 500;
+  font-size: 14px;
+  color: rgb(98, 98, 103);
+  line-height: 20px;
+}
+
+.general-text-short-space {
+  width: 100%;
+  height: 15px;
+}
+
+.general-text-long-space {
+  width: 100%;
+  height: 30px;
+}

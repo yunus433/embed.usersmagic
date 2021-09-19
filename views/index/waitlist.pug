@@ -1,0 +1,78 @@
+extends ../partials/head
+block content
+  .all-wrapper
+    .all-header-wrapper
+      svg(width="12" height="21" viewBox="0 0 12 21" fill="none" xmlns="http://www.w3.org/2000/svg")
+        path(d="M5.08355 5.43146C5.40117 4.76242 5.43183 3.67231 5.10135 2.52188C4.77058 1.37173 4.16464 0.458231 3.53789 0.0516924C3.22027 0.720731 3.18988 1.81085 3.52037 2.96127C3.85086 4.11142 4.45707 5.02492 5.08355 5.43146ZM8.03521 2.90688C8.32299 1.74569 8.2518 0.657192 7.90981 0C7.29867 0.428885 6.72668 1.36312 6.4389 2.52458C6.15113 3.68577 6.22205 4.77427 6.56403 5.43146C7.17518 5.00258 7.74744 4.06808 8.03521 2.90688ZM8.21428 8.07692C8.21428 6.741 7.10892 5.65385 5.75 5.65385C4.39108 5.65385 3.28571 6.741 3.28571 8.07692V8.88462H8.21428V8.07692ZM5.8869 8.07692C5.8321 8.07833 5.77755 8.06894 5.7265 8.04929C5.67544 8.02965 5.6289 8.00015 5.58962 7.96253C5.55034 7.92492 5.51911 7.87996 5.49779 7.83029C5.47646 7.78062 5.46547 7.72726 5.46545 7.67335C5.46543 7.61944 5.47639 7.56607 5.49768 7.51639C5.51898 7.46671 5.55017 7.42172 5.58942 7.38408C5.62867 7.34645 5.6752 7.31692 5.72624 7.29724C5.77729 7.27756 5.83182 7.26813 5.88663 7.2695C5.99369 7.27218 6.09545 7.31588 6.17021 7.39127C6.24498 7.46666 6.28684 7.56778 6.28688 7.67308C6.28691 7.77838 6.24512 7.87953 6.1704 7.95497C6.09569 8.03041 5.99396 8.07417 5.8869 8.07692ZM7.25595 8.07692C7.14702 8.07692 7.04256 8.03438 6.96553 7.95864C6.88851 7.8829 6.84524 7.78018 6.84524 7.67308C6.84524 7.56597 6.88851 7.46325 6.96553 7.38751C7.04256 7.31178 7.14702 7.26923 7.25595 7.26923C7.36488 7.26923 7.46935 7.31178 7.54637 7.38751C7.62339 7.46325 7.66667 7.56597 7.66667 7.67308C7.66667 7.78018 7.62339 7.8829 7.54637 7.95864C7.46935 8.03438 7.36488 8.07692 7.25595 8.07692ZM11.5 9.69231H0V11.3077H2.46429L1.64286 21H9.85714L9.03571 11.3077H11.5V9.69231Z" fill="white")
+      .all-header-title-wrapper
+        span.all-header-title.all-header-title-selected Waitlist
+    .all-content-wrapper
+      .content-wrapper
+        span.general-title You are in!
+        .general-text-short-space
+        span.general-text You have registered for the waitlist. We will send you an email once your are off the waitlist. In order to be approved, please enter and verify your domain to use in Usersmagic.
+        .general-text-long-space
+        span.general-subtitle Why we need a domain verification?
+        .general-text-short-space
+        span.general-text By verifying your domain we guarantee that every response you receive is coming directly from your users, and not anyone else. For now, Usersmagic only allows one domain per company. Later, you will be able to add multiple domains to collect answers from different web addresses.
+        .general-text-long-space
+        if !user.company.domain && !user.company.waiting_domain
+          span.general-title How to setup your domain?
+          .general-text-long-space
+          .domain-setup-each-step
+            span.domain-setup-each-number 1
+            span.domain-setup-each-text Enter your domain name below without any prefixes or routes (ex. https://usersmagic.com, https://mydomain.com). Only domains with SSL certificate are supported
+          input.domain-name-input(type="text" placeholder="https://yourdomain.com" autocomplete="off")
+          .domain-setup-each-step
+            span.domain-setup-each-number 2
+            span.domain-setup-each-text Go to your domain provider (ex. Cloudflare, GoDaddy, etc.)
+          .domain-setup-each-step
+            span.domain-setup-each-number 3
+            span.domain-setup-each-text Open the DNS settings page
+          .domain-setup-each-step
+            span.domain-setup-each-number 4
+            span.domain-setup-each-text Create a new DNS record with the following values:
+          .domain-setup-each-value(style="margin-top: -10px")
+            span.domain-setup-each-value-title Type:
+            span.domain-setup-each-value-text TXT
+          .domain-setup-each-value
+            span.domain-setup-each-value-title Name:
+            span.domain-setup-each-value-text @
+          .domain-setup-each-value
+            span.domain-setup-each-value-title Value:
+            span.domain-setup-each-value-text usersmagic-domain-verification=#{user.company._id.toString()}
+          .domain-setup-each-step(style="margin-top: 10px")
+            span.domain-setup-each-number 5
+            span.domain-setup-each-text Wait a few minutes for your DNS settings to reload in your server, then you are good to go!
+          span.domain-setup-approve-button Save Domain
+        else if !user.company.domain
+          span.general-subtitle Your domain is waiting for approval...
+          .general-text-short-space
+          span.general-text We automatically check your domain to verify if you have completed TXT record verification. If there is a problem with verification please delete and re-enter your domain. Your DNS record should match the following:
+          .general-text-short-space
+          .domain-setup-each-value
+            span.domain-setup-each-value-title Type:
+            span.domain-setup-each-value-text TXT
+          .domain-setup-each-value
+            span.domain-setup-each-value-title Name:
+            span.domain-setup-each-value-text @
+          .domain-setup-each-value
+            span.domain-setup-each-value-title Value:
+            span.domain-setup-each-value-text usersmagic-domain-verification=#{user.company._id.toString()}
+          .general-text-long-space
+          .domain-name-wrapper
+            span.domain-name-text Your Domain:
+            a.domain-name(href=user.company.waiting_domain target="_blank") #{user.company.waiting_domain}
+          .domain-buttons-wrapper
+            span.delete-domain-button Delete Domain
+            span.check-domain-button Recheck Domain
+        else
+          span.general-subtitle Your domain is approved!
+          .general-text-short-space
+          span.general-text Your domain name has the given DNS, and thus it is now approved. Please do not remove the DNS record to continue to use Usersmagic. If you want to change your domain, you can simply delete this one and add another.
+          .general-text-long-space
+          .domain-name-wrapper
+            span.domain-name-text Your Domain:
+            a.domain-name(href=user.company.domain target="_blank") #{user.company.domain}
+          .domain-buttons-wrapper
+            span.delete-domain-button Delete Domain

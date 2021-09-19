@@ -1,0 +1,27 @@
+doctype html
+html(lang="en")
+  head
+    meta(name="viewport", content="width=device-width, initial-scale=1.0, shrink-to-fit=no, maximum-scale=1.0, user-scalable=0")
+    if title
+      title Usersmagic | #{title}
+    else
+      title Usersmagic
+    link(href="https://fonts.googleapis.com/css?family=Manrope:100,200,300,400,500,600,700,800,900" rel="stylesheet")
+    link(rel='stylesheet' href=`/css/embed/styling.css`)
+    if includes && includes.external
+      if includes.external.css
+        each file_name in includes.external.css
+          if file_name == 'page'
+            link(rel='stylesheet' href=`/css/${page}.css`)
+          else if file_name == 'fontawesome'
+            link(rel='stylesheet' href='https://use.fontawesome.com/releases/v5.2.0/css/all.css' integrity='sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ', crossorigin='anonymous')
+          else
+            link(rel='stylesheet' href=`/css/general/${file_name}.css`)
+      if includes.external.js
+        each file_name in includes.external.js
+          if file_name == 'page'
+            script(src=`/js/${page}.js`)
+          else
+            script(src=`/js/functions/${file_name}.js`)
+  body
+    block content

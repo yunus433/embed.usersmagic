@@ -1,0 +1,28 @@
+* {
+  -webkit-font-smoothing: antialiased;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  font-family: 'Manrope', 'Open Sans', 'Helvetica Neue', sans-serif;;
+}
+html {
+  width: 100vw;
+  height: 100vh;
+  margin: 0px;
+  padding: 0px;
+  overflow: hidden;
+	background: rgb(254, 254, 254);
+	background-size: cover;
+}
+body {
+  margin: 0px;
+  padding: 0px;
+  height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.display-none {
+  display: none;
+}
