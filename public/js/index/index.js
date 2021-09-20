@@ -1,4 +1,3 @@
-let isNavigationButtonsWrapperOpen = true;
 let graphs = [];
 let pieChartColors = [];
 
@@ -165,13 +164,17 @@ function createGraph(graph) {
 }
 
 function loadGraphs(callback) {
-  serverRequest('/graphs', 'GET', {}, (err, _graphs) => {
-    if (err) return callback(err);
+  serverRequest('/graphs', 'GET', {}, res => {
+    if (res.error || !res.success) return callback(res.error || 'unknown_error');
 
-    graphs = _graphs;
+    graphs = res.graphs;
     return callback(null);
   });
 }
+
+function createProduct() {
+
+};
 
 window.addEventListener('load', () => {
   pieChartColors = JSON.parse(document.getElementById('pie-chart-colors').value);
@@ -195,19 +198,22 @@ window.addEventListener('load', () => {
 
   document.addEventListener('click', event => {
     if (event.target.classList.contains('navigation-types-title') || event.target.parentNode.classList .contains('navigation-types-title')) {
-      if (isNavigationButtonsWrapperOpen) {
-        navigationButtonIcon.classList.remove('fa-chevron-down');
-        navigationButtonIcon.classList.add('fa-chevron-right');
-        navigationButtonsWrapper.classList.remove('open-bottom-animation-class');
-        navigationButtonsWrapper.classList.add('close-up-animation-class');
-      } else {
-        navigationButtonIcon.classList.remove('fa-chevron-right');
-        navigationButtonIcon.classList.add('fa-chevron-down');
-        navigationButtonsWrapper.classList.remove('close-up-animation-class');
-        navigationButtonsWrapper.classList.add('open-bottom-animation-class');
-      }
+      const target = event.target.classList.contains('navigation-types-title') ? event.target : event.target.parentNode;
+      const icon = target.childNodes[0];
+      const buttonsWrapper = target.nextElementSibling;
+      const isNavigationButtonsWrapperOpen = icon.classList.contains('fa-chevron-down');
 
-      isNavigationButtonsWrapperOpen = !isNavigationButtonsWrapperOpen;
+      if (isNavigationButtonsWrapperOpen) {
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-right');
+        buttonsWrapper.classList.remove('open-bottom-animation-class');
+        buttonsWrapper.classList.add('close-up-animation-class');
+      } else {
+        icon.classList.remove('fa-chevron-right');
+        icon.classList.add('fa-chevron-down');
+        buttonsWrapper.classList.remove('close-up-animation-class');
+        buttonsWrapper.classList.add('open-bottom-animation-class');
+      }
     }
 
     if (event.target.classList.contains('all-header-title') && !event.target.classList.contains('all-header-title-selected')) {
@@ -223,28 +229,46 @@ window.addEventListener('load', () => {
       }
     }
 
-    if (event.target.classList.contains('each-navigation-button') && !event.target.classList.contains('selected-navigation-button')) {
-      const type = event.target.id;
-      document.querySelector('.selected-navigation-button').classList.remove('selected-navigation-button');
-      event.target.classList.add('selected-navigation-button');
+    if (event.target.classList.contains('each-navigation-button') || event.target.parentNode.classList.contains('each-navigation-button')) {
+      const target = event.target.classList.contains('each-navigation-button') ? event.target : event.target.parentNode;
+      const id = target.id;
 
-      document.querySelector('.graph-outer-wrapper').innerHTML = '';
+      target.parentNode.parentNode.querySelector('.selected-navigation-button').classList.remove('selected-navigation-button');
+      target.classList.add('selected-navigation-button');
 
-      for (let i = 0; i < graphs.length; i++)
-        if (type == 'all' || graphs[i].question_type == type)
-          createGraph(graphs[i]);
-    }
+      if (!id.includes('-questions')) {
+        const type = id;
 
-    if (event.target.parentNode.classList.contains('each-navigation-button') && !event.target.parentNode.classList.contains('selected-navigation-button')) {
-      const type = event.target.parentNode.id;
-      document.querySelector('.selected-navigation-button').classList.remove('selected-navigation-button');
-      event.target.parentNode.classList.add('selected-navigation-button');
+        document.querySelector('.graph-outer-wrapper').innerHTML = '';
 
-      document.querySelector('.graph-outer-wrapper').innerHTML = '';
+        for (let i = 0; i < graphs.length; i++)
+          if (type == 'all' || graphs[i].question_type == type)
+            createGraph(graphs[i]);
+      } else {
+        const type = id.split('-questions')[0];
 
-      for (let i = 0; i < graphs.length; i++)
-        if (type == 'all' || graphs[i].question_type == type)
-          createGraph(graphs[i]);
+        const questions = document.querySelector('.questions-wrapper').childNodes;
+
+        for (let i = 0; i < questions.length;) {
+          if (questions[i].classList.contains('create-product-main-button')) {
+            i++;
+          } else if (type != 'all' && !questions[i].id.includes(type)) {
+            questions[i].style.display = 'none';
+            i++;
+            while (i < questions.length && !questions[i].classList.contains('questions-title')) {
+              questions[i].style.display = 'none';
+              i++;
+            }
+          } else {
+            questions[i].style.display = 'flex';
+            i++;
+            while (i < questions.length && !questions[i].classList.contains('questions-title')) {
+              questions[i].style.display = 'flex';
+              i++;
+            }
+          }
+        }
+      }
     }
 
     if (event.target.classList.contains('copy-code-button') || event.target.parentNode.classList.contains('copy-code-button')) {
@@ -259,5 +283,36 @@ window.addEventListener('load', () => {
         document.querySelector('.copy-code-button').childNodes[0].innerHTML = 'Copy';
       }, 1500);
     }
+
+    if (event.target.classList.contains('add-product-outer-wrapper') || event.target.classList.contains('add-product-close-button') || event.target.parentNode.classList.contains('add-product-close-button')) {
+      document.querySelector('.add-product-outer-wrapper').style.display = 'none';
+    }
+
+    if (event.target.classList.contains('create-product-button') || event.target.parentNode.classList.contains('create-product-button') || event.target.classList.contains('create-product-main-button')) {
+      document.querySelector('.add-product-outer-wrapper').style.display = 'flex';
+    }
   });
+
+  document.addEventListener('submit', event => {
+    if (event.target.classList.contains('add-product-wrapper')) {
+      event.preventDefault();
+
+      const name = document.getElementById('product-name-input').value;
+      const link = document.getElementById('product-link-input').value;
+
+      serverRequest('/product/create', 'POST', {
+        name,
+        link
+      }, res => {
+        console.log(res);
+        if (!res.success) return createConfirm({
+          title: 'An error occured',
+          text: 'Please make sure all the information you gave is correct. If the problem continues, please reload the page and try again later. Error code: ' + (res.error || 'unknown_error'),
+          reject: 'Confirm'
+        }, res => {});
+
+        return location.reload();
+      });
+    }
+  })
 });

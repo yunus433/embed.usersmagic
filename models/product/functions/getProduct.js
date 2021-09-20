@@ -6,7 +6,6 @@ module.exports = (product, callback) => {
     _id: product._id.toString(),
     company_id: product.company_id.toString(),
     name: product.name,
-    link: product.link,
-    price: product.price
+    link: product.link
   });
 }

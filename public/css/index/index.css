@@ -1,3 +1,114 @@
+.add-product-outer-wrapper {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  background-color: rgba(186, 183, 178, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.add-product-wrapper {
+  background-color: rgb(254, 254, 254);
+  border: 1px solid rgb(186, 183, 178);
+  box-shadow: 0 0 20px rgba(98, 98, 103, 0.5);
+  border-radius: 10px;
+  width: 600px;
+  height: fit-content;
+  min-height: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px;
+}
+.add-product-close-button {
+  margin-left: auto;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: rgba(98, 98, 103, 0.7);
+  font-size: 14px;
+}
+.add-product-close-button:hover {
+  color: rgb(98, 98, 103);
+}
+.add-product-close-button span {
+  font-weight: 500;
+  margin-left: 5px;
+}
+.add-product-title {
+  font-weight: 700;
+  color: rgb(42, 42, 47);
+  font-size: 17px;
+  margin-bottom: 5px;
+  cursor: default;
+}
+.add-product-subtitle {
+  color: rgb(98, 98, 103);
+  font-weight: 400;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+.add-product-input-title {
+  font-weight: 700;
+  color: rgb(42, 42, 47);
+  font-size: 14px;
+  margin-bottom: 2px;
+  cursor: default;
+}
+.required-input::after {
+  content: "*";
+  color: rgb(200, 0, 0);
+  font-size: 16px;
+  margin-left: 1px;
+  font-weight: 600;
+}
+.add-product-input-subtitle {
+  color: rgb(98, 98, 103);
+  font-weight: 400;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+.add-product-input {
+  padding: 7px 15px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 20px;
+  color: rgb(98, 98, 103);
+  width: 400px;
+  border-radius: 10px;
+  border: 1px solid rgb(134, 146, 166);
+  margin-bottom: 20px;
+  outline: none;
+}
+.add-product-input:focus {
+  box-shadow: 0px 4px 10px 3px rgba(0, 0, 0, 0.05);
+  border-color: rgb(140, 212, 224);
+}
+.add-product-input::placeholder {
+  color: rgb(167, 167, 168);
+  font-weight: 600;
+}
+.add-product-button {
+  width: 150px;
+  height: 50px;
+  background-color: rgb(140, 212, 224);
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  color: rgb(254, 254, 254);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  outline: none;
+  margin-left: auto;
+}
+.add-product-button:hover {
+  box-shadow: 0 0 10px rgba(140, 212, 224, 0.3);
+}
+
 .all-wrapper {
   overflow: hidden;
 }
@@ -16,6 +127,7 @@
   flex-direction: column;
   align-items: flex-start;
   padding: 40px 30px;
+  overflow: scroll;
 }
 .navigation-title {
   font-weight: 600;
@@ -29,7 +141,7 @@
   display: flex;
   align-items: center;
   color: rgb(98, 98, 103);
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 .navigation-types-title i {
   margin-right: 8px;
@@ -43,7 +155,7 @@
 .navigation-buttons-wrapper {
   display: flex;
   flex-direction: column;
-  height: 161px;
+  height: fit-content;
   width: 140px;
   overflow: hidden;
   margin-left: 20px;
@@ -75,7 +187,7 @@
 }
 @keyframes closeUp {
   from {
-    height: 161px;
+    height: fit-content;
   }
   to {
     height: 0px;
@@ -86,7 +198,7 @@
     height: 0px;
   }
   to {
-    height: 161px;
+    height: fit-content;
   }
 }
 
@@ -205,7 +317,6 @@
 .code-yellow {
   color: rgb(254, 211, 85);
 }
-
 
 .loading-icon-wrapper {
   width: 100%;
@@ -375,12 +486,12 @@
 }
 
 .create-product-main-button {
-  width: 90px;
-  height: 30px;
+  width: 95px;
+  height: 35px;
   background-color: rgb(140, 212, 224);
   cursor: pointer;
-  font-weight: 600;
-  font-size: 12px;
+  font-weight: 700;
+  font-size: 13px;
   color: rgb(254, 254, 254);
   display: flex;
   align-items: center;

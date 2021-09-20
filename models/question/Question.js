@@ -131,7 +131,7 @@ QuestionSchema.statics.findQuestionsByFiltersAndSorted = function (data, callbac
   if (data.min_order_number && Number.isInteger(data.min_order_number))
     filters.order_number = { $gt: data.min_order_number };
 
-  if (is_active in data)
+  if ('is_active' in data)
     filters.is_active = data.is_active ? true : false;
 
   Question
@@ -291,7 +291,7 @@ QuestionSchema.statics.createQuestionsForCompany = function (company_id, callbac
                   const product = products[time];
 
                   async.timesSeries(
-                    product_templates,
+                    product_templates.length,
                     (time, next) => {
                       const template = product_templates[time];
 
@@ -365,8 +365,9 @@ QuestionSchema.statics.findQuestionsForCompany = function (company_id, callback)
               data[product._id.toString()].push({
                 timeout_duration_in_week: template.timeout_duration_in_week,
                 order_number: template.order_number,
-                name: template.name.split('{').map(each => product[each.split('}')[0]] + each.split('}')[1]).join(''),
-                text: template.text.split('{').map(each => product[each.split('}')[0]] + each.split('}')[1]).join(''),
+                name: template.name.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
+                text: template.text.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
+                product_link: product.link,
                 type: template.type,
                 subtype: template.subtype,
                 choices: template.choices,

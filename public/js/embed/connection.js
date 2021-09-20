@@ -148,13 +148,25 @@ function usersmagic() {
         });
       } else if (data.type == 'question') {
         if (!data.question) return callback('bad_request');
+        const question = data.question;
 
         const questionText = document.createElement('span');
         questionText.classList.add('usersmagic');
         questionText.classList.add('usersmagic-question-text');
-        questionText.innerHTML = data.question.text;
+        questionText.innerHTML = question.text;
+        contentInnerWrapper.appendChild(questionText);
+
+        if (question.type == 'yes_no' || question.type == 'single' || question.type == 'multiple') {
+
+        } else if (question.type == 'scale') {
+
+        } else if (question.type == 'number') {
+
+        } else {
+          return callback('bad_request');
+        }
       } else if (data.type == 'end') {
-  
+        
       } else {
         return callback('bad_request');
       }
@@ -348,5 +360,5 @@ function usersmagic() {
 
   setTimeout(() => {
     start();
-  }, 00);
+  }, 2000);
 }

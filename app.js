@@ -37,6 +37,7 @@ if (cluster.isMaster) {
   const domainRouteController = require('./routes/domainRoute');
   const embedRouteController = require('./routes/embedRoute');
   const indexRouteController = require('./routes/indexRoute');
+  const productRouteController = require('./routes/productRoute');
 
   app.set('views', path.join(__dirname, 'views'));
   app.set('view engine', 'pug');
@@ -83,6 +84,7 @@ if (cluster.isMaster) {
   app.use('/auth', authRouteController);
   app.use('/domain', domainRouteController);
   app.use('/embed', embedRouteController);
+  app.use('/product', productRouteController);
 
   server.listen(PORT, () => {
     console.log(`Server is on port ${PORT} as Worker ${cluster.worker.id} running @ process ${cluster.worker.process.pid}`);

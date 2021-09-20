@@ -254,8 +254,9 @@ PersonSchema.statics.getNextQuestionForPerson = function (data, callback) {
                 return callback(null, {
                   timeout_duration_in_week: template.timeout_duration_in_week,
                   order_number: template.order_number,
-                  name: template.name.split('{').map(each => product[each.split('}')[0]] + each.split('}')[1]).join(''),
-                  text: template.text.split('{').map(each => product[each.split('}')[0]] + each.split('}')[1]).join(''),
+                  name: template.name.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
+                  text: template.text.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
+                  product_link: product.link,
                   type: template.type,
                   subtype: template.subtype,
                   choices: template.choices,
@@ -330,8 +331,8 @@ PersonSchema.statics.getCumulativeResponsesForCompanyQuestions = function (data,
               if (err) return callback(err);
 
               const graph = {
-                title: template.name.split('{').map(each => product[each.split('}')[0]] + each.split('}')[1]).join(''),
-                description: 'Asked Question: ' + template.text.split('{').map(each => product[each.split('}')[0]] + each.split('}')[1]).join(''),
+                title: template.name.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
+                description: 'Asked Question: ' + template.text.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
                 type: template.type == 'multpiple' ? 'bar_chart' : 'pie_chart',
                 data: {},
                 total: 0

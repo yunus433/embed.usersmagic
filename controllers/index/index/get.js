@@ -13,8 +13,8 @@ module.exports = (req, res) => {
         title: 'Dashboard',
         includes: {
           external: {
-            css: ['dashboard', 'fontawesome', 'general', 'page'],
-            js: ['page', 'serverRequest']
+            css: ['confirm', 'dashboard', 'fontawesome', 'general', 'page'],
+            js: ['confirm', 'page', 'serverRequest']
           }
         },
         pie_chart_colors: [
