@@ -324,7 +324,7 @@ QuestionSchema.statics.createQuestionsForCompany = function (company_id, callbac
       });
     });
   });
-}
+};
 
 QuestionSchema.statics.findQuestionsForCompany = function (company_id, callback) {
   const Question = this;
@@ -388,6 +388,24 @@ QuestionSchema.statics.findQuestionsForCompany = function (company_id, callback)
       );
     })
     .catch(err => callback('database_error'));
+};
+
+QuestionSchema.statics.findQuestionsAndProductByProductIdAndDelete = function (company_id, product_id, callback) {
+  const Question = this;
+
+  Company.findCompanyById(company_id, (err, company) => {
+    if (err) return callback(err);
+
+    Product.findProductById(product_id, (err, product) => {
+      if (err) return callback(err);
+      if (product.company_id != company._id) return callback('not_authenticated_request');
+    })
+  })
+
+  Question.findQuestionsByFiltersAndSorted({
+    company_id,
+    product_id
+  })
 };
 
 module.exports = mongoose.model('Question', QuestionSchema);

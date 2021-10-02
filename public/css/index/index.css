@@ -503,6 +503,18 @@
   font-size: 24px;
   color: rgb(1, 1, 1);
   margin-top: 30px;
+  display: flex;
+  align-items: center;
+}
+.delete-product-button {
+  margin-left: 10px;
+  margin-top: 4px;
+  color: rgba(200, 0, 0, 0.6);
+  font-size: 14px;
+  cursor: pointer;
+}
+.delete-product-button:hover {
+  color: rgba(200, 0, 0, 0.8);
 }
 .each-question {
   height: 40px;

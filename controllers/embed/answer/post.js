@@ -6,7 +6,7 @@ module.exports = (req, res) => {
     return res.end();
   }
 
-  Person.pushPersonToAnswerGroup(req.query.email, (err, person) => {
+  Person.findOrCreatePersonByEmail(req.query.email, (err, person) => {
     if (err) {
       res.write(JSON.stringify({ error: err, success: false }));
       return res.end();

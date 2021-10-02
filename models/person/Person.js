@@ -1,3 +1,4 @@
+const async = require('async');
 const mongoose = require('mongoose');
 const validator = require('validator');
 
@@ -9,6 +10,7 @@ const Product = require('../product/Product');
 const Template = require('../template/Template');
 const Question = require('../question/Question');
 
+const MAX_DATABASE_TEXT_FIELD_LENGTH = 1e4;
 const DUPLICATED_UNIQUE_FIELD_ERROR_CODE = 11000;
 
 const Schema = mongoose.Schema;
@@ -121,7 +123,7 @@ PersonSchema.statics.createAnswerGroup = function (data, callback) {
             week_answer_will_be_outdated_in_unix_time: exp_week
           };
 
-          return Answer.createAnswer(newAnswerData, (err, id) => callback(err, id));
+          return Answer.createAnswerWithoutProcessing(newAnswerData, (err, id) => callback(err, id));
         });
       });
     });
@@ -181,8 +183,9 @@ PersonSchema.statics.pushPersonToAnswerGroup = function (data, callback) {
                 });
               });
             } else {
-              Answer.createAnswerGroup({
+              Person.createAnswerGroup({
                 question_id: question._id,
+                company_id: data.company_id,
                 answer_given_to_question: data.answer_given_to_question
               }, (err, id) => {
                 if (err) return callback(err);
@@ -233,7 +236,7 @@ PersonSchema.statics.getNextQuestionForPerson = function (data, callback) {
               person_id: person._id
             }, err => {
               if (err && err != 'document_not_found') return next(err);
-              if (err == 'document_not_found') return next(null);
+              if (!err) return next(null);
               found_question = questions[time];
               return next('process_complete');
             });
@@ -241,17 +244,32 @@ PersonSchema.statics.getNextQuestionForPerson = function (data, callback) {
           err => {
             if (err && err != 'process_complete')
               return callback(err);
+            if (!err)
+              return callback(null);
 
             Template.findTemplateById(found_question.template_id, (err, template) => {
               if (err) return callback(err);
 
               if (template.type != 'product')
-                return callback(null, template);
+                return callback(null, {
+                  _id: found_question._id.toString(),
+                  timeout_duration_in_week: template.timeout_duration_in_week,
+                  order_number: template.order_number,
+                  name: template.name,
+                  text: template.text,
+                  type: template.type,
+                  subtype: template.subtype,
+                  choices: template.choices,
+                  min_value: template.min_value,
+                  max_value: template.max_value,
+                  labels: template.labels
+                });
 
               Product.findProductById(found_question.product_id, (err, product) => {
                 if (err) return callback(err);
 
                 return callback(null, {
+                  _id: found_question._id.toString(),
                   timeout_duration_in_week: template.timeout_duration_in_week,
                   order_number: template.order_number,
                   name: template.name.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
@@ -300,7 +318,7 @@ PersonSchema.statics.getCumulativeResponsesForCompanyQuestions = function (data,
               total: 0
             };
 
-            const choices = template.type == 'yes_no' ? ['yes', 'no'] : (['single', 'multiple', 'list'].includes(template.type) ? template.choices : Array.from({ length: template.max_value - template.min_value + 1 }, (each, i) => (i + template.min_value).toString()));
+            const choices = template.subtype == 'yes_no' ? ['yes', 'no'] : (['single', 'multiple', 'list'].includes(template.subtype) ? template.choices : Array.from({ length: template.max_value - template.min_value + 1 }, (each, i) => (i + template.min_value).toString()));
 
             async.timesSeries(
               choices.length,
@@ -322,7 +340,11 @@ PersonSchema.statics.getCumulativeResponsesForCompanyQuestions = function (data,
               err => {
                 if (err) return next(err);
 
-                sort(graph.data, (x, y) => x.value > y.value);
+                graph.data.sort(function (x, y) {
+                  if (x.value < y.value) return 1;
+                  if (x.value > y.value) return -1;
+                  return 0;
+                });
                 return next(null, graph);
               }
             );
@@ -331,14 +353,15 @@ PersonSchema.statics.getCumulativeResponsesForCompanyQuestions = function (data,
               if (err) return callback(err);
 
               const graph = {
+                question_type: template.type,
                 title: template.name.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
                 description: 'Asked Question: ' + template.text.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
-                type: template.type == 'multpiple' ? 'bar_chart' : 'pie_chart',
-                data: {},
+                type: template.subtype == 'multiple' ? 'bar_chart' : 'pie_chart',
+                data: [],
                 total: 0
               };
 
-              const choices = template.type == 'yes_no' ? ['yes', 'no'] : (['single', 'multiple', 'list'].includes(template.type) ? template.choices : Array.from({ length: template.max_value - template.min_value + 1 }, (each, i) => (i + template.min_value).toString()));
+              const choices = template.subtype == 'yes_no' ? ['yes', 'no'] : (['single', 'multiple', 'list'].includes(template.subtype) ? template.choices : Array.from({ length: template.max_value - template.min_value + 1 }, (each, i) => (i + template.min_value).toString()));
 
               async.timesSeries(
                 choices.length,
@@ -348,14 +371,23 @@ PersonSchema.statics.getCumulativeResponsesForCompanyQuestions = function (data,
                     answer_given_to_question: choices[time].toString().trim()
                   }, (err, count) => {
                     if (err) return next(err);
-                    graph.data[choices[time].toString().trim()] = count;
+                    
+                    graph.data.push({
+                      name: choices[time].toString().trim(),
+                      value: count,
+                    });
                     graph.total += count;
                     return next(null);
-                  })
+                  });
                 },
                 err => {
                   if (err) return next(err);
   
+                  graph.data.sort(function (x, y) {
+                    if (x.value < y.value) return 1;
+                    if (x.value > y.value) return -1;
+                    return 0;
+                  });
                   return next(null, graph);
                 }
               );

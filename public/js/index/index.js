@@ -172,10 +172,6 @@ function loadGraphs(callback) {
   });
 }
 
-function createProduct() {
-
-};
-
 window.addEventListener('load', () => {
   pieChartColors = JSON.parse(document.getElementById('pie-chart-colors').value);
 
@@ -187,12 +183,11 @@ window.addEventListener('load', () => {
       return;
     }
 
+    console.log(graphs);
     graphs.forEach(graph => createGraph(graph));
     document.querySelector('.graph-outer-wrapper').style.display = 'initial';
   });
 
-  const navigationButtonIcon = document.getElementById('navigation-button-icon');
-  const navigationButtonsWrapper = document.querySelector('.navigation-buttons-wrapper');
   const dashboardContentWrapper = document.querySelector('.dashboard-content-wrapper');
   const questionsContentWrapper = document.querySelector('.questions-content-wrapper');
 
@@ -314,5 +309,5 @@ window.addEventListener('load', () => {
         return location.reload();
       });
     }
-  })
+  });
 });

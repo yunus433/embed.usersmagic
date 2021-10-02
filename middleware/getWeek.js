@@ -14,8 +14,8 @@ function getUnixTimeForThisMonday() {
 }
 
 module.exports = (week_addition, callback) => {
-  if (!week_addition || !Number.isInteger(week_addition))
+  if (isNaN(week_addition) || !Number.isInteger(week_addition))
     return callback('bad_request');
 
-  return getUnixTimeForThisMonday() + week_addition * WEEK_IN_MS;
+  return callback(null, getUnixTimeForThisMonday() + week_addition * WEEK_IN_MS);
 }

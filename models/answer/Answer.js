@@ -88,7 +88,7 @@ AnswerSchema.statics.findOneAnswer = function (data, callback) {
 
         return callback(null, answer);
       })
-      .catch(err => callback('database_error'));
+      .catch(err => {console.log(err); callback('database_error')});
   });
 };
 
@@ -183,8 +183,8 @@ AnswerSchema.statics.checkAnswerExists = function (data, callback) {
     if (data.answer_given_to_question && typeof data.answer_given_to_question == 'string' && data.answer_given_to_question.trim().length)
       filters.answer_given_to_question = data.answer_given_to_question.trim();
   
-    if (data.week_answer_is_given_in_unix_time && Number.isInteger(week_answer_is_given_in_unix_time))
-      filters.week_answer_is_given_in_unix_time = week_answer_is_given_in_unix_time;
+    if (data.week_answer_is_given_in_unix_time && Number.isInteger(data.week_answer_is_given_in_unix_time))
+      filters.week_answer_is_given_in_unix_time = data.week_answer_is_given_in_unix_time;
   
     if (data.person_id_list_not_full)
       filters.person_id_list_length = { $lt: MAX_DATABASE_ARRAY_FIELD_LENGTH };
