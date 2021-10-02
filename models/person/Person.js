@@ -398,7 +398,7 @@ PersonSchema.statics.getCumulativeResponsesForCompanyQuestions = function (data,
       (err, graphs) => {
         if (err) return callback(err);
 
-        return callback(null, graphs);
+        return callback(null, graphs.filter(each => each.data.length && each.data[0].value > 0));
       }
     );
   });
