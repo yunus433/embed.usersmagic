@@ -12,7 +12,7 @@ function usersmagic() {
   const URL_PREFIX = 'https://embed.usersmagic.com/embed'; // The url the requests will be made to
   const COOKIE_PREFIX = 'usersmagic_'; // All cookies start with usersmagic_ prefix to avoid confusion
   const DEFAULT_COOKIE_MAX_AGE = 24 * 60 * 60 * 1000; // Default cookie maxAge property, equal to 1 day
-  const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000, ONE_HOUR_IN_MS = 60 * 60 * 1000;
+  const ONE_YEAR_IN_MS = 365 * 24 * 60 * 60 * 1000, ONE_DAY_IN_MS = 24 * 60 * 60 * 1000, ONE_HOUR_IN_MS = 60 * 60 * 1000;
 
   // Global variables
   let isPopupOn = false;
@@ -26,7 +26,7 @@ function usersmagic() {
     if (window.location.hostname == 'localhost') // Not work on localhost
       return;
 
-    if (getCookie("forceEnd")) // Use forceEnd to stop all process on this client for 1h
+    if (getCookie('forceEnd')) // Use forceEnd to stop all process on this client for 1h
       return;
 
     const nextActionTime = getCookie('nextActionTime');
@@ -181,7 +181,7 @@ function usersmagic() {
 
   // Get email of the user, either from cookie or input
   getEmail = function(callback) {
-    email = getCookie("email");
+    email = getCookie('email');
 
     validateEmail(email, err => {
       if (!err) {
@@ -286,7 +286,7 @@ function usersmagic() {
                 return callback(err);
               } else {
                 email = emailData.trim();
-                setCookie("email", email, 7 * ONE_DAY_IN_MS);
+                setCookie('email', email, 10 * ONE_YEAR_IN_MS);
                 document.removeEventListener('click', listenForEmailInput);
                 callback(null);
               }
@@ -477,7 +477,7 @@ function usersmagic() {
     isPopupOn = false;
     contentOuterWrapper.remove();
     contentOuterWrapper = null;
-    setCookie("nextActionTime", (new Date).getTime() + ONE_DAY_IN_MS, ONE_DAY_IN_MS);
+    setCookie('nextActionTime', (new Date).getTime() + ONE_DAY_IN_MS, ONE_DAY_IN_MS);
   }
 
   // Throw an error on the console. Stop the process for an hour
@@ -485,7 +485,7 @@ function usersmagic() {
     if (!errorMessage)
       errorMessage = 'unknown_error';
 
-    setCookie("forceEnd", true, ONE_HOUR_IN_MS);
+    setCookie('forceEnd', true, ONE_HOUR_IN_MS);
     console.error('Usersmagic Error: Stopping all process for an hour. Error Message: ' + errorMessage);
   }
 
@@ -494,7 +494,7 @@ function usersmagic() {
     if (!errorMessage)
       errorMessage = 'unknown_error';
 
-    setCookie("forceEnd", true, ONE_DAY_IN_MS);
+    setCookie('forceEnd', true, ONE_DAY_IN_MS);
     console.error('Usersmagic Error: Stopping all process for an hour. Error Message: ' + errorMessage);
   }
 
@@ -545,7 +545,7 @@ function usersmagic() {
 
   // Delete the given cookie
   deleteCookie = function (cookieName) {
-    setCookie(cookieName, "", 0);
+    setCookie(cookieName, '', 0);
   }
 
   setTimeout(() => {

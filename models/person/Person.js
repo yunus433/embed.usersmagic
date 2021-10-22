@@ -310,6 +310,7 @@ PersonSchema.statics.getCumulativeResponsesForCompanyQuestions = function (data,
 
           if (template.type != 'product') {
             const graph = {
+              _id: question._id.toString(),
               question_type: template.type,
               title: template.name,
               description: 'Asked Question: ' + template.text,
@@ -323,9 +324,10 @@ PersonSchema.statics.getCumulativeResponsesForCompanyQuestions = function (data,
             async.timesSeries(
               choices.length,
               (time, next) => {
-                Answer.findAnswersAndCountUsers({
+                Answer.findAnswersAndCountUsersByFilters({
                   question_id: question._id,
-                  answer_given_to_question: choices[time].toString().trim()
+                  answer_given_to_question: choices[time].toString().trim(),
+                  filters: data.filters
                 }, (err, count) => {
                   if (err) return next(err);
                   
@@ -353,6 +355,7 @@ PersonSchema.statics.getCumulativeResponsesForCompanyQuestions = function (data,
               if (err) return callback(err);
 
               const graph = {
+                _id: question._id.toString(),
                 question_type: template.type,
                 title: template.name.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
                 description: 'Asked Question: ' + template.text.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
@@ -366,9 +369,10 @@ PersonSchema.statics.getCumulativeResponsesForCompanyQuestions = function (data,
               async.timesSeries(
                 choices.length,
                 (time, next) => {
-                  Answer.findAnswersAndCountUsers({
+                  Answer.findAnswersAndCountUsersByFilters({
                     question_id: question._id,
-                    answer_given_to_question: choices[time].toString().trim()
+                    answer_given_to_question: choices[time].toString().trim(),
+                    filters: data.filters
                   }, (err, count) => {
                     if (err) return next(err);
                     

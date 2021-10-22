@@ -1,9 +1,13 @@
 let graphs = [];
 let pieChartColors = [];
+let loadingGraphs = true;
+let filters = {};
+let graphInfoId;
 
 function createGraph(graph) {
   const eachGraphWrapper = document.createElement('div');
   eachGraphWrapper.classList.add('each-graph-wrapper');
+  eachGraphWrapper.id = graph._id;
 
   const eachGraphTitleWrapper = document.createElement('div');
   eachGraphTitleWrapper.classList.add('each-graph-title-wrapper');
@@ -22,6 +26,11 @@ function createGraph(graph) {
 
   const eachGraphContentWrapper = document.createElement('div');
   eachGraphContentWrapper.classList.add('each-graph-content-wrapper');
+
+  const eachGraphTotalCount = document.createElement('span');
+  eachGraphTotalCount.classList.add('each-graph-total-count')
+  eachGraphTotalCount.innerHTML = (graph.total >= 1000 ? (graph.total >= 1000000 ? (Math.floor(graph.total / 1000000 * 10) / 10  + 'm') : (Math.floor(graph.total / 1000 * 10) / 10  + 'k') ) : graph.total) + ' answer' + (graph.total > 1 ? 's' : '');
+  eachGraphContentWrapper.appendChild(eachGraphTotalCount);
 
   if (graph.type == 'pie_chart') {
     const pieChartLabelWrapper = document.createElement('div');
@@ -73,6 +82,11 @@ function createGraph(graph) {
 
     for (let i = pieChartColors.length; i < graph.data.length; i++)
       otherCount += graph.data[i].value;
+
+    if (otherCount > 0) {
+      const lastPercentageOther = i > 0 ? conicGradientValueArray[conicGradientValueArray.length-1].percentage : 0;
+      lastPercentageOther.push({ color: 'rgb(140, 212, 224)', percentage: lastPercentageOther + (otherCount / graph.total * 100) });  
+    }
 
     const pieChartWrapper = document.createElement('div');
     pieChartWrapper.classList.add('pie-chart-wrapper');
@@ -163,11 +177,21 @@ function createGraph(graph) {
   document.querySelector('.graph-outer-wrapper').appendChild(eachGraphWrapper);
 }
 
+function createGraphInfo(percentage, position) {
+  const graphInfo = document.createElement('span');
+  graphInfo.classList.add('graph-info');
+  graphInfo.innerHTML = Math.round(percentage * 100) / 100 + '%';
+  graphInfo.style.left = position.x + 'px';
+  graphInfo.style.top = position.y + 'px';
+  document.querySelector('body').appendChild(graphInfo);
+}
+
 function loadGraphs(callback) {
-  serverRequest('/graphs', 'GET', {}, res => {
+  serverRequest('/graphs', 'POST', filters, res => {
     if (res.error || !res.success) return callback(res.error || 'unknown_error');
 
     graphs = res.graphs;
+    loadingGraphs = false;
     return callback(null);
   });
 }
@@ -183,7 +207,6 @@ window.addEventListener('load', () => {
       return;
     }
 
-    console.log(graphs);
     graphs.forEach(graph => createGraph(graph));
     document.querySelector('.graph-outer-wrapper').style.display = 'initial';
   });
@@ -223,6 +246,33 @@ window.addEventListener('load', () => {
         questionsContentWrapper.style.display = 'flex';
       }
     }
+
+    if (event.target.classList.contains('copy-code-button') || event.target.parentNode.classList.contains('copy-code-button')) {
+      const range = document.createRange();
+      range.selectNodeContents(document.getElementById('copy-data'));
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      document.execCommand('copy');
+      document.querySelector('.copy-code-button').childNodes[0].innerHTML = 'Copied!';
+      setTimeout(() => {
+        document.querySelector('.copy-code-button').childNodes[0].innerHTML = 'Copy';
+      }, 1500);
+    }
+
+    if (event.target.classList.contains('add-product-outer-wrapper') || event.target.classList.contains('add-product-close-button') || event.target.parentNode.classList.contains('add-product-close-button')) {
+      document.querySelector('.add-product-outer-wrapper').style.display = 'none';
+    }
+
+    if (event.target.classList.contains('create-product-button') || event.target.parentNode.classList.contains('create-product-button') || event.target.classList.contains('create-product-main-button')) {
+      document.querySelector('.add-product-outer-wrapper').style.display = 'flex';
+    }
+  });
+
+  // Don't allow these actions while graphs are loading
+  document.addEventListener('click', event => {
+    if (loadingGraphs)
+      return;
 
     if (event.target.classList.contains('each-navigation-button') || event.target.parentNode.classList.contains('each-navigation-button')) {
       const target = event.target.classList.contains('each-navigation-button') ? event.target : event.target.parentNode;
@@ -266,27 +316,68 @@ window.addEventListener('load', () => {
       }
     }
 
-    if (event.target.classList.contains('copy-code-button') || event.target.parentNode.classList.contains('copy-code-button')) {
-      const range = document.createRange();
-      range.selectNodeContents(document.getElementById('copy-data'));
-      const selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
-      document.execCommand('copy');
-      document.querySelector('.copy-code-button').childNodes[0].innerHTML = 'Copied!';
-      setTimeout(() => {
-        document.querySelector('.copy-code-button').childNodes[0].innerHTML = 'Copy';
-      }, 1500);
-    }
+    if (event.target.classList.contains('each-time-filter-button') && event.target.id != 'custom-time-filter-button') {
+      let weekFilter;
 
-    if (event.target.classList.contains('add-product-outer-wrapper') || event.target.classList.contains('add-product-close-button') || event.target.parentNode.classList.contains('add-product-close-button')) {
-      document.querySelector('.add-product-outer-wrapper').style.display = 'none';
-    }
-
-    if (event.target.classList.contains('create-product-button') || event.target.parentNode.classList.contains('create-product-button') || event.target.classList.contains('create-product-main-button')) {
-      document.querySelector('.add-product-outer-wrapper').style.display = 'flex';
+      // if (event.target.id == )
     }
   });
+
+  document.addEventListener('mouseover', event => {
+    if (event.target.classList.contains('pie-chart-color')) {
+      const graphWrapper = event.target.parentNode.parentNode.parentNode;
+      const graph = graphs.find(each => each._id == graphWrapper.id);
+
+      if (graphInfoId == graph._id)
+        return;
+
+      graphInfoId = graph._id;
+
+      let angelWithVertical; // The angle mouse makes with the vertical to center
+      const centerPosition = {
+        x: (event.target.getBoundingClientRect().left + event.target.getBoundingClientRect().right) / 2,
+        y: window.innerHeight - ((event.target.getBoundingClientRect().bottom + event.target.getBoundingClientRect().top) / 2)
+      };
+      const mousePosition = {
+        x: event.clientX,
+        y: window.innerHeight - event.clientY
+      };
+
+      if (mousePosition.y > centerPosition.y && mousePosition.x > centerPosition.x) { // First quadrant
+        angelWithVertical = 90 - (Math.atan((mousePosition.y - centerPosition.y) / (mousePosition.x - centerPosition.x)) * 180 / Math.PI);
+      } else if (mousePosition.y < centerPosition.y && mousePosition.x > centerPosition.x) { // Second quadrant
+        angelWithVertical = 90 + (Math.atan((centerPosition.y - mousePosition.y) / (mousePosition.x - centerPosition.x)) * 180 / Math.PI);
+      } else if (mousePosition.y < centerPosition.y && mousePosition.x < centerPosition.x) { // Third quadrant
+        angelWithVertical = 270 - Math.atan((centerPosition.y - mousePosition.y) / (centerPosition.x - mousePosition.x)) * 180 / Math.PI;
+      } else { // Fourth quadrant
+        angelWithVertical = 270 + Math.atan((mousePosition.y - centerPosition.y) / (centerPosition.x - mousePosition.x)) * 180 / Math.PI;
+      }
+
+      if (document.querySelector('.graph-info'))
+        document.querySelector('.graph-info').remove();
+
+      let currentAngel = 0.0;
+      let percentageValue = null;
+
+      for (let i = 0; i < pieChartColors.length && i < graph.data.length && graph.data[i].value > 0 && !percentageValue; i++) {
+        currentAngel += graph.data[i].value / graph.total * 100;
+        if (currentAngel * 360 / 100 >= angelWithVertical)
+          percentageValue = graph.data[i].value / graph.total * 100;
+      }
+
+      if (!percentageValue)
+        percentageValue = 100.0 - currentAngel;
+      
+      createGraphInfo(percentageValue, {
+        x: event.clientX,
+        y: event.clientY
+      });
+    } else if (!event.target.classList.contains('graph-info') && document.querySelector('.graph-info')) {
+      document.querySelector('.graph-info').remove();
+      graphInfoId = null;
+    }
+  });
+
 
   document.addEventListener('submit', event => {
     if (event.target.classList.contains('add-product-wrapper')) {

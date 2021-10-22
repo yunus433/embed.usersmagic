@@ -197,36 +197,50 @@ AnswerSchema.statics.checkAnswerExists = function (data, callback) {
   });
 };
 
-AnswerSchema.statics.findAnswersAndCountUsers = function (data, callback) {
+AnswerSchema.statics.findAnswersAndCountUsersByFilters = function (data, callback) {
   const Answer = this;
 
   if (!data.question_id || !validator.isMongoId(data.question_id.toString()) || !data.answer_given_to_question || typeof data.answer_given_to_question != 'string')
     return callback('bad_request');
 
+  if (!data.filters || typeof data.filters)
+    data.filters = {};
+
   getWeek(0, (err,  curr_week) => {
     if (err) return callback(err);
 
-    Answer.find({
-      question_id: mongoose.Types.ObjectId(data.question_id.toString()),
-      answer_given_to_question: data.answer_given_to_question.trim(),
-      week_answer_will_be_outdated_in_unix_time: { $gte: curr_week }
-    }, (err, answers) => {
-      if (err) return callback('database_error');
+    getWeek(data.filters.latest_week_count, (err, latest_week) => {
+      const filters = {
+        question_id: mongoose.Types.ObjectId(data.question_id.toString()),
+        answer_given_to_question: data.answer_given_to_question.trim(),
+        week_answer_will_be_outdated_in_unix_time: { $gte: curr_week }
+      };
 
-      let user_count = 0;
-
-      async.timesSeries(
-        answers.length,
-        (time, next) => {
-          user_count += answers[time].person_id_list_length;
-          return next(null);
-        },
-        err => {
-          if (err) return callback('unknown_error');
-
-          return callback(null, user_count);
-        }
-      );
+      if (!err && latest_week && latest_week <= curr_week)
+        filters.week_answer_is_given_in_unix_time = { $gte: latest_week };
+  
+      if (data.filters) {
+        if (data.filters.latest_week_count && Number.isInteger(latest_week_count));
+      }
+  
+      Answer.find(filters, (err, answers) => {
+        if (err) return callback('database_error');
+  
+        let user_count = 0;
+  
+        async.timesSeries(
+          answers.length,
+          (time, next) => {
+            user_count += answers[time].person_id_list_length;
+            return next(null);
+          },
+          err => {
+            if (err) return callback('unknown_error');
+  
+            return callback(null, user_count);
+          }
+        );
+      });
     });
   });
 };

@@ -46,6 +46,16 @@ block content
         .inner-content-wrapper
           span.graphs-all-title All
           span.graphs-all-subtitle This dataset shows all of the data collected
+          //- .graphs-time-filters-wrapper
+            span.each-time-filter-button.each-time-filter-button-long#all-time-filter-button.each-time-filter-button-selected All
+            span.each-time-filter-button.each-time-filter-button-long#this-week-filter-button This Week
+            span.each-time-filter-button.each-time-filter-button-long#last-week-filter-button Last Week
+            span.each-time-filter-button#two-weeks-time-filter-button 2W
+            span.each-time-filter-button#four-weeks-time-filter-button 4W
+            span.each-time-filter-button#three-months-time-filter-button 3M
+            span.each-time-filter-button#six-months-time-filter-button 6M
+            span.each-time-filter-button#twelve-months-time-filter-button 12M
+            span.each-time-filter-button.each-time-filter-button-long#custom-time-filter-button(style="border-right: 0px") Custom
           .loading-icon-wrapper
             span Loading Graphs...
           .graph-outer-wrapper(style="display: none")
