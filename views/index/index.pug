@@ -46,7 +46,7 @@ block content
         .inner-content-wrapper
           span.graphs-all-title All
           span.graphs-all-subtitle This dataset shows all of the data collected
-          //- .graphs-time-filters-wrapper
+          .graphs-time-filters-wrapper
             span.each-time-filter-button.each-time-filter-button-long#all-time-filter-button.each-time-filter-button-selected All
             span.each-time-filter-button.each-time-filter-button-long#this-week-filter-button This Week
             span.each-time-filter-button.each-time-filter-button-long#last-week-filter-button Last Week
@@ -54,11 +54,13 @@ block content
             span.each-time-filter-button#four-weeks-time-filter-button 4W
             span.each-time-filter-button#three-months-time-filter-button 3M
             span.each-time-filter-button#six-months-time-filter-button 6M
-            span.each-time-filter-button#twelve-months-time-filter-button 12M
-            span.each-time-filter-button.each-time-filter-button-long#custom-time-filter-button(style="border-right: 0px") Custom
+            span.each-time-filter-button#twelve-months-time-filter-button(style="border-right: 0px") 12M
+            //- span.each-time-filter-button.each-time-filter-button-long#custom-time-filter-button(style="border-right: 0px") Custom
           .loading-icon-wrapper
             span Loading Graphs...
           .graph-outer-wrapper(style="display: none")
+          .no-graph-found-wrapper(style="display: none")
+            span No Data
           .no-graph-wrapper(style="display: none")
             span.no-graph-title Looks like you don't have any data yet :(
             span.no-graph-subtitle Did you integrate Usersmagic to your system? Before you start accessing your users with Usersmagic, you must complete your integration setup.

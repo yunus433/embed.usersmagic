@@ -1,5 +1,5 @@
-const WEEK_IN_MS = 604800000;
-const DAY_IN_MS = 86400000;
+const WEEK_IN_MS = 7 * 24 * 60 * 60 * 1000;
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const DAY_MONDAY = 1;
 
 function getUnixTimeForThisMonday() {

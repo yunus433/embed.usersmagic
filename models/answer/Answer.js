@@ -203,7 +203,7 @@ AnswerSchema.statics.findAnswersAndCountUsersByFilters = function (data, callbac
   if (!data.question_id || !validator.isMongoId(data.question_id.toString()) || !data.answer_given_to_question || typeof data.answer_given_to_question != 'string')
     return callback('bad_request');
 
-  if (!data.filters || typeof data.filters)
+  if (!data.filters)
     data.filters = {};
 
   getWeek(0, (err,  curr_week) => {
@@ -218,10 +218,6 @@ AnswerSchema.statics.findAnswersAndCountUsersByFilters = function (data, callbac
 
       if (!err && latest_week && latest_week <= curr_week)
         filters.week_answer_is_given_in_unix_time = { $gte: latest_week };
-  
-      if (data.filters) {
-        if (data.filters.latest_week_count && Number.isInteger(latest_week_count));
-      }
   
       Answer.find(filters, (err, answers) => {
         if (err) return callback('database_error');

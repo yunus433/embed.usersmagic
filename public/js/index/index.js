@@ -3,6 +3,7 @@ let pieChartColors = [];
 let loadingGraphs = true;
 let filters = {};
 let graphInfoId;
+let selectedGraphType = 'all';
 
 function createGraph(graph) {
   const eachGraphWrapper = document.createElement('div');
@@ -196,20 +197,41 @@ function loadGraphs(callback) {
   });
 }
 
-window.addEventListener('load', () => {
-  pieChartColors = JSON.parse(document.getElementById('pie-chart-colors').value);
+function createGraphs() {
+  document.querySelector('.loading-icon-wrapper').style.display = 'flex';
+  document.querySelector('.graph-outer-wrapper').innerHTML = '';
+  document.querySelector('.graph-outer-wrapper').style.display = 'none';
+  document.querySelector('.no-graph-wrapper').style.display = 'none';
+  document.querySelector('.no-graph-found-wrapper').style.display = 'none';
 
   loadGraphs(err => {
     document.querySelector('.loading-icon-wrapper').style.display = 'none';
 
     if (err || !graphs.length) {
-      document.querySelector('.no-graph-wrapper').style.display = 'flex';
-      return;
+      if ('latest_week_count' in filters) {
+        document.querySelector('.no-graph-found-wrapper').style.display = 'flex';
+        return;
+      } else {
+        document.querySelector('.no-graph-wrapper').style.display = 'flex';
+        return;
+      }
     }
 
-    graphs.forEach(graph => createGraph(graph));
+    document.querySelector('.graph-outer-wrapper').innerHTML = '';
+
+    graphs.forEach(graph => {
+      if (selectedGraphType == 'all' || graph.question_type == selectedGraphType)
+        createGraph(graph);
+    });
+
     document.querySelector('.graph-outer-wrapper').style.display = 'initial';
   });
+}
+
+window.addEventListener('load', () => {
+  pieChartColors = JSON.parse(document.getElementById('pie-chart-colors').value);
+
+  createGraphs();
 
   const dashboardContentWrapper = document.querySelector('.dashboard-content-wrapper');
   const questionsContentWrapper = document.querySelector('.questions-content-wrapper');
@@ -282,12 +304,12 @@ window.addEventListener('load', () => {
       target.classList.add('selected-navigation-button');
 
       if (!id.includes('-questions')) {
-        const type = id;
+        selectedGraphType = id;
 
         document.querySelector('.graph-outer-wrapper').innerHTML = '';
 
         for (let i = 0; i < graphs.length; i++)
-          if (type == 'all' || graphs[i].question_type == type)
+          if (selectedGraphType == 'all' || graphs[i].question_type == selectedGraphType)
             createGraph(graphs[i]);
       } else {
         const type = id.split('-questions')[0];
@@ -316,10 +338,27 @@ window.addEventListener('load', () => {
       }
     }
 
-    if (event.target.classList.contains('each-time-filter-button') && event.target.id != 'custom-time-filter-button') {
+    if (event.target.classList.contains('each-time-filter-button') && !event.target.classList.contains('each-time-filter-button-selected') && event.target.id != 'custom-time-filter-button') {
       let weekFilter;
 
-      // if (event.target.id == )
+      document.querySelector('.each-time-filter-button-selected').classList.remove('each-time-filter-button-selected');
+      event.target.classList.add('each-time-filter-button-selected');
+
+      if (event.target.id == 'all-time-filter-button') weekFilter = null;
+      else if (event.target.id == 'this-week-filter-button') weekFilter = 0;
+      else if (event.target.id == 'last-week-filter-button') weekFilter = -1;
+      else if (event.target.id == 'two-weeks-filter-button') weekFilter = -2;
+      else if (event.target.id == 'four-weeks-filter-button') weekFilter = -4;
+      else if (event.target.id == 'three-months-time-filter-button') weekFilter = -12;
+      else if (event.target.id == 'six-months-time-filter-button') weekFilter = -24;
+      else if (event.target.id == 'twelve-months-time-filter-button') weekFilter = -52;
+
+      if (isNaN(weekFilter) && 'latest_week_count' in filters)
+        delete filters.latest_week_count;
+      else
+        filters.latest_week_count = weekFilter;
+
+      createGraphs();
     }
   });
 

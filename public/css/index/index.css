@@ -163,7 +163,7 @@
 .each-navigation-button {
   font-weight: 700;
   font-size: 20px;
-  color: rgba(98, 98, 103, 0.8);
+  color: rgba(98, 98, 103, 0.7);
   font-size: 14px;
   line-height: 27px;
   margin-bottom: 20px;
@@ -319,17 +319,20 @@
   color: rgb(254, 211, 85);
 }
 
-.loading-icon-wrapper {
+.loading-icon-wrapper, .no-graph-found-wrapper {
   width: 100%;
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.loading-icon-wrapper span {
+.loading-icon-wrapper span, .no-graph-found-wrapper span {
   color: rgba(98, 98, 103, 0.7);
   font-size: 18px;
   cursor: wait;
+}
+.no-graph-found-wrapper span {
+  cursor: auto !important;
 }
 
 .graphs-time-filters-wrapper {
@@ -361,7 +364,7 @@
 .each-time-filter-button-selected {
   color: rgb(42, 42, 47) !important;
   background-color: rgb(246, 246, 246) !important;
-  font-weight: 700 !important;
+  cursor: default !important;
 }
 .each-time-filter-button-long {
   width: 90px !important;
@@ -381,7 +384,7 @@
   background-color: rgba(0, 0, 0, 0.7);
   color: rgb(254, 254, 254);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   padding: 0px 10px;
   display: flex;
   align-items: center;
@@ -411,7 +414,7 @@
   font-weight: 600;
   font-size: 14px;
   color: rgb(1, 1, 1);
-  margin-bottom: 5px;
+  margin-bottom: 2px;
 }
 .each-graph-subtitle {
   font-weight: 500;
