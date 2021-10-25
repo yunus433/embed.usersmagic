@@ -4,7 +4,9 @@ module.exports = (req, res, next) => {
   if (req.session && req.session.company_id)
     return next();
 
-  Company.findCompanyByDomain(req.hostname, (err, company) => {
+ const hostname = req.get('origin').split('://')[1];
+
+  Company.findCompanyByDomain(hostname, (err, company) => {
     if (err) {
       res.write(JSON.stringify({ error: 'not_authenticated_request', success: false }));
       return res.end();
