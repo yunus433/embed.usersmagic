@@ -157,8 +157,12 @@ AdSchema.statics.createAd = function (data, callback) {
         
             newAd.save((err, ad) => {
               if (err) return callback('database_error');
-        
-              return callback(null, ad._id.toString());
+
+              Image.findImageByUrlAndSetAsUsed(ad.image_url, err => {
+                if (err) return callback(err);
+
+                return callback(null, ad._id.toString());
+              });        
             });
           }
         );
