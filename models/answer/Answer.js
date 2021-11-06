@@ -11,6 +11,10 @@ const MAX_DATABASE_ARRAY_FIELD_LENGTH = 1e3;
 const Schema = mongoose.Schema;
 
 const AnswerSchema = new Schema({
+  template_id: {
+    type: mongoose.Types.ObjectId,
+    required: true
+  },
   question_id: {
     type: mongoose.Types.ObjectId,
     required: true
@@ -65,6 +69,9 @@ AnswerSchema.statics.findOneAnswer = function (data, callback) {
     const filters = {
       week_answer_will_be_outdated_in_unix_time: { $gte: curr_week }
     };
+
+    if (data.template_id && validator.isMongoId(data.template_id.toString()))
+      filters.template_id = mongoose.Types.ObjectId(data.template_id.toString());
   
     if (data.question_id && validator.isMongoId(data.question_id.toString()))
       filters.question_id = mongoose.Types.ObjectId(data.question_id.toString());
@@ -74,6 +81,9 @@ AnswerSchema.statics.findOneAnswer = function (data, callback) {
 
     if (data.answer_given_to_question && typeof data.answer_given_to_question == 'string' && data.answer_given_to_question.trim().length)
       filters.answer_given_to_question = data.answer_given_to_question.trim();
+
+    if (data.answer_given_to_question && Array.isArray(data.answer_given_to_question) && data.answer_given_to_question.length)
+      filters.answer_given_to_question = { $in: data.answer_given_to_question};
 
     if (data.week_answer_is_given_in_unix_time && Number.isInteger(week_answer_is_given_in_unix_time))
       filters.week_answer_is_given_in_unix_time = week_answer_is_given_in_unix_time;
@@ -89,6 +99,51 @@ AnswerSchema.statics.findOneAnswer = function (data, callback) {
         return callback(null, answer);
       })
       .catch(err => {console.log(err); callback('database_error')});
+  });
+};
+
+AnswerSchema.statics.findAnswers = function (data, callback) {
+  const Answer = this;
+
+  if (!data || typeof data != 'object')
+    return callback('bad_request');
+
+  getWeek(0, (err,  curr_week) => {
+    if (err) return callback(err);
+
+    const filters = {
+      week_answer_will_be_outdated_in_unix_time: { $gte: curr_week }
+    };
+
+    if (data.template_id && validator.isMongoId(data.template_id.toString()))
+      filters.template_id = mongoose.Types.ObjectId(data.template_id.toString());
+  
+    if (data.question_id && validator.isMongoId(data.question_id.toString()))
+      filters.question_id = mongoose.Types.ObjectId(data.question_id.toString());
+
+    if (data.person_id && validator.isMongoId(data.person_id.toString()))
+      filters.person_id_list = data.person_id.toString();
+
+    if (data.answer_given_to_question && typeof data.answer_given_to_question == 'string' && data.answer_given_to_question.trim().length)
+      filters.answer_given_to_question = data.answer_given_to_question.trim();
+
+    if (data.answer_given_to_question && Array.isArray(data.answer_given_to_question) && data.answer_given_to_question.length)
+      filters.answer_given_to_question = { $in: data.answer_given_to_question};
+
+    if (data.week_answer_is_given_in_unix_time && Number.isInteger(week_answer_is_given_in_unix_time))
+      filters.week_answer_is_given_in_unix_time = week_answer_is_given_in_unix_time;
+
+    if (data.person_id_list_not_full)
+      filters.person_id_list_length = { $lt: MAX_DATABASE_ARRAY_FIELD_LENGTH };
+
+    Answer
+      .find(filters)
+      .then(answers => {
+        if (!answers || !answers.length) return callback('document_not_found');
+
+        return callback(null, answers);
+      })
+      .catch(err => callback('database_error'));
   });
 };
 

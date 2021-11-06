@@ -8,6 +8,7 @@ module.exports = (company, callback) => {
     country: company.country,
     is_on_waitlist: company.is_on_waitlist,
     waiting_domain: company.waiting_domain ? 'https://' + company.waiting_domain : null,
-    domain: company.domain ? 'https://' + company.domain : null
+    domain: company.domain ? 'https://' + company.domain : null,
+    preferred_language: company.preferred_language
   });
 }

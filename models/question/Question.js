@@ -6,6 +6,8 @@ const Company = require('../company/Company');
 const Product = require('../product/Product');
 const Template = require('../template/Template');
 
+const getQuestion = require('./functions/getQuestion');
+
 const DUPLICATED_UNIQUE_FIELD_ERROR_CODE = 11000;
 
 const Schema = mongoose.Schema;
@@ -51,7 +53,25 @@ QuestionSchema.statics.findQuestionById = function (id, callback) {
     if (err) return callback('database_error');
     if (!question) return callback('document_not_found');
 
-    return callback(null, question);
+    return next(null, question);
+  });
+};
+
+QuestionSchema.statics.findQuestionByIdAndFormat = function (id, callback) {
+  const Question = this;
+
+  if (!id || !validator.isMongoId(id.toString()))
+    return callback('bad_request');
+
+  Question.findById(mongoose.Types.ObjectId(id.toString()), (err, question) => {
+    if (err) return callback('database_error');
+    if (!question) return callback('document_not_found');
+
+    getQuestion(question, (err, question) => {
+      if (err) return next(err);
+
+      return next(null, question);
+    });
   });
 };
 
@@ -113,6 +133,36 @@ QuestionSchema.statics.createQuestion = function (data, callback) {
           }
         })
         .catch(err => callback('database_error'));
+    });
+  });
+};
+
+QuestionSchema.statics.createQuestionsForDefaultTemplates = function (company_id, callback) {
+  const Question = this;
+
+  Company.findCompanyById(company_id, (err, company) => {
+    if (err) return callback(err);
+
+    Templates.findTemplatesByFiltersAndSorted({
+      language: company.preferred_language,
+      is_default_template: true
+    }, (err, templates) => {
+      if (err) return callback(err);
+
+      async.timesSeries(
+        templates.length,
+        (time, next) => {
+          Question.createQuestion({
+            company_id: company._id,
+            template_id: templates[time]._id
+          }, err => next(err));
+        },
+        err => {
+          if (err) return callback(err);
+
+          return callback(null);
+        }
+      );
     });
   });
 };
@@ -244,88 +294,6 @@ QuestionSchema.statics.findQuestionByIdAndDecreaseOrder = function (id, data, ca
   });
 };
 
-QuestionSchema.statics.createQuestionsForCompany = function (company_id, callback) {
-  const Question = this;
-
-  Company.findCompanyById(company_id, (err, company) => {
-    if (err) return callback(err);
-    if (company.is_on_waitlist) return callback('not_authenticated_request');
-
-    Template.findTemplatesByFiltersAndSorted({
-      type: ['demographics', 'brand']
-    }, (err, templates) => {
-      if (err) return callback(err);
-
-      Template.findTemplatesByFiltersAndSorted({
-        type: 'product'
-      }, (err, product_templates) => {
-        if (err) return callback(err);
-  
-        async.timesSeries(
-          templates.length,
-          (time, next) => {
-            const template = templates[time];
-
-            Question.findOne({
-              signature: template._id.toString() + company._id.toString()
-            }, (err, question) => {
-              if (err) return next('database_error');
-
-              if (question) return next(null);
-
-              Question.createQuestion({
-                template_id: template._id,
-                company_id: company._id
-              }, err => next(err));
-            });
-          },
-          err => {
-            if (err) return callback(err);
-
-            Product.findProductsByCompanyId(company._id, (err, products) => {
-              if (err) return callback(err);
-
-              async.timesSeries(
-                products.length,
-                (time, next) => {
-                  const product = products[time];
-
-                  async.timesSeries(
-                    product_templates.length,
-                    (time, next) => {
-                      const template = product_templates[time];
-
-                      Question.findOne({
-                        signature: template._id.toString() + company._id.toString() + product._id.toString()
-                      }, (err, question) => {
-                        if (err) return next('database_error');
-          
-                        if (question) return next(null);
-          
-                        Question.createQuestion({
-                          template_id: template._id,
-                          company_id: company._id,
-                          product_id: product._id
-                        }, err => next(err));
-                      });
-                    },
-                    err => next(err)
-                  );
-                },
-                err => {
-                  if (err) return callback(err);
-
-                  return callback(null);
-                }
-              );
-            });
-          }
-        );
-      });
-    });
-  });
-};
-
 QuestionSchema.statics.findQuestionsForCompany = function (company_id, callback) {
   const Question = this;
 
@@ -352,7 +320,20 @@ QuestionSchema.statics.findQuestionsForCompany = function (company_id, callback)
             if (err) return next(err);
 
             if (template.type == 'demographics' || template.type == 'brand') {
-              data[template.type].push(template);
+              data[template.type].push({
+                _id: question._id.toString(),
+                timeout_duration_in_week: template.timeout_duration_in_week,
+                order_number: template.order_number,
+                name: template.name,
+                text: template.text,
+                type: template.type,
+                subtype: template.subtype,
+                choices: template.choices,
+                min_value: template.min_value,
+                max_value: template.max_value,
+                labels: template.labels
+              });
+
               return next(null);
             }
 
@@ -363,6 +344,7 @@ QuestionSchema.statics.findQuestionsForCompany = function (company_id, callback)
                 data[product._id.toString()] = [];
 
               data[product._id.toString()].push({
+                _id: question._id.toString(),
                 timeout_duration_in_week: template.timeout_duration_in_week,
                 order_number: template.order_number,
                 name: template.name.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
@@ -390,21 +372,36 @@ QuestionSchema.statics.findQuestionsForCompany = function (company_id, callback)
     .catch(err => callback('database_error'));
 };
 
-QuestionSchema.statics.findQuestionsAndProductByProductIdAndDelete = function (company_id, product_id, callback) {
+QuestionSchema.statics.findQuestionsForCompanyAndDelete = function (company_id, callback) {
   const Question = this;
 
   Company.findCompanyById(company_id, (err, company) => {
     if (err) return callback(err);
 
-    Product.findProductById(product_id, (err, product) => {
-      if (err) return callback(err);
-      if (product.company_id != company._id) return callback('not_authenticated_request');
-    })
-  })
+    Questions.find({
+      company_id: mongoose.Types.ObjectId(company._id)
+    }, (err, questions) => {
+      if (err) return callback('database_error');
 
-  Question.findQuestionsByFiltersAndSorted({
-    company_id,
-    product_id
+      async.timesSeries(
+        questions.length,
+        (time, next) => Question.findByIdAndDelete(mongoose.Types.ObjectId(questions[time]._id.toString()), err => next(err)),
+        err => {
+          if (err) return callback('database_error');
+
+          return callback(null);
+        }
+      );
+    });
+  });
+};
+
+QuestionSchema.statics.findQuestionByIdAndCompanyIdAndDelete = function (id, company_id, callback) {
+  const Question = this;
+
+  Question.findQuestionById(id, (err, question) => {
+    if (err) return callback(err);
+    if (question.company_id != company_id);
   })
 };
 

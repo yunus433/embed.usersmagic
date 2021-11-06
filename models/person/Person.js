@@ -4,6 +4,7 @@ const validator = require('validator');
 
 const getWeek = require('../../middleware/getWeek');
 
+const Ad = require('../ad/Ad');
 const Answer = require('../answer/Answer');
 const Company = require('../company/Company');
 const Product = require('../product/Product');
@@ -110,10 +111,15 @@ PersonSchema.statics.createAnswerGroup = function (data, callback) {
       if ((template.subtype == 'scale' || template.subtype == 'number') && (isNaN(parseInt(data.answer_given_to_question)) || template.min_value > parseInt(data.answer_given_to_question) || template.max_value < parseInt(data.answer_given_to_question)))
         return callback('bad_request');
 
+      let timeout_duration_in_week = template.timeout_duration_in_week;
+
+      if (template.subtype == 'time' && template.timeout_duration_in_week_by_choices && template.timeout_duration_in_week_by_choices[data.answer_given_to_question])
+        timeout_duration_in_week = template.timeout_duration_in_week_by_choices[data.answer_given_to_question];
+
       getWeek(0, (err, curr_week) => {
         if (err) return callback(err);
     
-        getWeek(template.timeout_duration_in_week, (err, exp_week) => {
+        getWeek(timeout_duration_in_week, (err, exp_week) => {
           if (err) return callback(err);
       
           const newAnswerData = {
@@ -133,78 +139,149 @@ PersonSchema.statics.createAnswerGroup = function (data, callback) {
 PersonSchema.statics.pushPersonToAnswerGroup = function (data, callback) {
   const Person = this;
 
-  if (!data.answer_given_to_question || typeof data.answer_given_to_question != 'string' || !data.answer_given_to_question.trim().length || data.answer_given_to_question.trim().length > MAX_DATABASE_TEXT_FIELD_LENGTH)
-    return callback('bad_request');
-
-  if (!data.company_id)
-    return callback('bad_request');
-
-  data.answer_given_to_question = data.answer_given_to_question.trim();
-
-  Person.findPersonById(data.person_id, (err, person) => {
-    if (err) return callback(err);
+  if (Array.isArray(data.answer_given_to_question)) {
+    if (!data.answer_given_to_question.length)
+      return callback('bad_request');
 
     Question.findQuestionById(data.question_id, (err, question) => {
       if (err) return callback(err);
-      if (question.company_id.toString() != data.company_id.toString())
-        return callback('not_authenticated_request');
+      if (question.subtype != 'multiple') return callback('bad_request');
 
-      Answer.checkAnswerExists({
-        question_id: question._id,
-        answer_given_to_question: data.answer_given_to_question,
-        person_id: data.person_id
-      }, res => {
-        if (res) return callback(null);
-
-        getWeek(0, (err, curr_week) => {
+      asnyc.timesSeries(
+        data.answer_given_to_question.length,
+        (time, next) => {
+          const newData = {};
+          newData = JSON.parse(JSON.stringify(data));
+          newData.answer_given_to_question = data.answer_given_to_question[time];
+          
+          return Person.pushPersonToAnswerGroup(newData, err => next(err));
+        },
+        err => {
           if (err) return callback(err);
+  
+          return callback(null);
+        }
+      );
+    });
+  } else {
+    if (!data.answer_given_to_question || typeof data.answer_given_to_question != 'string' || !data.answer_given_to_question.trim().length || data.answer_given_to_question.trim().length > MAX_DATABASE_TEXT_FIELD_LENGTH)
+      return callback('bad_request');
 
-          Answer.checkAnswerExists({
-            question_id: question._id,
-            answer_given_to_question: data.answer_given_to_question,
-            week_answer_is_given_in_unix_time: curr_week,
-            person_id_list_not_full: true
-          }, res => {
-            if (res) {
-              Answer.findOneAnswer({
-                question_id: question._id,
-                answer_given_to_question: data.answer_given_to_question,
-                week_answer_is_given_in_unix_time: curr_week,
-                person_id_list_not_full: true
-              }, (err, answer) => {
-                if (err) return callback(err);
+    if (!data.company_id)
+      return callback('bad_request');
 
-                Answer.findAnswerByIdAndPushPerson(answer._id, {
-                  person_id: data.person_id
-                }, err => {
+    data.answer_given_to_question = data.answer_given_to_question.trim();
+
+    Person.findPersonById(data.person_id, (err, person) => {
+      if (err) return callback(err);
+
+      Question.findQuestionById(data.question_id, (err, question) => {
+        if (err) return callback(err);
+        if (question.company_id.toString() != data.company_id.toString())
+          return callback('not_authenticated_request');
+
+        Answer.checkAnswerExists({
+          question_id: question._id,
+          answer_given_to_question: data.answer_given_to_question,
+          person_id: data.person_id
+        }, res => {
+          if (res) return callback(null);
+
+          getWeek(0, (err, curr_week) => {
+            if (err) return callback(err);
+
+            Answer.checkAnswerExists({
+              question_id: question._id,
+              answer_given_to_question: data.answer_given_to_question,
+              week_answer_is_given_in_unix_time: curr_week,
+              person_id_list_not_full: true
+            }, res => {
+              if (res) {
+                Answer.findOneAnswer({
+                  question_id: question._id,
+                  answer_given_to_question: data.answer_given_to_question,
+                  week_answer_is_given_in_unix_time: curr_week,
+                  person_id_list_not_full: true
+                }, (err, answer) => {
                   if (err) return callback(err);
 
-                  return callback(null);
-                });
-              });
-            } else {
-              Person.createAnswerGroup({
-                question_id: question._id,
-                company_id: data.company_id,
-                answer_given_to_question: data.answer_given_to_question
-              }, (err, id) => {
-                if (err) return callback(err);
+                  Answer.findAnswerByIdAndPushPerson(answer._id, {
+                    person_id: data.person_id
+                  }, err => {
+                    if (err) return callback(err);
 
-                Answer.findAnswerByIdAndPushPerson(id, {
-                  person_id: data.person_id
-                }, err => {
+                    return callback(null);
+                  });
+                });
+              } else {
+                Person.createAnswerGroup({
+                  question_id: question._id,
+                  company_id: data.company_id,
+                  answer_given_to_question: data.answer_given_to_question
+                }, (err, id) => {
                   if (err) return callback(err);
 
-                  return callback(null);
+                  Answer.findAnswerByIdAndPushPerson(id, {
+                    person_id: data.person_id
+                  }, err => {
+                    if (err) return callback(err);
+
+                    return callback(null);
+                  });
                 });
-              });
-            };
+              };
+            });
           });
         });
       });
     });
-  });
+  }
 };
+
+PersonSchema.statics.updatePersonAnswerGroupUsingCommonDatabase = function (data, callback) {
+  const Person = this;
+
+  Company.findCompanyById(data.company_id, (err, company) => {
+    if (err) return callback(err);
+
+    Person.findPersonById(data.person_id, (err, person) => {
+      if (err) return callback(err);
+
+      Question.findQuestionById(data.question_id, (err, question) => {
+        if (err) return callback(err);
+
+        if (question.company_id.toString() != company._id.toString())
+          return callback('not_authenticated_request');
+
+        Answer.findAnswers({
+          template_id: question.template_id,
+          person_id: person._id
+        }, (err, answers) => {
+          if (err) return callback(err);
+
+          async.timesSeries(
+            answers.length,
+            (time, next) => {
+              const answer = answers[time];
+
+              Person.pushPersonToAnswerGroup({
+                answer_given_to_question: answer.answer_given_to_question,
+                person_id: person._id,
+                question_id: question._id,
+                company_id: company._id
+              }, err => next(err));
+            },
+            err => {
+              if (err) return callback(err);
+
+              return callback(null);
+            }
+          );
+        });
+      });
+    });
+  });
+}
 
 PersonSchema.statics.getNextQuestionForPerson = function (data, callback) {
   const Person = this;
@@ -231,14 +308,28 @@ PersonSchema.statics.getNextQuestionForPerson = function (data, callback) {
         async.timesSeries(
           questions.length,
           (time, next) => {
+            const question = questions[time];
+
             Answer.findOneAnswer({
-              question_id: questions[time]._id,
+              template_id: question.template_id,
               person_id: person._id
             }, err => {
               if (err && err != 'document_not_found') return next(err);
-              if (!err) return next(null);
-              found_question = questions[time];
-              return next('process_complete');
+
+              if (!err) {
+                Person.updatePersonAnswerGroupUsingCommonDatabase({
+                  company_id: company._id,
+                  question_id: question._id,
+                  person_id: person._id
+                }, err => {
+                  if (err) return next(err);
+
+                  return next(null);
+                })
+              } else {
+                found_question = question;
+                return next('process_complete');
+              }
             });
           },
           err => {
@@ -287,6 +378,41 @@ PersonSchema.statics.getNextQuestionForPerson = function (data, callback) {
           }
         );
       });
+    });
+  });
+};
+
+PersonSchema.statics.getNextAdForPerson = function (data, callback) {
+  const Person = this;
+
+  Person.findPersonById(data.person_id, (err, person) => {
+    if (err) return callback(err);
+
+    Ad.findAdsByCompanyId(data.company_id, (err, ads) => {
+      if (err) return callback(err);
+      let found_ad = null;
+
+      async.timesSeries(
+        ads.length,
+        (time, next) => {
+          Ad.findAdByIdAndCheckIfPersonCanSee({
+            ad_id: ads[time]._id,
+            company_id: data.company_id,
+            person_id: person._id
+          }, (err, res) => {
+            if (err) return next(err);
+            if (!res) return next(null);
+
+            found_ad = ads[time];
+            return next('process_complete');
+          });
+        },
+        err => {
+          if (err && err != 'process_complete') return callback(err);
+
+          return callback(null, found_ad);
+        }
+      );
     });
   });
 };

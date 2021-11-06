@@ -5,9 +5,12 @@ const validator = require('validator');
 const getCompany = require('./functions/getCompany');
 const validateDomain = require('./functions/validateDomain');
 
+const preferred_language_values = ['en', 'tr'];
+
 const DOMAIN_VERIFICATION_KEY = 'usersmagic-domain-verification';
 const DUPLICATED_UNIQUE_FIELD_ERROR_CODE = 11000;
 const MAX_DATABASE_TEXT_FIELD_LENGTH = 1e4;
+const PREFERRED_LANGUAGE_LENGTH = 2;
 
 const Schema = mongoose.Schema;
 
@@ -36,6 +39,11 @@ const CompanySchema = new Schema({
     type: String,
     maxlength: MAX_DATABASE_TEXT_FIELD_LENGTH,
     default: null
+  },
+  preferred_language: {
+    type: String,
+    default: 'en',
+    length: PREFERRED_LANGUAGE_LENGTH
   }
 });
 
@@ -179,6 +187,41 @@ CompanySchema.statics.findCompanyByIdAndDeleteDomainAndWaitingDomain = function 
     Company.findByIdAndUpdate(company._id, {$set: {
       domain: null,
       waiting_domain: null
+    }}, err => {
+      if (err) return callback('database_error');
+
+      return callback(null);
+    });
+  });
+};
+
+CompanySchema.statics.findCompanyByIdAndUpdate = function (id, data, callback) {
+  const Company = this;
+
+  Company.findCompanyById(id, (err, company) => {
+    if (err) return callback(err);
+
+    Company.findByIdAndUpdate(company._id, {$set: {
+      name: data.name && typeof data.name == 'string' && data.name.length && data.name.length < MAX_DATABASE_TEXT_FIELD_LENGTH ? data.name : company.name,
+    }}, err => {
+      if (err) return callback('database_error');
+
+      return callback(null);
+    });
+  });
+};
+
+CompanySchema.statics.findCompanyByIdAndUpdatePreferredLanguage = function (id, data, callback) {
+  const Company = this;
+
+  if (!data || !data.preferred_language || !preferred_language_values.includes(data.preferred_language))
+    return callback('bad_request');
+
+  Company.findCompanyById(id, (err, company) => {
+    if (err) return callback(err);
+
+    Company.findByIdAndUpdate(company._id, {$set: {
+      preferred_language: data.preferred_language
     }}, err => {
       if (err) return callback('database_error');
 
