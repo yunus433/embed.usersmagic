@@ -80,14 +80,18 @@ CompanySchema.statics.findCompanyById = function (id, callback) {
   });
 };
 
-CompanySchema.statics.findCompanyByIdAndRemoveFromWaitlist = function (id, callback) {
+CompanySchema.statics.findCompanyByIdAndRemoveFromWaitlist = function (id, data, callback) {
   const Company = this;
+
+  if (!data || !data.preferred_language || !preferred_language_values.includes(data.preferred_language))
+    return callback('bad_request');
 
   Company.findCompanyById(id, (err, company) => {
     if (err) return callback(err);
 
     Company.findByIdAndUpdate(company._id, {$set: {
-      is_on_waitlist: false
+      is_on_waitlist: false,
+      preferred_language: data.preferred_language
     }}, err => {
       if (err) return callback('bad_request');
 

@@ -143,7 +143,7 @@ QuestionSchema.statics.createQuestionsForDefaultTemplates = function (company_id
   Company.findCompanyById(company_id, (err, company) => {
     if (err) return callback(err);
 
-    Templates.findTemplatesByFiltersAndSorted({
+    Template.findTemplatesByFiltersAndSorted({
       language: company.preferred_language,
       is_default_template: true
     }, (err, templates) => {

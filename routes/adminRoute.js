@@ -3,20 +3,18 @@ const router = express.Router();
 
 const isAdmin = require('../middleware/isAdmin');
 
-const waitlistRemoveGetController = require('../controllers/admin/waitlist/remove/get');
-
+const waitlistRemovePostController = require('../controllers/admin/waitlist/remove/post');
 const templatesCreatePostController = require('../controllers/admin/templates/create/post');
-
-router.get(
-  '/waitlist/remove',
-    isAdmin,
-    waitlistRemoveGetController
-);
 
 router.post(
   '/templates/create',
     isAdmin,
     templatesCreatePostController
+);
+router.post(
+  '/waitlist/remove',
+    isAdmin,
+    waitlistRemovePostController
 );
 
 module.exports = router;
