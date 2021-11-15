@@ -3,16 +3,22 @@ const router = express.Router();
 
 const isConfirmedDomain = require('../middleware/isConfirmedDomain');
 
-const connectionGetController = require('../controllers/embed/connection/get');
+const adGetController = require('../controllers/embed/ad/get');
+const languageGetController = require('../controllers/embed/language/get');
 const personGetController = require('../controllers/embed/person/get');
 const questionGetController = require('../controllers/embed/question/get');
 
 const answerPostController = require('../controllers/embed/answer/post');
 
 router.get(
-  '/question',
+  '/ad',
     isConfirmedDomain,
-    questionGetController
+    adGetController
+);
+router.get(
+  '/language',
+    isConfirmedDomain,
+    languageGetController
 );
 router.get(
   '/person',
@@ -20,9 +26,9 @@ router.get(
     personGetController
 );
 router.get(
-  '/connection',
+  '/question',
     isConfirmedDomain,
-    connectionGetController
+    questionGetController
 );
 
 router.post(

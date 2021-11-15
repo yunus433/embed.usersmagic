@@ -9,6 +9,7 @@ const Template = require('../template/Template');
 const getQuestion = require('./functions/getQuestion');
 
 const DUPLICATED_UNIQUE_FIELD_ERROR_CODE = 11000;
+const MAX_QUESTION_NUMBER_PER_COMPANY = 20;
 
 const Schema = mongoose.Schema;
 
@@ -53,7 +54,7 @@ QuestionSchema.statics.findQuestionById = function (id, callback) {
     if (err) return callback('database_error');
     if (!question) return callback('document_not_found');
 
-    return next(null, question);
+    return callback(null, question);
   });
 };
 
@@ -68,9 +69,9 @@ QuestionSchema.statics.findQuestionByIdAndFormat = function (id, callback) {
     if (!question) return callback('document_not_found');
 
     getQuestion(question, (err, question) => {
-      if (err) return next(err);
+      if (err) return callback(err);
 
-      return next(null, question);
+      return callback(null, question);
     });
   });
 };
@@ -91,6 +92,9 @@ QuestionSchema.statics.createQuestion = function (data, callback) {
         })
         .countDocuments()
         .then(order_number => {
+          if (order_number >= MAX_QUESTION_NUMBER_PER_COMPANY)
+            return callback('too_many_documents');
+
           if (template.type == 'product') {
             Product.findProductById(data.product_id, (err, product) => {
               if (err) return callback(err);
@@ -300,11 +304,6 @@ QuestionSchema.statics.findQuestionsForCompany = function (company_id, callback)
   if (!company_id || !validator.isMongoId(company_id.toString()))
     return callback('bad_request');
 
-  const data = {
-    demographics: [],
-    brand: []
-  };
-
   Question
     .find({
       company_id: mongoose.Types.ObjectId(company_id.toString())
@@ -319,9 +318,10 @@ QuestionSchema.statics.findQuestionsForCompany = function (company_id, callback)
           Template.findTemplateById(question.template_id, (err, template) => {
             if (err) return next(err);
 
-            if (template.type == 'demographics' || template.type == 'brand') {
-              data[template.type].push({
+            if (template.type == 'demographics' || template.type == 'brand')
+              return next(null, {
                 _id: question._id.toString(),
+                template_id: question.template_id,
                 timeout_duration_in_week: template.timeout_duration_in_week,
                 order_number: template.order_number,
                 name: template.name,
@@ -334,17 +334,15 @@ QuestionSchema.statics.findQuestionsForCompany = function (company_id, callback)
                 labels: template.labels
               });
 
-              return next(null);
-            }
-
             Product.findProductById(question.product_id, (err, product) => {
               if (err) return next(err);
 
               if (!data[product._id.toString()])
                 data[product._id.toString()] = [];
 
-              data[product._id.toString()].push({
+              return next(null, {
                 _id: question._id.toString(),
+                template_id: question.template_id,
                 timeout_duration_in_week: template.timeout_duration_in_week,
                 order_number: template.order_number,
                 name: template.name.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
@@ -357,15 +355,13 @@ QuestionSchema.statics.findQuestionsForCompany = function (company_id, callback)
                 max_value: template.max_value,
                 labels: template.labels
               });
-
-              return next(null);
             });
           });
         },
-        err => {
+        (err, questions) => {
           if (err) return callback(err);
 
-          return callback(null, data);
+          return callback(null, questions);
         }
       );
     })
@@ -401,8 +397,38 @@ QuestionSchema.statics.findQuestionByIdAndCompanyIdAndDelete = function (id, com
 
   Question.findQuestionById(id, (err, question) => {
     if (err) return callback(err);
-    if (question.company_id != company_id);
-  })
+    if (question.company_id.toString() != company_id.toString())
+      return callback('not_authenticated_request');
+
+    Question.findByIdAndDelete(question._id, err => {
+      if (err) return callback('database_error');
+
+      return callback(null)
+    });
+  });
+};
+
+QuestionSchema.statics.findUnusedTemplatesForCompany = function (company_id, callback) {
+  const Question = this;
+
+  Company.findCompanyById(company_id, (err, company) => {
+    if (err) return callback(err);
+
+    Question.findQuestionsForCompany(company._id, (err, questions) => {
+      if (err) return callback(err);
+      
+      const template_id_list = questions.map(each => each.template_id.toString());
+
+      Template.findTemplatesByFiltersAndSorted({
+        language: company.preferred_language,
+        nin_id_list: template_id_list
+      }, (err, templates) => {
+        if (err) return callback(err);
+
+        return callback(null, templates);
+      });
+    });
+  });
 };
 
 module.exports = mongoose.model('Question', QuestionSchema);

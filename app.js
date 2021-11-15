@@ -42,11 +42,15 @@ if (cluster.isMaster) {
     const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/usersmagic';
   
     const adminRouteController = require('./routes/adminRoute');
+    const adsRouteController = require('./routes/adsRoute');
     const authRouteController = require('./routes/authRoute');
     const domainRouteController = require('./routes/domainRoute');
     const embedRouteController = require('./routes/embedRoute');
+    const graphsRouteController = require('./routes/graphsRoute');
+    const imageRouteController = require('./routes/imageRoute');
     const indexRouteController = require('./routes/indexRoute');
-    const productRouteController = require('./routes/productRoute');
+    const questionsRouteController = require('./routes/questionsRoute');
+    const targetGroupsRouteController = require('./routes/targetGroupsRoute');
   
     app.set('views', path.join(__dirname, 'views'));
     app.set('view engine', 'pug');
@@ -87,10 +91,14 @@ if (cluster.isMaster) {
   
     app.use('/', indexRouteController);
     app.use('/admin', adminRouteController);
+    app.use('/ads', adsRouteController);
     app.use('/auth', authRouteController);
     app.use('/domain', domainRouteController);
     app.use('/embed', embedRouteController);
-    // app.use('/product', productRouteController); Tompararily close product route
+    app.use('/graphs', graphsRouteController);
+    app.use('/image', imageRouteController);
+    app.use('/questions', questionsRouteController);
+    app.use('/target_groups', targetGroupsRouteController);
   
     server.listen(PORT, () => {
       console.log(`Server is on port ${PORT} as Worker ${cluster.worker.id} running @ process ${cluster.worker.process.pid}`);

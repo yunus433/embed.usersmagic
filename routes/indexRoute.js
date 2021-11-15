@@ -8,8 +8,6 @@ const isLoggedIn = require('../middleware/isLoggedIn');
 const indexGetController = require('../controllers/index/index/get');
 const waitlistGetController = require('../controllers/index/waitlist/get');
 
-const graphsPostController = require('../controllers/index/graphs/post');
-
 router.get(
   '/',
     isLoggedIn,
@@ -22,14 +20,6 @@ router.get(
     isLoggedIn,
     isConfirmed,
     waitlistGetController
-);
-
-router.post(
-  '/graphs',
-    isLoggedIn,
-    isConfirmed,
-    hasLeftWaitlist,
-    graphsPostController
 );
 
 module.exports = router;

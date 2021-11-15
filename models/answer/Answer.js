@@ -228,7 +228,7 @@ AnswerSchema.statics.checkAnswerExists = function (data, callback) {
     const filters = {
       week_answer_will_be_outdated_in_unix_time: { $gte: curr_week }
     };
-  
+
     if (data.question_id && validator.isMongoId(data.question_id.toString()))
       filters.question_id = mongoose.Types.ObjectId(data.question_id.toString());
   

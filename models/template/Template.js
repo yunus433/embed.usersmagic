@@ -215,6 +215,9 @@ TemplateSchema.statics.findTemplatesByFiltersAndSorted = function (data, callbac
   if (data.is_default_template)
     filters.is_default_template = true;
 
+  if (data.nin_id_list && Array.isArray(data.nin_id_list) && data.nin_id_list.length && !data.nin_id_list.find(each => !validator.isMongoId(each.toString())))
+    filters._id = { $nin: data.nin_id_list.map(each => mongoose.Types.ObjectId(each.toString())) };
+
   Template
     .find(filters)
     .sort({ order_number: 1 })

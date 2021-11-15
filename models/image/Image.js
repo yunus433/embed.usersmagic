@@ -35,12 +35,12 @@ ImageSchema.statics.createImage = function (data, callback) {
   if (!data.file_name)
     return callback('bad_request');
 
-  uploadImage(file_name, (err, url) => {
-    if (err) return callback(err);
+  uploadImage(data.file_name, (err, url) => {
+    if (err) return callback('aws_database_error');
 
     const newImageData = {
       url,
-      exp_date: (new Date.getTime()) + ONE_DAY_IN_MS
+      exp_date: (new Date).getTime() + ONE_DAY_IN_MS
     };
 
     const newImage = new Image(newImageData);
@@ -77,7 +77,7 @@ ImageSchema.statics.findImageByUrlAndDelete = function (url, callback) {
     if (err) return callback(err);
 
     deleteImage(image.url, err => {
-      if (err) return callback(err);
+      if (err) return callback('aws_database_error');
   
       Image.findByIdAndDelete(mongoose.Types.ObjectId(image._id.toString())  , err => {
         if (err) return callback('database_error');

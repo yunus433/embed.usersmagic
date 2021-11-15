@@ -2,16 +2,14 @@ const async = require('async');
 const mongoose = require('mongoose');
 const validator = require('validator');
 
-const Answer = require('../answer/Answer');
 const Company = require('../company/Company');
 const Image = require('../image/Image');
 const Person = require('../person/Person');
-const Question = require('../question/Question');
+const TargetGroup = require('../target_group/TargetGroup');
 
 const MAX_DATABASE_TEXT_FIELD_LENGTH = 1e4;
 const MAX_DATABASE_SHORT_TEXT_FIELD_LENGTH = 150;
 const MAX_AD_COUNT_PER_COMPANY = 1e2;
-const MAX_FILTER_COUNT_PER_AD = 100;
 
 const Schema = mongoose.Schema;
 
@@ -61,10 +59,9 @@ const AdSchema = new Schema({
     maxlenght: MAX_DATABASE_TEXT_FIELD_LENGTH,
     required: true
   },
-  filters: {
-    type: Array,
-    default: [],
-    maxlength: MAX_FILTER_COUNT_PER_AD
+  target_group_id: {
+    type: mongoose.Types.ObjectId,
+    required: true
   }
 });
 
@@ -78,7 +75,7 @@ AdSchema.statics.findAdById = function (id, callback) {
     if (err) return callback('database_error');
     if (!ad) return callback('document_not_found');
 
-    return next(null, ad);
+    return callback(null, ad);
   });
 };
 
@@ -103,9 +100,6 @@ AdSchema.statics.createAd = function (data, callback) {
   if (!data.button_url || typeof data.button_url != 'string' || !data.button_url.length || data.button_url.length > MAX_DATABASE_TEXT_FIELD_LENGTH)
     return callback('bad_request');
 
-  if (!data.filters || !Array.isArray(data.filters) || data.filters.length > MAX_FILTER_COUNT_PER_AD)
-    return callback('bad_request');
-
   Company.findCompanyById(data.company_id, (err, company) => {
     if (err) return callback(err);
 
@@ -117,55 +111,33 @@ AdSchema.statics.createAd = function (data, callback) {
         if (count >= MAX_AD_COUNT_PER_COMPANY)
           return callback('too_many_documents');
 
-        async.timesSeries(
-          data.filters.length,
-          (time, next) => {
-            const filter = filters[time];
-            const newFilter = {};
+        TargetGroup.createTargetGroup(data, (err, id) => {
+          if (err) return callback(err);
 
-            if (!filter.question_id || !filter.allowed_answers || !Array.isArray(filter.allowed_answers))
-              return next('bad_request');
-
-            Question.findQuestionByIdAndFormat(filter.question_id, (err, question) => {
-              if (err) return next(err);
-
-              newFilter.question_id = question._id.toString();
-              newFilter.allowed_answers = filter.allowed_answers.map(each => each.trim()).filter(each => question.choices.includes(each));
-
-              if (!newFilter.allowed_answers.length)
-                return next('bad_request');
-
-              return next(null, newFilter);
-            });
-          },
-          (err, filters) =>{
-            if (err) return callback(err);
-
-            const newAdData = {
-              company_id: company._id,
-              order_number: count,
-              name: data.name.trim(),
-              title: data.title.trim(),
-              text: data.text.trim(),
-              button_text: data.button_text.trim(),
-              button_url: data.button_url.trim(),
-              image_url: image.url,
-              filters
-            };
-        
-            const newAd = new Ad(newAdData);
-        
-            newAd.save((err, ad) => {
-              if (err) return callback('database_error');
-
-              Image.findImageByUrlAndSetAsUsed(ad.image_url, err => {
-                if (err) return callback(err);
-
-                return callback(null, ad._id.toString());
-              });        
-            });
-          }
-        );
+          const newAdData = {
+            company_id: company._id,
+            order_number: count,
+            name: data.name.trim(),
+            title: data.title.trim(),
+            text: data.text.trim(),
+            button_text: data.button_text.trim(),
+            button_url: data.button_url.trim(),
+            image_url: image.url,
+            target_group_id: mongoose.Types.ObjectId(id.toString())
+          };
+      
+          const newAd = new Ad(newAdData);
+      
+          newAd.save((err, ad) => {
+            if (err) return callback('database_error');
+  
+            Image.findImageByUrlAndSetAsUsed(ad.image_url, err => {
+              if (err) return callback(err);
+  
+              return callback(null, ad._id.toString());
+            });        
+          });
+        });
       });
     }); 
   });
@@ -217,29 +189,54 @@ AdSchema.statics.findAdByIdAndCheckIfPersonCanSee = function (data, callback) {
       Person.findPersonById(data.person_id, (err, person) => {
         if (err) return callback(err);
 
-        async.timesSeries(
-          ad.filters.length,
-          (time, next) => {
-            const filter = filters[time];
+        TargetGroup.findTargetGroupByIdAndCheckIfPersonCanSee({
+          company_id: company._id,
+          target_group_id: ad.target_group_id,
+          person_id: person._id
+        }, (err, res) => {
+          if (err) return callback(err);
+
+          return callback(null, res);
+        });
+      });
+    });
+  });
+};
+
+AdSchema.statics.findAdByIdAndCompanyIdAndDelete = function (id, company_id, callback) {
+  const Ad = this;
+
+  Ad.findAdById(id, (err, ad) => {
+    if (err) return callback(err);
+    if (ad.company_id.toString() != company_id.toString())
+      return callback('not_authenticated_request');
+
+    Ad.findByIdAndDelete(ad._id, err => {
+      if (err) return callback('database_error');
+
+      return callback(null);
+    });
+  });
+};
+
+AdSchema.statics.findTargetGroupByIdAndCompanyIdAndDelete = function (id, company_id, callback) {
+  const Ad = this;
+
+  TargetGroup.findTargetGroupById(id, (err, target_group) => {
+    if (err) return callback(err);
+    if (target_group.company_id.toString() != company_id.toString())
+      return callback('not_authenticated_request');
+
+    Ad.findOne({
+      target_group_id: target_group._id
+    }, (err, ad) => {
+      if (err) return callback('database_error');
+      if (ad) return callback('document_still_used');
+
+      TargetGroup.deleteTargetGroupById(target_group._id, err => {
+        if (err) return callback(err);
   
-            Answer.findOneAnswer({
-              question_id: filter.question_id,
-              answer_given_to_question: filter.allowed_answers,
-              person_id: person._id
-            }, err => {
-              if (err && err == 'document_not_found') return next('process_complete');
-              if (err) return next(err);
-              
-              return next(null);
-            });
-          },
-          err => {
-            if (err && err == 'process_complete') return callback(null, false);
-            if (err) return callback(err);
-  
-            return callback(null, true);
-          }
-        );
+        return callback(null);
       });
     });
   });

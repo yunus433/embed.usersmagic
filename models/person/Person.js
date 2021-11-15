@@ -123,6 +123,7 @@ PersonSchema.statics.createAnswerGroup = function (data, callback) {
           if (err) return callback(err);
       
           const newAnswerData = {
+            template_id: template._id,
             question_id: question._id,
             answer_given_to_question: data.answer_given_to_question,
             week_answer_is_given_in_unix_time: curr_week,
@@ -145,23 +146,27 @@ PersonSchema.statics.pushPersonToAnswerGroup = function (data, callback) {
 
     Question.findQuestionById(data.question_id, (err, question) => {
       if (err) return callback(err);
-      if (question.subtype != 'multiple') return callback('bad_request');
 
-      asnyc.timesSeries(
-        data.answer_given_to_question.length,
-        (time, next) => {
-          const newData = {};
-          newData = JSON.parse(JSON.stringify(data));
-          newData.answer_given_to_question = data.answer_given_to_question[time];
-          
-          return Person.pushPersonToAnswerGroup(newData, err => next(err));
-        },
-        err => {
-          if (err) return callback(err);
-  
-          return callback(null);
-        }
-      );
+      Template.findTemplateById(question.template_id, (err, template) => {
+        if (err) return callback(err);
+        if (template.subtype != 'multiple') return callback('bad_request');
+
+        async.timesSeries(
+          data.answer_given_to_question.length,
+          (time, next) => {
+            let newData = {};
+            newData = JSON.parse(JSON.stringify(data));
+            newData.answer_given_to_question = data.answer_given_to_question[time];
+            
+            return Person.pushPersonToAnswerGroup(newData, err => next(err));
+          },
+          err => {
+            if (err) return callback(err);
+    
+            return callback(null);
+          }
+        );
+      });
     });
   } else {
     if (!data.answer_given_to_question || typeof data.answer_given_to_question != 'string' || !data.answer_given_to_question.trim().length || data.answer_given_to_question.trim().length > MAX_DATABASE_TEXT_FIELD_LENGTH)

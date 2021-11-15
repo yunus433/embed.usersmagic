@@ -188,7 +188,7 @@ function createGraphInfo(percentage, position) {
 }
 
 function loadGraphs(callback) {
-  serverRequest('/graphs', 'POST', filters, res => {
+  serverRequest('/graphs/filters', 'POST', filters, res => {
     if (res.error || !res.success) return callback(res.error || 'unknown_error');
 
     graphs = res.graphs;
@@ -208,13 +208,12 @@ function createGraphs() {
     document.querySelector('.loading-icon-wrapper').style.display = 'none';
 
     if (err || !graphs.length) {
-      if ('latest_week_count' in filters) {
+      if ('latest_week_count' in filters)
         document.querySelector('.no-graph-found-wrapper').style.display = 'flex';
-        return;
-      } else {
+      else
         document.querySelector('.no-graph-wrapper').style.display = 'flex';
-        return;
-      }
+
+      return;
     }
 
     document.querySelector('.graph-outer-wrapper').innerHTML = '';
@@ -228,6 +227,111 @@ function createGraphs() {
   });
 }
 
+function createQuestion(question) {
+  const eachQuestion = document.createElement('div');
+  eachQuestion.classList.add('each-question');
+  eachQuestion.style = 'cursor: move;';
+  eachQuestion.id = question._id;
+
+  const eachQuestionTitle = document.createElement('div');
+  eachQuestionTitle.classList.add('each-question-title');
+
+  const span = document.createElement('span');
+  span.innerHTML = question.text;
+  eachQuestionTitle.appendChild(span);
+
+  const i = document.createElement('i');
+  i.classList.add('delete-question-button');
+  i.classList.add('fas');
+  i.classList.add('fa-trash-alt');
+  eachQuestionTitle.appendChild(i);
+
+  eachQuestion.appendChild(eachQuestionTitle);
+
+  const eachQuestionContent = document.createElement('div');
+  eachQuestionContent.classList.add('each-question-content');
+  eachQuestion.appendChild(eachQuestionContent);
+
+  document.querySelector('.company-questions-wrapper').appendChild(eachQuestion);
+}
+
+function uploadImage (file, callback) {
+  const formdata = new FormData();
+  formdata.append('file', file);
+
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', '/image/upload');
+  xhr.send(formdata);
+
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState == 4 && xhr.responseText) {
+      const res = JSON.parse(xhr.responseText);
+
+      if (!res.success)
+        return callback(res.error || 'unknown_error');
+
+      return callback(null, res.url);
+    }
+  };
+}
+
+function createImagePicker (wrapper) {
+  const settingsImagePicker = document.createElement('label');
+  settingsImagePicker.classList.add('all-choose-image-input-text');
+
+  const span = document.createElement('span');
+  span.innerHTML = 'Click to choose an image from your device';
+  settingsImagePicker.appendChild(span);
+
+  const input = document.createElement('input');
+  input.classList.add('display-none');
+  input.classList.add('image-input');
+  input.accept = 'image/*';
+  input.type = 'file';
+
+  settingsImagePicker.appendChild(input);
+
+  wrapper.innerHTML = '';
+  wrapper.appendChild(settingsImagePicker);
+}
+
+function createUploadedImage (url, wrapper) {
+  const imageInputWrapper = document.createElement('div');
+  imageInputWrapper.classList.add('all-image-input-wrapper');
+
+  const imageWrapper = document.createElement('div');
+  imageWrapper.classList.add('all-image-input-wrapper-image');
+  const image = document.createElement('img');
+  image.src = url;
+  image.alt = 'usersmagic';
+  imageWrapper.appendChild(image);
+  imageInputWrapper.appendChild(imageWrapper);
+
+  const i = document.createElement('i');
+  i.classList.add('fas');
+  i.classList.add('fa-times');
+  i.classList.add('delete-image-button');
+  imageInputWrapper.appendChild(i);
+
+  wrapper.innerHTML = '';
+  wrapper.appendChild(imageInputWrapper);
+}
+
+function throwError (err) {
+  if (err)
+    return createConfirm({
+      title: 'An error occured',
+      text: `An error occured, please reload the page and try again. Error Message: ${err}`,
+      reject: 'Close'
+    }, res => {});
+
+  return createConfirm({
+    title: 'An unknown error occured',
+    text: 'An unknown error occured, please reload the page and try again',
+    reject: 'Close'
+  }, res => {});
+}
+
 window.addEventListener('load', () => {
   pieChartColors = JSON.parse(document.getElementById('pie-chart-colors').value);
 
@@ -235,6 +339,9 @@ window.addEventListener('load', () => {
 
   const dashboardContentWrapper = document.querySelector('.dashboard-content-wrapper');
   const questionsContentWrapper = document.querySelector('.questions-content-wrapper');
+  const adsContentWrapper = document.querySelector('.ads-content-wrapper');
+  const addTargetGroupWrapper = document.querySelector('.add-target-group-wrapper');
+  const createTargetGroupWrapper = document.getElementById('create-target-group-wrapper');
 
   document.addEventListener('click', event => {
     if (event.target.classList.contains('navigation-types-title') || event.target.parentNode.classList .contains('navigation-types-title')) {
@@ -256,16 +363,39 @@ window.addEventListener('load', () => {
       }
     }
 
-    if (event.target.classList.contains('all-header-title') && !event.target.classList.contains('all-header-title-selected')) {
-      document.querySelector('.all-header-title-selected').classList.remove('all-header-title-selected');
-      event.target.classList.add('all-header-title-selected');
+    if (event.target.classList.contains('each-navigation-button') && !event.target.classList.contains('selected-navigation-button')) {
+      document.querySelector('.selected-navigation-button').classList.remove('selected-navigation-button');
+      event.target.classList.add('selected-navigation-button');
 
-      if (event.target.id == 'dashboard-button') {
+      if (event.target.id == 'dashboard') {
         dashboardContentWrapper.style.display = 'flex';
         questionsContentWrapper.style.display = 'none';
-      } else {
+        adsContentWrapper.style.display = 'none';
+      } else if (event.target.id == 'questions') {
         dashboardContentWrapper.style.display = 'none';
         questionsContentWrapper.style.display = 'flex';
+        adsContentWrapper.style.display = 'none';
+      } else if (event.target.id == 'ads') {
+        dashboardContentWrapper.style.display = 'none';
+        questionsContentWrapper.style.display = 'none';
+        adsContentWrapper.style.display = 'flex';
+      }
+    } else if (event.target.parentNode.classList.contains('each-navigation-button') && !event.target.parentNode.classList.contains('selected-navigation-button')) {
+      document.querySelector('.selected-navigation-button').classList.remove('selected-navigation-button');
+      event.target.parentNode.classList.add('selected-navigation-button');
+
+      if (event.target.parentNode.id == 'dashboard') {
+        dashboardContentWrapper.style.display = 'flex';
+        questionsContentWrapper.style.display = 'none';
+        adsContentWrapper.style.display = 'none';
+      } else if (event.target.parentNode.id == 'questions') {
+        dashboardContentWrapper.style.display = 'none';
+        questionsContentWrapper.style.display = 'flex';
+        adsContentWrapper.style.display = 'none';
+      } else if (event.target.parentNode.id == 'ads') {
+        dashboardContentWrapper.style.display = 'none';
+        questionsContentWrapper.style.display = 'none';
+        adsContentWrapper.style.display = 'flex';
       }
     }
 
@@ -289,54 +419,105 @@ window.addEventListener('load', () => {
     if (event.target.classList.contains('create-product-button') || event.target.parentNode.classList.contains('create-product-button') || event.target.classList.contains('create-product-main-button')) {
       document.querySelector('.add-product-outer-wrapper').style.display = 'flex';
     }
+
+    if (event.target.classList.contains('delete-question-button')) {
+      const id = event.target.parentNode.parentNode.id;
+
+      createConfirm({
+        title: 'Are you sure you want to delete this question?',
+        text: 'Once you delete, your users won\'t be able to see and answer this question on your website. Your old data will be preserved until the answers are expired, but you won\'t be able to see the graphs anymore. You can retake this action whenever you like.',
+        accept: 'Confirm',
+        reject: 'Cancel'
+      }, res => {
+        if (res) {
+          serverRequest(`/questions/delete?id=${id}`, 'GET', {}, res => {
+            if (!res.success)
+              return throwError(res.error);
+    
+            event.target.parentNode.parentNode.remove();
+          }); 
+        }
+      });
+    }
+
+    if (event.target.classList.contains('delete-image-button')) {
+      const wrapper = event.target.parentNode.parentNode;
+      const url = event.target.parentNode.childNodes[0].childNodes[0].src;
+
+      serverRequest(`/image/delete?url=${url}`, 'GET', {}, res => {
+        if (!res.success) return throwError(res.error);
+
+        createImagePicker(wrapper);
+      });
+    }
+
+    if (event.target.classList.contains('add-template-button')) {
+      const id = event.target.parentNode.parentNode.id;
+
+      createConfirm({
+        title: 'Are you sure you want to add this question?',
+        text: 'Once you add, your users will be able to see and answer this question on your website.',
+        accept: 'Confirm',
+        reject: 'Cancel'
+      }, res => {
+        if (res) {
+          serverRequest('/questions/create', 'POST', {
+            template_id: id
+          }, res => {
+            if (!res.success)
+              return throwError(res.error);
+
+            serverRequest(`/questions?id=${res.id}`, 'GET', {}, res => {
+              if (!res.success)
+                return throwError(res.error);
+
+              event.target.parentNode.parentNode.remove();
+              createQuestion(res.question);
+            });
+          });
+        }
+      });
+    }
+
+    if (event.target.classList.contains('add-new-item-close-button') || event.target.parentNode.classList.contains('add-new-item-close-button')) {
+      const id = event.target.classList.contains('add-new-item-close-button') ? event.target.id : event.target.parentNode.id;
+
+      if (id == 'create-target-group-close-button') {
+        createTargetGroupWrapper.style.display = 'none';
+      }
+    }
+
+    if (event.target.classList.contains('add-new-item-outer-wrapper')) {
+      if (event.target.id == 'create-target-group-wrapper') {
+        createTargetGroupWrapper.style.display = 'none';
+      }
+    }
+
+    if (event.target.classList.contains('create-target-group-button') || event.target.parentNode.classList.contains('create-target-group-button')) {
+      createTargetGroupWrapper.style.display = 'flex';
+      addTargetGroupWrapper.style.overflow = 'hidden';
+      addTargetGroupWrapper.style.borderColor = 'rgb(186, 183, 178)';
+      addTargetGroupWrapper.style.boxShadow = 'none';
+    }
+    
+    if (!event.target.classList.contains('add-target-group-wrapper') && event.target.parentNode && !event.target.parentNode.classList.contains('add-target-group-wrapper')  && event.target.parentNode.parentNode && !event.target.parentNode.parentNode.classList.contains('add-target-group-wrapper') && event.target.parentNode.parentNode.parentNode && !event.target.parentNode.parentNode.parentNode.classList.contains('add-target-group-wrapper')) {
+      addTargetGroupWrapper.style.overflow = 'hidden';
+      addTargetGroupWrapper.style.borderColor = 'rgb(186, 183, 178)';
+      addTargetGroupWrapper.style.boxShadow = 'none';
+    }  
+
+    if (event.target.classList.contains('each-target-group-filter') || event.target.parentNode.classList.contains('each-target-group-filter')) {
+      const target = event.target.classList.contains('each-target-group-filter') ? event.target : event.target.parentNode;
+
+      target.style.height = 'fit-content';
+      target.style.minHeight = 'fit-content';
+    }
   });
 
   // Don't allow these actions while graphs are loading
   document.addEventListener('click', event => {
     if (loadingGraphs)
       return;
-
-    if (event.target.classList.contains('each-navigation-button') || event.target.parentNode.classList.contains('each-navigation-button')) {
-      const target = event.target.classList.contains('each-navigation-button') ? event.target : event.target.parentNode;
-      const id = target.id;
-
-      target.parentNode.parentNode.querySelector('.selected-navigation-button').classList.remove('selected-navigation-button');
-      target.classList.add('selected-navigation-button');
-
-      if (!id.includes('-questions')) {
-        selectedGraphType = id;
-
-        document.querySelector('.graph-outer-wrapper').innerHTML = '';
-
-        for (let i = 0; i < graphs.length; i++)
-          if (selectedGraphType == 'all' || graphs[i].question_type == selectedGraphType)
-            createGraph(graphs[i]);
-      } else {
-        const type = id.split('-questions')[0];
-
-        const questions = document.querySelector('.questions-wrapper').childNodes;
-
-        for (let i = 0; i < questions.length;) {
-          if (questions[i].classList.contains('create-product-main-button')) {
-            i++;
-          } else if (type != 'all' && !questions[i].id.includes(type)) {
-            questions[i].style.display = 'none';
-            i++;
-            while (i < questions.length && !questions[i].classList.contains('questions-title')) {
-              questions[i].style.display = 'none';
-              i++;
-            }
-          } else {
-            questions[i].style.display = 'flex';
-            i++;
-            while (i < questions.length && !questions[i].classList.contains('questions-title')) {
-              questions[i].style.display = 'flex';
-              i++;
-            }
-          }
-        }
-      }
-    }
 
     if (event.target.classList.contains('each-time-filter-button') && !event.target.classList.contains('each-time-filter-button-selected') && event.target.id != 'custom-time-filter-button') {
       let weekFilter;
@@ -417,7 +598,6 @@ window.addEventListener('load', () => {
     }
   });
 
-
   document.addEventListener('submit', event => {
     if (event.target.classList.contains('add-product-wrapper')) {
       event.preventDefault();
@@ -437,6 +617,64 @@ window.addEventListener('load', () => {
         }, res => {});
 
         return location.reload();
+      });
+    }
+  });
+
+  document.addEventListener('input', event => {
+    if (event.target.classList.contains('template-search-input')) {
+      const text = event.target.value.toLocaleLowerCase().trim();
+      const templatesWrapper = document.querySelector('.templates-wrapper');
+      const nodes = templatesWrapper.childNodes;
+      const newNodes = [];
+
+      for (let i = 0; i < nodes.length; i++)
+        newNodes.push(nodes[i].cloneNode(true));
+
+      newNodes.forEach(each => {
+        if (each.innerHTML.toLocaleLowerCase().indexOf(text) > -1)
+          each.style.display = 'flex';
+        else 
+          each.style.display = 'none';
+      });
+
+      templatesWrapper.innerHTML = '';
+
+      newNodes.sort((x, y) => {
+        if (x.innerHTML.toLocaleLowerCase().indexOf(text) < y.innerHTML.toLocaleLowerCase().indexOf(text))
+          return -1;
+        else if (x.innerHTML.toLocaleLowerCase().indexOf(text) > y.innerHTML.toLocaleLowerCase().indexOf(text))
+          return 1;
+        else
+          return 0;
+      });
+
+      newNodes.forEach(node => {
+        templatesWrapper.appendChild(node);
+      });
+    }
+  });
+
+  document.addEventListener('focusin', event => {
+    if (event.target.classList.contains('add-target-group-input')) {
+      addTargetGroupWrapper.style.overflow = 'visible';
+      addTargetGroupWrapper.style.borderColor = 'rgb(140, 212, 224)';
+      addTargetGroupWrapper.style.boxShadow = '0px 4px 10px 3px rgba(0, 0, 0, 0.05)';
+    }
+  });
+
+  document.addEventListener('change', event => {
+    if (event.target.classList.contains('image-input')) {
+      const file = event.target.files[0];
+
+      event.target.parentNode.style.cursor = 'progress';
+      event.target.parentNode.childNodes[0].innerHTML = 'Uploading...';
+      event.target.parentNode.childNodes[1].type = 'text';
+
+      uploadImage(file, (err, url) => {
+        if (err) return throwError(err);
+
+        createUploadedImage(url, event.target.parentNode.parentNode);
       });
     }
   });

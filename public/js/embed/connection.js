@@ -9,7 +9,8 @@ window.addEventListener('load', event => {
 
 function usersmagic() {
   // Constant variables
-  const URL_PREFIX = 'https://embed.usersmagic.com/embed'; // The url the requests will be made to
+  // const URL_PREFIX = 'https://embed.usersmagic.com/embed'; // The url the requests will be made to
+  const URL_PREFIX = 'http://localhost:3000/embed';
   const COOKIE_PREFIX = 'usersmagic_'; // All cookies start with usersmagic_ prefix to avoid confusion
   const DEFAULT_COOKIE_MAX_AGE = 24 * 60 * 60 * 1000; // Default cookie maxAge property, equal to 1 day
   const ONE_YEAR_IN_MS = 365 * 24 * 60 * 60 * 1000, ONE_DAY_IN_MS = 24 * 60 * 60 * 1000, ONE_HOUR_IN_MS = 60 * 60 * 1000;
@@ -20,26 +21,57 @@ function usersmagic() {
   let email = null;
   let question;
   let answer;
+  let language;
+  const allowedLanguageValues = ['en', 'tr'];
+  const defaultContentText = {
+    en: {
+      startTitle: 'Would you like to answer some questions to receive personalized discount codes?',
+      nextButtonText: 'Next',
+      emailTitle: 'Enter your email here for a chance to receive personalized discount codes!',
+      emailPlaceholder: 'E-mail',
+      approveButtonText: 'Approve',
+      yesChoice: 'Yes',
+      noChoice: 'No',
+      endTitle: 'Thank you for answering our questions, see you later :)',
+      searchAnswerPlaceholder: 'Type your answer to search',
+      yourAnswerPlaceholder: 'Your answer',
+      closeButtonText: 'Close'
+    },
+    tr: {
+      startTitle: 'Kişiselleştirilmiş indirim kodlarına erişmek için bir ankete katılmak ister misiniz?',
+      nextButtonText: 'Devam Et',
+      emailTitle: 'Kişiselleştirilmiş indirim kodları için e-posta adresinizi buraya girin',
+      emailPlaceholder: 'E-posta',
+      approveButtonText: 'Onayla',
+      yesChoice: 'Evet',
+      noChoice: 'Hayır',
+      endTitle: 'Sorularımıza cevap verdiğiniz için teşekkür ederiz, görüşmek üzere :)',
+      searchAnswerPlaceholder: 'Listeden seçmek için cevabınızı yazın',
+      yourAnswerPlaceholder: 'Cevabınız',
+      closeButtonText: 'Kapat'
+    }
+  }
 
   // Check the domain, call functions in necessary order
   start = function() {
-    if (window.location.hostname == 'localhost') // Not work on localhost
-      return;
+    // if (window.location.hostname == 'localhost') // Not work on localhost
+    //   return;
 
-    if (getCookie('forceEnd')) // Use forceEnd to stop all process on this client for 1h
-      return;
+    // if (getCookie('forceEnd')) // Use forceEnd to stop all process on this client for 1h
+    //   return;
 
-    const nextActionTime = getCookie('nextActionTime');
+    // const nextActionTime = getCookie('nextActionTime');
 
-    if (nextActionTime && nextActionTime > (new Date).getTime())
-      return;
+    // if (nextActionTime && nextActionTime > (new Date).getTime())
+    //   return;
 
-    checkConnection(res => { // Check if the domain is verified with a TXT record
+    getLanguage(res => { // Check if the domain is verified with a TXT record
       if (!res) return;
 
       document.addEventListener('click', event => {
-        if (event.target.classList.contains('usersmagic-close-button') || event.target.parentNode.classList.contains('usersmagic-close-button'))
+        if (event.target.classList.contains('usersmagic-close-button') || event.target.parentNode.classList.contains('usersmagic-close-button')) {
           closeContent();
+        }
 
         if (event.target.classList.contains('usersmagic-each-choice') || event.target.classList.contains('usersmagic-choice-text')) {
           const target = event.target.classList.contains('usersmagic-choice-text') ? event.target.parentNode : event.target;
@@ -58,7 +90,7 @@ function usersmagic() {
             if (document.querySelector('.usersmagic-selected-choice'))
               document.querySelector('.usersmagic-selected-choice').classList.remove('usersmagic-selected-choice');
             target.classList.add('usersmagic-selected-choice');
-            answer = question.subtype == 'yes_no' ? (target.childNodes[0].innerHTML == 'Yes' ? 'yes' : 'no') : target.childNodes[0].innerHTML;
+            answer = question.subtype == 'yes_no' ? (target.childNodes[0].innerHTML == defaultContentText[language].yesChoice ? 'yes' : 'no') : target.childNodes[0].innerHTML;
           }
         }
 
@@ -89,6 +121,62 @@ function usersmagic() {
         }
       });
 
+      document.addEventListener('focusin', event => {
+        if (event.target.classList.contains('usersmagic-list-input')) {
+          event.target.parentNode.classList.add('usersmagic-list-input-wrapper-focused');
+          event.target.parentNode.style.overflow = 'visible';
+          event.target.parentNode.style.borderBottom = 'none';
+          event.target.parentNode.style.borderBottomLeftRadius = '0px';
+          event.target.parentNode.style.borderBottomRightRadius = '0px';
+        }
+      });
+
+      document.addEventListener('focusout', event => {
+        if (event.target.classList.contains('usersmagic-list-input')) {
+          setTimeout(() => {
+            event.target.parentNode.classList.remove('usersmagic-list-input-wrapper-focused');
+            event.target.parentNode.style.overflow = 'hidden';
+            event.target.parentNode.style.borderBottom = '1px solid rgb(134, 146, 166)';
+            event.target.parentNode.style.borderBottomLeftRadius = '10px';
+            event.target.parentNode.style.borderBottomRightRadius = '10px';
+          }, 100);
+        }
+      });
+
+      document.addEventListener('input', event => {
+        if (event.target.classList.contains('usersmagic-list-input')) {
+          const choicesWrapper = event.target.parentNode.childNodes[1];
+          const text = event.target.value.toLocaleLowerCase().trim();
+          const nodes = choicesWrapper.childNodes;
+          const newNodes = [];
+
+          for (let i = 0; i < nodes.length; i++)
+            newNodes.push(nodes[i].cloneNode(true));
+
+          newNodes.forEach(each => {
+            if (each.innerHTML.toLocaleLowerCase().indexOf(text) > -1)
+              each.style.display = 'flex';
+            else 
+              each.style.display = 'none';
+          });
+
+          choicesWrapper.innerHTML = '';
+
+          newNodes.sort((x, y) => {
+            if (x.innerHTML.toLocaleLowerCase().indexOf(text) < y.innerHTML.toLocaleLowerCase().indexOf(text))
+              return -1;
+            else if (x.innerHTML.toLocaleLowerCase().indexOf(text) > y.innerHTML.toLocaleLowerCase().indexOf(text))
+              return 1;
+            else
+              return 0;
+          });
+
+          newNodes.forEach(node => {
+            choicesWrapper.appendChild(node);
+          });
+        }
+      });
+
       getEmail(err => { // Get the email of user, either from cookie or input
         if (err) return throwError(err);
   
@@ -98,6 +186,18 @@ function usersmagic() {
           closeContent();
         });
       });
+    });
+  }
+
+  // Check if the domain is valid for Usersmagic and get preferred language of Company
+  getLanguage = function(callback) {
+    serverRequest('/language', 'GET', {}, res => {
+      if (res.error || !res.success || !res.language || !allowedLanguageValues.includes(res.language))
+        return callback(false);
+
+      language = res.language;
+
+      return callback(true);
     });
   }
 
@@ -174,11 +274,6 @@ function usersmagic() {
     }
   }
 
-  // Check if the domain is valid for Usersmagic
-  checkConnection = function(callback) {
-    serverRequest('/connection', 'GET', {}, res => callback(res.success));
-  }
-
   // Get email of the user, either from cookie or input
   getEmail = function(callback) {
     email = getCookie('email');
@@ -233,14 +328,14 @@ function usersmagic() {
         const usersmagicTitle = document.createElement('span');
         usersmagicTitle.classList.add('usersmagic');
         usersmagicTitle.classList.add('usersmagic-title');
-        usersmagicTitle.innerHTML = 'Would you like to answer some questions to receive personalized discount codes?';
+        usersmagicTitle.innerHTML = defaultContentText[language].startTitle;
         contentInnerWrapper.appendChild(usersmagicTitle);
 
         const usersmagicButton = document.createElement('span');
         usersmagicButton.classList.add('usersmagic');
         usersmagicButton.classList.add('usersmagic-button');
         usersmagicButton.id = 'usersmagic-start-questions-button';
-        usersmagicButton.innerHTML = 'Next';
+        usersmagicButton.innerHTML = defaultContentText[language].nextButtonText;
         contentInnerWrapper.appendChild(usersmagicButton);
 
         document.addEventListener('click', function listenForStartButton(event) {
@@ -253,7 +348,7 @@ function usersmagic() {
         const usersmagicTitle = document.createElement('span');
         usersmagicTitle.classList.add('usersmagic');
         usersmagicTitle.classList.add('usersmagic-title');
-        usersmagicTitle.innerHTML = 'Enter your email here for a chance to receive personalized discount codes!';
+        usersmagicTitle.innerHTML = defaultContentText[language].emailTitle;
         contentInnerWrapper.appendChild(usersmagicTitle);
 
         const usersmagicInput = document.createElement('input');
@@ -262,14 +357,14 @@ function usersmagic() {
         usersmagicInput.classList.add('usersmagic');
         usersmagicInput.classList.add('usersmagic-input');
         usersmagicInput.id = 'usersmagic-email-input';
-        usersmagicInput.placeholder = 'E-mail';
+        usersmagicInput.placeholder = defaultContentText[language].emailPlaceholder;
         contentInnerWrapper.appendChild(usersmagicInput);
 
         const usersmagicButton = document.createElement('span');
         usersmagicButton.classList.add('usersmagic');
         usersmagicButton.classList.add('usersmagic-button');
         usersmagicButton.id = 'usersmagic-approve-email-button';
-        usersmagicButton.innerHTML = 'Approve';
+        usersmagicButton.innerHTML = defaultContentText[language].approveButtonText;
         contentInnerWrapper.appendChild(usersmagicButton);
 
         document.addEventListener('click', function listenForEmailInput(event) {
@@ -304,9 +399,9 @@ function usersmagic() {
         questionText.innerHTML = question.text;
         contentInnerWrapper.appendChild(questionText);
 
-        if (question.subtype == 'yes_no' || question.subtype == 'single' || question.subtype == 'multiple') {
+        if (question.subtype == 'yes_no' || question.subtype == 'single' || question.subtype == 'multiple' || question.subtype == 'time') {
           if (question.subtype == 'yes_no')
-            question.choices = ['Yes', 'No'];
+            question.choices = [defaultContentText[language].yesChoice, defaultContentText[language].noChoice];
           if (question.subtype == 'multiple')
             answer = [];
           
@@ -341,8 +436,34 @@ function usersmagic() {
           usersmagicInput.classList.add('usersmagic');
           usersmagicInput.classList.add('usersmagic-input');
           usersmagicInput.id = 'usersmagic-answer-input';
-          usersmagicInput.placeholder = 'Your answer';
+          usersmagicInput.placeholder = defaultContentText[language].yourAnswerPlaceholder;
           contentInnerWrapper.appendChild(usersmagicInput);
+        } else if (question.subtype == 'list') {
+          const usersmagicListInputWrapper = document.createElement('div');
+          usersmagicListInputWrapper.classList.add('usersmagic');
+          usersmagicListInputWrapper.classList.add('usersmagic-list-input-wrapper');
+
+          const usersmagicListInput = document.createElement('input');
+          usersmagicListInput.classList.add('usersmagic');
+          usersmagicListInput.classList.add('usersmagic-list-input');
+          usersmagicListInput.type = 'text';
+          usersmagicListInput.placeholder = defaultContentText[language].searchAnswerPlaceholder;
+          usersmagicListInputWrapper.appendChild(usersmagicListInput);
+
+          const usersmagicListInputChoicesWrapper = document.createElement('div');
+          usersmagicListInputChoicesWrapper.classList.add('usersmagic');
+          usersmagicListInputChoicesWrapper.classList.add('usersmagagic-list-input-choices-wrapper');
+
+          for (let i = 0; i < question.choices.length; i++) {
+            const usersmagicListInputEachChoice = document.createElement('span');
+            usersmagicListInputEachChoice.classList.add('usersmagic');
+            usersmagicListInputEachChoice.classList.add('usersmagic-list-input-each-choice');
+            usersmagicListInputEachChoice.innerHTML = question.choices[i];
+            usersmagicListInputChoicesWrapper.appendChild(usersmagicListInputEachChoice);
+          }
+
+          usersmagicListInputWrapper.appendChild(usersmagicListInputChoicesWrapper);
+          contentInnerWrapper.appendChild(usersmagicListInputWrapper);
         } else {
           return callback('bad_request');
         }
@@ -351,7 +472,7 @@ function usersmagic() {
         usersmagicButton.classList.add('usersmagic');
         usersmagicButton.classList.add('usersmagic-button');
         usersmagicButton.id = 'next-question-button';
-        usersmagicButton.innerHTML = 'Next';
+        usersmagicButton.innerHTML = defaultContentText[language].nextButtonText;
         contentInnerWrapper.appendChild(usersmagicButton);
 
         document.addEventListener('click', function listenForQuestionEvents(event) {
@@ -379,7 +500,7 @@ function usersmagic() {
         const usersmagicTitle = document.createElement('span');
         usersmagicTitle.classList.add('usersmagic');
         usersmagicTitle.classList.add('usersmagic-title');
-        usersmagicTitle.innerHTML = 'Thank you for answering our questions, see you later :)';
+        usersmagicTitle.innerHTML = defaultContentText[language].endTitle;
         contentInnerWrapper.appendChild(usersmagicTitle);
 
         const usersmagicButton = document.createElement('span');
@@ -419,7 +540,7 @@ function usersmagic() {
 
       const closeButtonSpan = document.createElement('span');
       closeButtonSpan.classList.add('usersmagic');
-      closeButtonSpan.innerHTML = 'Close';
+      closeButtonSpan.innerHTML = defaultContentText[language].closeButtonText;
       closeButton.appendChild(closeButtonSpan);
 
       headerWrapper.appendChild(closeButton);
@@ -550,5 +671,5 @@ function usersmagic() {
 
   setTimeout(() => {
     start();
-  }, 3000);
+  }, 000);
 }

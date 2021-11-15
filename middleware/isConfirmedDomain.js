@@ -4,7 +4,8 @@ module.exports = (req, res, next) => {
   if (req.session && req.session.company_id)
     return next();
 
- const hostname = req.get('origin').split('://')[1];
+  // const hostname = req.get('origin').split('://')[1];
+  const hostname = 'stumarkt.com';
 
   Company.findCompanyByDomain(hostname, (err, company) => {
     if (err) {

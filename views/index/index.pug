@@ -1,19 +1,37 @@
 extends ../partials/head
 block content
-  .add-product-outer-wrapper(style="display: none")
-    form.add-product-wrapper
-      .add-product-close-button
+  .add-new-item-outer-wrapper#create-target-group-wrapper(style="display: none")
+    form.add-new-item-wrapper
+      .add-new-item-close-button#create-target-group-close-button
         i.fas.fa-times
         span Close
-      span.add-product-title Create Product
-      span.add-product-subtitle Create products to learn more from your users. You may have at most 10 products at a time.
-      span.add-product-input-title.required-input Product Name
-      span.add-product-input-subtitle The name will appear in questions exactly as you write in here. Max. 100 characters are allowed.
-      input.add-product-input#product-name-input(type="text" placeholder="Product Name" autocomplete="none" required)
-      span.add-product-input-title.required-input Product Link
-      span.add-product-input-subtitle Your users may click the link you gave to access the product while answering the question.
-      input.add-product-input#product-link-input(type="text" placeholder="Product Link" autocomplete="none" required)
-      button.add-product-button Create Product
+      span.all-title Create Target Group
+      span.all-input-subtitle Target groups allow you to choose a spesific section of your users using our question database.
+      span.all-input-title.required-input Target Group Name
+      input.all-input#target-group-name-input(type="text" placeholder="ex. Female 20-22 Basketball players" autocomplete="none" required)
+      span.all-input-title.required-input Filters
+      .target-group-filters-wrapper
+        span.no-filter-text You have added no filters yet
+      input.search-filter-input#search-filter-input(type="text" placeholder="Search filters" autocomplete="none")
+      .target-group-filters-search-wrapper
+        each filter in filters
+          .each-target-group-filter
+            span.each-target-group-filter-name= filter.name
+            if filter.subtype == 'number'
+              span.each-target-group-filter-allowed-title Min value (inclusive):
+              input.all-input(type="text" placeholder="ex. 20")
+              span.each-target-group-filter-allowed-title Max value (inclusive):
+              input.all-input(type="text" placeholder="ex. 22")
+              span.each-target-group-filter-add.numeric-filter Add
+            else
+              span.each-target-group-filter-allowed-title Allowed answers:
+              each choice in filter.choices
+                .each-target-group-filter-choice
+                  .each-target-group-filter-choice-check
+                    i.fas.fa-check
+                  span= choice
+              span.each-target-group-filter-add Add
+      button.all-confirm-button Create
   input.display-none#pie-chart-colors(type="text" value=JSON.stringify(pie_chart_colors))
   span.copy-data#copy-data
     span= '<script src= "https://embed.usersmagic.com/js/embed/connection.js"></script> <link rel="stylesheet" href="https://embed.usersmagic.com/css/embed/styling.css"></link>'
@@ -22,50 +40,50 @@ block content
       a(href="/")
         svg(width="12" height="21" viewBox="0 0 12 21" fill="none" xmlns="http://www.w3.org/2000/svg")
           path(d="M5.08355 5.43146C5.40117 4.76242 5.43183 3.67231 5.10135 2.52188C4.77058 1.37173 4.16464 0.458231 3.53789 0.0516924C3.22027 0.720731 3.18988 1.81085 3.52037 2.96127C3.85086 4.11142 4.45707 5.02492 5.08355 5.43146ZM8.03521 2.90688C8.32299 1.74569 8.2518 0.657192 7.90981 0C7.29867 0.428885 6.72668 1.36312 6.4389 2.52458C6.15113 3.68577 6.22205 4.77427 6.56403 5.43146C7.17518 5.00258 7.74744 4.06808 8.03521 2.90688ZM8.21428 8.07692C8.21428 6.741 7.10892 5.65385 5.75 5.65385C4.39108 5.65385 3.28571 6.741 3.28571 8.07692V8.88462H8.21428V8.07692ZM5.8869 8.07692C5.8321 8.07833 5.77755 8.06894 5.7265 8.04929C5.67544 8.02965 5.6289 8.00015 5.58962 7.96253C5.55034 7.92492 5.51911 7.87996 5.49779 7.83029C5.47646 7.78062 5.46547 7.72726 5.46545 7.67335C5.46543 7.61944 5.47639 7.56607 5.49768 7.51639C5.51898 7.46671 5.55017 7.42172 5.58942 7.38408C5.62867 7.34645 5.6752 7.31692 5.72624 7.29724C5.77729 7.27756 5.83182 7.26813 5.88663 7.2695C5.99369 7.27218 6.09545 7.31588 6.17021 7.39127C6.24498 7.46666 6.28684 7.56778 6.28688 7.67308C6.28691 7.77838 6.24512 7.87953 6.1704 7.95497C6.09569 8.03041 5.99396 8.07417 5.8869 8.07692ZM7.25595 8.07692C7.14702 8.07692 7.04256 8.03438 6.96553 7.95864C6.88851 7.8829 6.84524 7.78018 6.84524 7.67308C6.84524 7.56597 6.88851 7.46325 6.96553 7.38751C7.04256 7.31178 7.14702 7.26923 7.25595 7.26923C7.36488 7.26923 7.46935 7.31178 7.54637 7.38751C7.62339 7.46325 7.66667 7.56597 7.66667 7.67308C7.66667 7.78018 7.62339 7.8829 7.54637 7.95864C7.46935 8.03438 7.36488 8.07692 7.25595 8.07692ZM11.5 9.69231H0V11.3077H2.46429L1.64286 21H9.85714L9.03571 11.3077H11.5V9.69231Z" fill="white")
-      .all-header-title-wrapper
-        span.all-header-title.all-header-title-selected#dashboard-button Dashboard
-        span.all-header-title#questions-button Questions
     .all-content-wrapper
-      .dashboard-content-wrapper
-        .navigation-wrapper
-          span.navigation-title Dashboard
-          .navigation-types-title
-            i.fas.fa-chevron-down
-            span DATA TYPES
-          .navigation-buttons-wrapper
-            span.each-navigation-button.selected-navigation-button#all All
-            span.each-navigation-button#demographics
-              span.each-navigation-button-icon 👩‍ 
-              span Demographics
-            span.each-navigation-button#brand
-              span.each-navigation-button-icon ❤️
-              span Brand Likeness
-            span.each-navigation-button#product
-              span.each-navigation-button-icon 🛍 
-              span Product Habbits
-        .inner-content-wrapper
-          span.graphs-all-title All
-          span.graphs-all-subtitle This dataset shows all of the data collected
-          .graphs-time-filters-wrapper
-            span.each-time-filter-button.each-time-filter-button-long#all-time-filter-button.each-time-filter-button-selected All
-            span.each-time-filter-button.each-time-filter-button-long#this-week-filter-button This Week
-            span.each-time-filter-button.each-time-filter-button-long#last-week-filter-button Last Week
-            span.each-time-filter-button#two-weeks-time-filter-button 2W
-            span.each-time-filter-button#four-weeks-time-filter-button 4W
-            span.each-time-filter-button#three-months-time-filter-button 3M
-            span.each-time-filter-button#six-months-time-filter-button 6M
-            span.each-time-filter-button#twelve-months-time-filter-button(style="border-right: 0px") 12M
-            //- span.each-time-filter-button.each-time-filter-button-long#custom-time-filter-button(style="border-right: 0px") Custom
-          .loading-icon-wrapper
+      .navigation-wrapper
+        .navigation-types-title
+          i.fas.fa-chevron-down
+          span MENU
+        .navigation-buttons-wrapper
+          span.each-navigation-button.selected-navigation-button#dashboard
+            span.each-navigation-button-icon 📈
+            span Dashboard
+          span.each-navigation-button#questions
+            span.each-navigation-button-icon 🙋‍♀️
+            span Questions
+          span.each-navigation-button#ads
+            span.each-navigation-button-icon 🛍
+            span Ads
+          //- span.each-navigation-button#settings
+          //-   span.each-navigation-button-icon ⚙️
+          //-   span Settings
+        span.navigation-usersmagic-version Usersmagic Inc. - Copyright 2021
+      .dashboard-content-wrapper(style="display: none")
+        span.all-title Data
+        span.all-subtitle This dataset shows all of the data collected
+        //- .graphs-time-filters-wrapper
+          span.each-time-filter-button.each-time-filter-button-long#all-time-filter-button.each-time-filter-button-selected All
+          span.each-time-filter-button.each-time-filter-button-long#this-week-filter-button This Week
+          span.each-time-filter-button.each-time-filter-button-long#last-week-filter-button Last Week
+          span.each-time-filter-button#two-weeks-time-filter-button 2W
+          span.each-time-filter-button#four-weeks-time-filter-button 4W
+          span.each-time-filter-button#three-months-time-filter-button 3M
+          span.each-time-filter-button#six-months-time-filter-button 6M
+          span.each-time-filter-button#twelve-months-time-filter-button(style="border-right: 0px") 12M
+          //- span.each-time-filter-button.each-time-filter-button-long#custom-time-filter-button(style="border-right: 0px") Custom
+        .loading-icon-wrapper
             span Loading Graphs...
-          .graph-outer-wrapper(style="display: none")
-          .no-graph-found-wrapper(style="display: none")
-            span No Data
-          .no-graph-wrapper(style="display: none")
-            span.no-graph-title Looks like you don't have any data yet :(
-            span.no-graph-subtitle Did you integrate Usersmagic to your system? Before you start accessing your users with Usersmagic, you must complete your integration setup.
-            span.integration-title How to integrate?
-            span.integration-text= 'Copy and paste the following code to the end of every <head></head> element in your .html files. Use Copy button for better performance.'
+        .graph-outer-wrapper(style="display: none")
+        .no-graph-found-wrapper(style="display: none")
+          span No Data
+        .no-graph-wrapper(style="display: none")
+            span.all-title Looks like you don't have any data yet :(
+            span.all-subtitle Did you integrate Usersmagic to your system? Before you start accessing your users with Usersmagic, you must complete your integration setup.
+            .all-space
+            span.all-title How to integrate?
+            span.all-subtitle= 'Copy and paste the following code to the end of every <head></head> element in your .html files. Use Copy button for better performance.'
+            .all-space
             span.code-wrapper
               span.copy-code-button
                 span Copy
@@ -87,31 +105,70 @@ block content
                   a.code-yellow(href="https://embed.usersmagic.com/css/embed/styling.css" target="_blank")= "\"https://embed.usersmagic.com/css/embed/styling.css\""
                   span.code-blue= "></link>"
       .questions-content-wrapper(style="display: none")
-        .navigation-wrapper
-          span.navigation-title Questions
-          span.each-navigation-button.selected-navigation-button#all-questions All
-          span.each-navigation-button#demographics-questions
-            span.each-navigation-button-icon 👩‍ 
-            span Demographics
-          span.each-navigation-button#brand-questions
-            span.each-navigation-button-icon ❤️
-            span Brand Likeness
-          .navigation-types-title
-            i.fas.fa-chevron-down
-            span PRODUCTS
-          .navigation-buttons-wrapper
-            each product in products
-              span.each-navigation-button(id=product._id.toString() + '-questions')= product.name
-            if products.length < 10
-              .create-product-button
+        //- each questions, i in Object.values(questions_data)
+        //-   span.questions-title(id=(i == 0 ? 'demographics' : (i == 1 ? 'brand' : products.find(each => each._id.toString() == Object.keys(questions_data)[i].toString())._id.toString()) + '-questions-data'))= i == 0 ? 'Demographics' : (i == 1 ? 'Brand' : products.find(each => each._id.toString() == Object.keys(questions_data)[i].toString()).name)
+        //-     if i > 1
+        //-       i.delete-product-button.fas.fa-trash-alt
+        //-   each question in questions
+        //-     span.each-question= question.text
+        span.all-title Your Questions
+        span.all-subtitle These are the current questions asked to your users. You may remove or add another question from the list below. You may have at most 20 questions simulteneously asked on your website. Questions appear on the order they are asked in your website (top-to-bottom). You may drag-and-drop questions to change their order.
+        .company-questions-wrapper.drag-and-drop-wrapper
+          each question in questions
+            .each-question(id=question._id.toString() style="cursor: move")
+              .each-question-title
+                span= question.text
+                i.delete-question-button.fas.fa-trash-alt
+              .each-question-content
+        span.all-title Question List
+        span.all-subtitle Add new questions from questions list to learn more about your users.
+        label.template-search-wrapper
+          i.fas.fa-search
+          input.template-search-input(type="text" placeholder="Search question")
+        .templates-wrapper
+          each template in templates
+            .each-question(id=template._id.toString())
+              .each-question-title
+                span= template.text
+                i.add-template-button.fas.fa-plus
+              .each-question-content
+      .ads-content-wrapper
+        .ads-content-inner-wrapper(style="display: none")
+          span.all-title Ads
+          span.all-subtitle You may create ads to target the users in your site to show them customized ads
+          //- .each-ad-wrapper
+          //-   span.ad-name Tennis Shoes Ad
+          //-   span.ad-image
+          .create-ad-button
+            span Create New Ad
+            i.fas.fa-plus
+          .ads-wrapper
+        .ads-create-wrapper
+          span.all-title Create a new ad
+          .create-ad-info
+            span.create-ad-info-icon İ
+            span.create-ad-info-text With ads, you can target your visitors based on their answers to your questions. For example, you can show specific ads to male visitors who like white tshirts.
+          span.all-title.required-input Target group for your ad
+          .add-target-group-wrapper
+            input.add-target-group-input(type="text" placeholder="Select or create a target group" autocomplete="off")
+            .add-target-group-content-wrapper
+              .create-target-group-button
                 i.fas.fa-plus
-                span Add Product
-        .inner-content-wrapper.questions-wrapper
-          if products.length < 10
-            span.create-product-main-button Add Product
-          each questions, i in Object.values(questions_data)
-            span.questions-title(id=(i == 0 ? 'demographics' : (i == 1 ? 'brand' : products.find(each => each._id.toString() == Object.keys(questions_data)[i].toString())._id.toString()) + '-questions-data'))= i == 0 ? 'Demographics' : (i == 1 ? 'Brand' : products.find(each => each._id.toString() == Object.keys(questions_data)[i].toString()).name)
-              if i > 1
-                i.delete-product-button.fas.fa-trash-alt
-            each question in questions
-              span.each-question= question.text
+                span Create New
+              .target-groups-wrapper
+                each target_group in target_groups
+                  span.each-target-group(id=target_group._id)= target_group.name
+          span.all-title.required-input Name of your ad
+          input.all-input#ad-name-input(type="text" placeholder="ex. Tennis shoes ad" autocomplete="off")
+          span.all-title.required-input Image
+          span.all-input-subtitle The image you upload will be shown in the pop-up. You can upload a banner that includes product pictures, details, and price.
+          .all-image-input-outer-wrapper
+            label.all-choose-image-input-text
+              span Click to choose an image from your device
+              input.display-none.image-input(type="file" accept="image/*")
+          span.all-title.required-input Button link
+          input.all-input#ad-button-link-input(type="text" placeholder="ex. https://adidas.com/us/ultaraboos_dna" autocomplete="off")
+          span.all-title.required-input Button text
+          input.all-input#ad-button-text-input(type="text" placeholder="ex. Learn more, shop now, shop this look" autocomplete="off")
+          span.all-confirm-button Publish ad
+        
