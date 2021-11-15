@@ -25,7 +25,7 @@ if (cluster.isMaster) {
     cluster.fork();
   });
 } else {
-  if (cluster.worker.id == 2) {
+  if (cluster.worker.id == -1) {
     const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/usersmagic';
     mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
 

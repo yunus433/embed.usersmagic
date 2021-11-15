@@ -52,14 +52,14 @@ block content
           span.each-navigation-button#questions
             span.each-navigation-button-icon 🙋‍♀️
             span Questions
-          span.each-navigation-button#ads
+          //- span.each-navigation-button#ads
             span.each-navigation-button-icon 🛍
             span Ads
           //- span.each-navigation-button#settings
           //-   span.each-navigation-button-icon ⚙️
           //-   span Settings
         span.navigation-usersmagic-version Usersmagic Inc. - Copyright 2021
-      .dashboard-content-wrapper(style="display: none")
+      .dashboard-content-wrapper
         span.all-title Data
         span.all-subtitle This dataset shows all of the data collected
         //- .graphs-time-filters-wrapper
@@ -132,7 +132,7 @@ block content
                 span= template.text
                 i.add-template-button.fas.fa-plus
               .each-question-content
-      .ads-content-wrapper
+      .ads-content-wrapper(style="display: none")
         .ads-content-inner-wrapper(style="display: none")
           span.all-title Ads
           span.all-subtitle You may create ads to target the users in your site to show them customized ads

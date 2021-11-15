@@ -54,16 +54,16 @@ function usersmagic() {
 
   // Check the domain, call functions in necessary order
   start = function() {
-    // if (window.location.hostname == 'localhost') // Not work on localhost
-    //   return;
+    if (window.location.hostname == 'localhost') // Not work on localhost
+      return;
 
-    // if (getCookie('forceEnd')) // Use forceEnd to stop all process on this client for 1h
-    //   return;
+    if (getCookie('forceEnd')) // Use forceEnd to stop all process on this client for 1h
+      return;
 
-    // const nextActionTime = getCookie('nextActionTime');
+    const nextActionTime = getCookie('nextActionTime');
 
-    // if (nextActionTime && nextActionTime > (new Date).getTime())
-    //   return;
+    if (nextActionTime && nextActionTime > (new Date).getTime())
+      return;
 
     getLanguage(res => { // Check if the domain is verified with a TXT record
       if (!res) return;
@@ -671,5 +671,5 @@ function usersmagic() {
 
   setTimeout(() => {
     start();
-  }, 000);
+  }, 2000);
 }
