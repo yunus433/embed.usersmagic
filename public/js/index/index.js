@@ -85,8 +85,8 @@ function createGraph(graph) {
       otherCount += graph.data[i].value;
 
     if (otherCount > 0) {
-      const lastPercentageOther = i > 0 ? conicGradientValueArray[conicGradientValueArray.length-1].percentage : 0;
-      lastPercentageOther.push({ color: 'rgb(140, 212, 224)', percentage: lastPercentageOther + (otherCount / graph.total * 100) });  
+      const lastPercentageOther = conicGradientValueArray.length > 0 ? conicGradientValueArray[conicGradientValueArray.length-1].percentage : 0;
+      conicGradientValueArray.push({ color: 'rgb(186, 183, 178)', percentage: lastPercentageOther + (otherCount / graph.total * 100) });  
     }
 
     const pieChartWrapper = document.createElement('div');
