@@ -1,10 +1,12 @@
+const url = require('url');
+
 const Company = require('../models/company/Company');
 
 module.exports = (req, res, next) => {
   if (req.session && req.session.company_id)
     return next();
 
-  const hostname = req.get('origin').split('://')[1];
+  const hostname =  url.parse(req.get('origin')).hostname;
   // const hostname = 'stumarkt.com';
 
   Company.findCompanyByDomain(hostname, (err, company) => {

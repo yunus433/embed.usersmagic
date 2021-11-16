@@ -9,8 +9,8 @@ window.addEventListener('load', event => {
 
 function usersmagic() {
   // Constant variables
-  // const URL_PREFIX = 'https://embed.usersmagic.com/embed'; // The url the requests will be made to
-  const URL_PREFIX = 'http://localhost:3000/embed';
+  const URL_PREFIX = 'https://embed.usersmagic.com/embed'; // The url the requests will be made to
+  // const URL_PREFIX = 'http://localhost:3000/embed';
   const COOKIE_PREFIX = 'usersmagic_'; // All cookies start with usersmagic_ prefix to avoid confusion
   const DEFAULT_COOKIE_MAX_AGE = 24 * 60 * 60 * 1000; // Default cookie maxAge property, equal to 1 day
   const ONE_YEAR_IN_MS = 365 * 24 * 60 * 60 * 1000, ONE_DAY_IN_MS = 24 * 60 * 60 * 1000, ONE_HOUR_IN_MS = 60 * 60 * 1000;
