@@ -32,6 +32,40 @@ block content
                   span= choice
               span.each-target-group-filter-add Add
       button.all-confirm-button Create
+  .add-new-item-outer-wrapper#create-integration-route-wrapper(style="display: none")
+    form.add-new-item-wrapper#create-integration-route-form
+      .add-new-item-close-button#create-integration-route-close-button
+        i.fas.fa-times
+        span Close
+      span.all-title Create Integration Route
+      span.all-input-title.required-input Integration Route Name
+      input.all-input#integration-route-name-input(type="text" placeholder="ex. Login Page" autocomplete="none" required)
+      span.all-input-title.required-input Integration Route URL
+      input.all-input#integration-route-url-input(type="text" placeholder="ex. /auth/login" autocomplete="none" required)
+      span.all-input-title.required-input Integration Code
+      span.all-input-subtitle= 'Copy and paste the following code to the end of the <head></head> element for the .html files of the route you spesify. Use Copy button for better performance.'
+      span.code-wrapper
+        span.copy-code-button
+          span Copy
+          i.fas.fa-copy
+        span.code-inner-wrapper
+          span.each-code-line
+            span.code-blue= "<script" 
+            span.code-space
+            span.code-white= "src="
+            a.code-yellow(href="https://embed.usersmagic.com/js/embed/connection.js" target="_blank")= "\"https://embed.usersmagic.com/js/embed/connection.js\""
+            span.code-blue= "></script>"
+          span.each-code-line
+            span.code-blue= "<link" 
+            span.code-space
+            span.code-white= "rel="
+            span.code-yellow "stylesheet"
+            span.code-space
+            span.code-white= "href="
+            a.code-yellow(href="https://embed.usersmagic.com/css/embed/styling.css" target="_blank")= "\"https://embed.usersmagic.com/css/embed/styling.css\""
+            span.code-blue= "></link>"
+      .all-space
+      button.all-confirm-button Create
   input.display-none#pie-chart-colors(type="text" value=JSON.stringify(pie_chart_colors))
   span.copy-data#copy-data
     span= '<script src= "https://embed.usersmagic.com/js/embed/connection.js"></script> <link rel="stylesheet" href="https://embed.usersmagic.com/css/embed/styling.css"></link>'
@@ -49,6 +83,9 @@ block content
           span.each-navigation-button.selected-navigation-button#dashboard
             span.each-navigation-button-icon 📈
             span Dashboard
+          span.each-navigation-button#integration
+            span.each-navigation-button-icon 🔨
+            span Integration
           span.each-navigation-button#questions
             span.each-navigation-button-icon 🙋‍♀️
             span Questions
@@ -78,32 +115,12 @@ block content
         .no-graph-found-wrapper(style="display: none")
           span No Data
         .no-graph-wrapper(style="display: none")
-            span.all-title Looks like you don't have any data yet :(
-            span.all-subtitle Did you integrate Usersmagic to your system? Before you start accessing your users with Usersmagic, you must complete your integration setup.
-            .all-space
-            span.all-title How to integrate?
-            span.all-subtitle= 'Copy and paste the following code to the end of every <head></head> element in your .html files. Use Copy button for better performance.'
-            .all-space
-            span.code-wrapper
-              span.copy-code-button
-                span Copy
-                i.fas.fa-copy
-              span.code-inner-wrapper
-                span.each-code-line
-                  span.code-blue= "<script" 
-                  span.code-space
-                  span.code-white= "src="
-                  a.code-yellow(href="https://embed.usersmagic.com/js/embed/connection.js" target="_blank")= "\"https://embed.usersmagic.com/js/embed/connection.js\""
-                  span.code-blue= "></script>"
-                span.each-code-line
-                  span.code-blue= "<link" 
-                  span.code-space
-                  span.code-white= "rel="
-                  span.code-yellow "stylesheet"
-                  span.code-space
-                  span.code-white= "href="
-                  a.code-yellow(href="https://embed.usersmagic.com/css/embed/styling.css" target="_blank")= "\"https://embed.usersmagic.com/css/embed/styling.css\""
-                  span.code-blue= "></link>"
+          span Looks like you don't have any data yet. Did you integrate Usersmagic to your system? Go to integration menu to complete your integration.
+      .integration-content-wrapper(style="display: none")
+        span.all-title Integration
+        span.all-subtitle Create new routes and integrate our code to them to use Usersmagic. Usersmagic pop-ups will only be shown in the routes you create.
+        span.all-confirm-button#create-integration-route-open-button(style="margin-left: auto; margin-top: 15px") Create New
+        .integration-routes-wrapper
       .questions-content-wrapper(style="display: none")
         //- each questions, i in Object.values(questions_data)
         //-   span.questions-title(id=(i == 0 ? 'demographics' : (i == 1 ? 'brand' : products.find(each => each._id.toString() == Object.keys(questions_data)[i].toString())._id.toString()) + '-questions-data'))= i == 0 ? 'Demographics' : (i == 1 ? 'Brand' : products.find(each => each._id.toString() == Object.keys(questions_data)[i].toString()).name)

@@ -317,6 +317,42 @@ function createUploadedImage (url, wrapper) {
   wrapper.appendChild(imageInputWrapper);
 }
 
+function createIntegrationRoutes () {
+  document.querySelector('.integration-routes-wrapper').innerHTML = '';
+
+  serverRequest('/company', 'GET', {}, res => {
+    if (!res.success)
+      return throwError();
+
+    const integrationRoutes = res.company.integration_routes;
+
+    integrationRoutes.forEach(integration_route => createIntegrationRoute(integration_route));
+  });
+}
+
+function createIntegrationRoute (route) {
+  const eachIntegrationRoute = document.createElement('div');
+  eachIntegrationRoute.classList.add('each-integration-route');
+  
+  const eachIntegrationRouteName = document.createElement('span');
+  eachIntegrationRouteName.classList.add('each-integration-route-name');
+  eachIntegrationRouteName.innerHTML = route.name;
+  eachIntegrationRoute.appendChild(eachIntegrationRouteName);
+
+  const eachIntegrationRouteUrl = document.createElement('span');
+  eachIntegrationRouteUrl.classList.add('each-integration-route-url');
+  eachIntegrationRouteUrl.innerHTML = route.route;
+  eachIntegrationRoute.appendChild(eachIntegrationRouteUrl);
+
+  const eachIntegrationRouteDeleteButton = document.createElement('i');
+  eachIntegrationRouteDeleteButton.classList.add('fas');
+  eachIntegrationRouteDeleteButton.classList.add('fa-trash-alt');
+  eachIntegrationRouteDeleteButton.classList.add('each-integration-route-delete-button');
+  eachIntegrationRoute.appendChild(eachIntegrationRouteDeleteButton);
+
+  document.querySelector('.integration-routes-wrapper').appendChild(eachIntegrationRoute);
+}
+
 function throwError (err) {
   if (err)
     return createConfirm({
@@ -336,15 +372,19 @@ window.addEventListener('load', () => {
   pieChartColors = JSON.parse(document.getElementById('pie-chart-colors').value);
 
   createGraphs();
+  createIntegrationRoutes();
 
   const dashboardContentWrapper = document.querySelector('.dashboard-content-wrapper');
+  const integrationContentWrapper = document.querySelector('.integration-content-wrapper');
   const questionsContentWrapper = document.querySelector('.questions-content-wrapper');
   const adsContentWrapper = document.querySelector('.ads-content-wrapper');
+
   const addTargetGroupWrapper = document.querySelector('.add-target-group-wrapper');
   const createTargetGroupWrapper = document.getElementById('create-target-group-wrapper');
+  const createIntegrationRouteWrapper = document.getElementById('create-integration-route-wrapper');
 
   document.addEventListener('click', event => {
-    if (event.target.classList.contains('navigation-types-title') || event.target.parentNode.classList .contains('navigation-types-title')) {
+    if (event.target.classList.contains('navigation-types-title') || event.target.parentNode.classList .contains('navigation-types-title')) {
       const target = event.target.classList.contains('navigation-types-title') ? event.target : event.target.parentNode;
       const icon = target.childNodes[0];
       const buttonsWrapper = target.nextElementSibling;
@@ -363,37 +403,30 @@ window.addEventListener('load', () => {
       }
     }
 
-    if (event.target.classList.contains('each-navigation-button') && !event.target.classList.contains('selected-navigation-button')) {
+    if ((event.target.classList.contains('each-navigation-button') && !event.target.classList.contains('selected-navigation-button')) || (event.target.parentNode.classList.contains('each-navigation-button') && !event.target.parentNode.classList.contains('selected-navigation-button'))) {
+      const target = event.target.classList.contains('each-navigation-button') ? event.target : event.target.parentNode;
+      
       document.querySelector('.selected-navigation-button').classList.remove('selected-navigation-button');
-      event.target.classList.add('selected-navigation-button');
+      target.classList.add('selected-navigation-button');
 
-      if (event.target.id == 'dashboard') {
+      if (target.id == 'dashboard') {
         dashboardContentWrapper.style.display = 'flex';
+        integrationContentWrapper.style.display = 'none';
         questionsContentWrapper.style.display = 'none';
         adsContentWrapper.style.display = 'none';
-      } else if (event.target.id == 'questions') {
+      } else if (target.id == 'integration') {
         dashboardContentWrapper.style.display = 'none';
+        integrationContentWrapper.style.display = 'flex';
+        questionsContentWrapper.style.display = 'none';
+        adsContentWrapper.style.display = 'none';
+      } else if (target.id == 'questions') {
+        dashboardContentWrapper.style.display = 'none';
+        integrationContentWrapper.style.display = 'none';
         questionsContentWrapper.style.display = 'flex';
         adsContentWrapper.style.display = 'none';
-      } else if (event.target.id == 'ads') {
+      } else if (target.id == 'ads') {
         dashboardContentWrapper.style.display = 'none';
-        questionsContentWrapper.style.display = 'none';
-        adsContentWrapper.style.display = 'flex';
-      }
-    } else if (event.target.parentNode.classList.contains('each-navigation-button') && !event.target.parentNode.classList.contains('selected-navigation-button')) {
-      document.querySelector('.selected-navigation-button').classList.remove('selected-navigation-button');
-      event.target.parentNode.classList.add('selected-navigation-button');
-
-      if (event.target.parentNode.id == 'dashboard') {
-        dashboardContentWrapper.style.display = 'flex';
-        questionsContentWrapper.style.display = 'none';
-        adsContentWrapper.style.display = 'none';
-      } else if (event.target.parentNode.id == 'questions') {
-        dashboardContentWrapper.style.display = 'none';
-        questionsContentWrapper.style.display = 'flex';
-        adsContentWrapper.style.display = 'none';
-      } else if (event.target.parentNode.id == 'ads') {
-        dashboardContentWrapper.style.display = 'none';
+        integrationContentWrapper.style.display = 'none';
         questionsContentWrapper.style.display = 'none';
         adsContentWrapper.style.display = 'flex';
       }
@@ -484,13 +517,17 @@ window.addEventListener('load', () => {
 
       if (id == 'create-target-group-close-button') {
         createTargetGroupWrapper.style.display = 'none';
+      } else if (id == 'create-integration-route-close-button') {
+        createIntegrationRouteWrapper.style.display = 'none';
       }
     }
 
     if (event.target.classList.contains('add-new-item-outer-wrapper')) {
-      if (event.target.id == 'create-target-group-wrapper') {
-        createTargetGroupWrapper.style.display = 'none';
-      }
+      event.target.style.display = 'none';
+    }
+
+    if (event.target.id == 'create-integration-route-open-button') {
+      createIntegrationRouteWrapper.style.display = 'flex';
     }
 
     if (event.target.classList.contains('create-target-group-button') || event.target.parentNode.classList.contains('create-target-group-button')) {
@@ -618,6 +655,23 @@ window.addEventListener('load', () => {
 
         return location.reload();
       });
+    }
+
+    if (event.target.id == 'create-integration-route-form') {
+      event.preventDefault();
+
+      const integrationRouteName = document.getElementById('integration-route-name-input').value;
+      const integrationRouteURL = document.getElementById('integration-route-url-input').value;
+
+      serverRequest('/integration/create', 'POST', {
+        name: integrationRouteName,
+        route: integrationRouteURL
+      }, res => {
+        if (!res.success) return throwError(res.error);
+
+        createIntegrationRoutes();
+        createIntegrationRouteWrapper.style.display = 'none';
+      })
     }
   });
 

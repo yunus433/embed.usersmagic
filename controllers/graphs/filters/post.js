@@ -10,7 +10,7 @@ module.exports = (req, res) => {
       return res.end();
     }
 
-    res.write(JSON.stringify({ graphs, success: true }));
+    res.write(JSON.stringify({ graphs: [], success: true }));
     return res.end();
   });
 }

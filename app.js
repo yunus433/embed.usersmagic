@@ -49,6 +49,7 @@ if (cluster.isMaster) {
     const graphsRouteController = require('./routes/graphsRoute');
     const imageRouteController = require('./routes/imageRoute');
     const indexRouteController = require('./routes/indexRoute');
+    const integrationRouteController = require('./routes/integrationRoute');
     const questionsRouteController = require('./routes/questionsRoute');
     const targetGroupsRouteController = require('./routes/targetGroupsRoute');
   
@@ -97,6 +98,7 @@ if (cluster.isMaster) {
     app.use('/embed', embedRouteController);
     app.use('/graphs', graphsRouteController);
     app.use('/image', imageRouteController);
+    app.use('/integration', integrationRouteController);
     app.use('/questions', questionsRouteController);
     app.use('/target_groups', targetGroupsRouteController);
   

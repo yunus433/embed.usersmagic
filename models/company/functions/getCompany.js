@@ -9,6 +9,8 @@ module.exports = (company, callback) => {
     is_on_waitlist: company.is_on_waitlist,
     waiting_domain: company.waiting_domain ? 'https://' + company.waiting_domain : null,
     domain: company.domain ? 'https://' + company.domain : null,
-    preferred_language: company.preferred_language
+    integration_routes: company.integration_routes || [],
+    preferred_language: company.preferred_language,
+    preferred_color: company.preferred_color
   });
 }
