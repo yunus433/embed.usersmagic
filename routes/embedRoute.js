@@ -4,6 +4,7 @@ const router = express.Router();
 const isConfirmedDomain = require('../middleware/isConfirmedDomain');
 
 const adGetController = require('../controllers/embed/ad/get');
+const integrationRoutesGetController = require('../controllers/embed/integration_routes/get');
 const languageGetController = require('../controllers/embed/language/get');
 const personGetController = require('../controllers/embed/person/get');
 const questionGetController = require('../controllers/embed/question/get');
@@ -14,6 +15,11 @@ router.get(
   '/ad',
     isConfirmedDomain,
     adGetController
+);
+router.get(
+  '/integration_routes',
+    isConfirmedDomain,
+    integrationRoutesGetController
 );
 router.get(
   '/language',
@@ -33,8 +39,8 @@ router.get(
 
 router.post(
   '/answer',
-  isConfirmedDomain,
-  answerPostController
+    isConfirmedDomain,
+    answerPostController
 );
 
 module.exports = router;

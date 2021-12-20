@@ -149,7 +149,7 @@ UserSchema.statics.findUserByIdAndSendConfirmationCode = function (id, callback)
 
   User.findUserById(id, (err, user) => {
     if (err) return callback(err);
-    if (user.is_email_confirmed) return callback('document_validation');
+    if (user.is_email_confirmed) return callback(null);
 
     const confirmation_code = Math.round(Math.random() * 1e6) + 1e5;
     const exp_date = ((new Date).getTime()) + FIVE_MIN_IN_MS;

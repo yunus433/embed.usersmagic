@@ -17,7 +17,7 @@ function usersmagic() {
 
   // Global variables
   let isPopupOn = false;
-  let contentOuterWrapper = null;
+  let contentClickerWrapper = null, contentOuterWrapper = null;
   let email = null;
   let question;
   let answer;
@@ -25,7 +25,13 @@ function usersmagic() {
   const allowedLanguageValues = ['en', 'tr'];
   const defaultContentText = {
     en: {
+      openButtonText: 'Let us know you !',
       startTitle: 'Would you like to answer some questions to receive personalized discount codes?',
+      agreementsTextOne: 'By clicking the box, I accept the ',
+      privacyPolicy: 'Privacy Policy',
+      agreementsTextTwo: ' and ',
+      userAgreement: 'User Agreement',
+      agreementsTextThree: ' of Usersmagic Inc.',
       nextButtonText: 'Next',
       emailTitle: 'Enter your email here for a chance to receive personalized discount codes!',
       emailPlaceholder: 'E-mail',
@@ -38,7 +44,13 @@ function usersmagic() {
       closeButtonText: 'Close'
     },
     tr: {
+      openButtonText: 'Seni tanıyalım !',
       startTitle: 'Kişiselleştirilmiş indirim kodlarına erişmek için bir ankete katılmak ister misiniz?',
+      agreementsTextOne: 'Kutuyu işaretleyerek Usersmagic Inc.\'nin ',
+      privacyPolicy: 'Gizlilik Sözleşmesini',
+      agreementsTextTwo: ' ve ',
+      userAgreement: 'Kullanıcı Sözleşmesini',
+      agreementsTextThree: ' kabul ediyorum.',
       nextButtonText: 'Devam Et',
       emailTitle: 'Kişiselleştirilmiş indirim kodları için e-posta adresinizi buraya girin',
       emailPlaceholder: 'E-posta',
@@ -69,10 +81,6 @@ function usersmagic() {
       if (!res) return;
 
       document.addEventListener('click', event => {
-        if (event.target.classList.contains('usersmagic-close-button') || event.target.parentNode.classList.contains('usersmagic-close-button')) {
-          closeContent();
-        }
-
         if (event.target.classList.contains('usersmagic-each-choice') || event.target.classList.contains('usersmagic-choice-text')) {
           const target = event.target.classList.contains('usersmagic-choice-text') ? event.target.parentNode : event.target;
       
@@ -103,15 +111,13 @@ function usersmagic() {
             document.querySelector('.usersmagic-selected-choice').classList.remove('usersmagic-selected-choice');
           target.classList.add('usersmagic-selected-choice');
         }
-      });
 
-      document.addEventListener('mouseover', event => {
-        if (event.target.classList.contains('usersmagic')) {
-          document.querySelector('.usersmagic-content-outer-wrapper').style.height = 'fit-content';
-          document.querySelector('.usersmagic-content-outer-wrapper').style.minHeight = 'fit-content';
-        } else if (document.querySelector('.usersmagic-content-outer-wrapper')) {
-          document.querySelector('.usersmagic-content-outer-wrapper').style.height = '100px';
-          document.querySelector('.usersmagic-content-outer-wrapper').style.minHeight = '100px';
+        if (event.target.classList.contains('usersmagic-close-button') || event.target.parentNode.classList.contains('usersmagic-close-button')) {
+          document.querySelector('.usersmagic-content-clicker-wrapper').style.transform = 'translateX(calc(100% - 30px))';
+        } else if (event.target.classList.contains('usersmagic')) {
+          document.querySelector('.usersmagic-content-clicker-wrapper').style.transform = 'translateX(0px)';
+        } else if (isPopupOn) {
+          document.querySelector('.usersmagic-content-clicker-wrapper').style.transform = 'translateX(calc(100% - 30px))';
         }
       });
 
@@ -192,12 +198,23 @@ function usersmagic() {
   // Check if the domain is valid for Usersmagic and get preferred language of Company
   getLanguage = function(callback) {
     serverRequest('/language', 'GET', {}, res => {
-      if (res.error || !res.success || !res.language || !allowedLanguageValues.includes(res.language))
+      if (res.error || !res.success || !res.language || !allowedLanguageValues.includes(res.language))
         return callback(false);
 
       language = res.language;
 
-      return callback(true);
+      serverRequest('/integration_routes', 'GET', {}, res => {
+        if (!res.success)
+          return callback(false);
+
+        const path = location.href.replace(location.origin, '')
+        const integration_routes = res.integration_routes;
+        
+        if (!integration_routes.find(each => path.includes(each.route)))
+          return callback(false);
+
+        return callback(true);
+      });
     });
   }
 
@@ -325,6 +342,8 @@ function usersmagic() {
       contentInnerWrapper.innerHTML = '';
 
       if (data.type == 'start') {
+        let isCheckboxChecked = false;
+
         const usersmagicTitle = document.createElement('span');
         usersmagicTitle.classList.add('usersmagic');
         usersmagicTitle.classList.add('usersmagic-title');
@@ -338,8 +357,70 @@ function usersmagic() {
         usersmagicButton.innerHTML = defaultContentText[language].nextButtonText;
         contentInnerWrapper.appendChild(usersmagicButton);
 
+        const usersmagicCheckBoxWrapper = document.createElement('div');
+        usersmagicCheckBoxWrapper.classList.add('usersmagic');
+        usersmagicCheckBoxWrapper.classList.add('usersmagic-check-box-wrapper');
+
+        const usersmagicCheckBox = document.createElement('div');
+        usersmagicCheckBox.classList.add('usersmagic');
+        usersmagicCheckBox.classList.add('usersmagic-check-box');
+
+        const usersmagicCheckBoxI = document.createElement('i');
+        usersmagicCheckBoxI.classList.add('usersmagic');
+        usersmagicCheckBoxI.classList.add('fas');
+        usersmagicCheckBoxI.classList.add('fa-check');
+
+        usersmagicCheckBox.appendChild(usersmagicCheckBoxI);
+        usersmagicCheckBoxWrapper.appendChild(usersmagicCheckBox);
+
+        const usersmagicCheckBoxSpan = document.createElement('span');
+        usersmagicCheckBoxSpan.classList.add('usersmagic');
+
+        const span1 = document.createElement('span');
+        span1.classList.add('usersmagic');
+        span1.innerHTML = defaultContentText[language].agreementsTextOne;
+        usersmagicCheckBoxSpan.appendChild(span1);
+
+        const a1 = document.createElement('a');
+        a1.classList.add('usersmagic');
+        a1.href = 'https://usersmagic.com/agreement/privacy';
+        a1.target = '_blank';
+        a1.innerHTML = defaultContentText[language].privacyPolicy;
+        usersmagicCheckBoxSpan.appendChild(a1);
+
+        const span2 = document.createElement('span');
+        span2.classList.add('usersmagic');
+        span2.innerHTML = defaultContentText[language].agreementsTextTwo;
+        usersmagicCheckBoxSpan.appendChild(span2);
+
+        const a2 = document.createElement('a');
+        a2.classList.add('usersmagic');
+        a2.href = 'https://usersmagic.com/agreement/user';
+        a2.target = '_blank';
+        a2.innerHTML = defaultContentText[language].userAgreement;
+        usersmagicCheckBoxSpan.appendChild(a2);
+
+        const span3 = document.createElement('span');
+        span3.classList.add('usersmagic');
+        span3.innerHTML = defaultContentText[language].agreementsTextThree;
+        usersmagicCheckBoxSpan.appendChild(span3);
+
+        usersmagicCheckBoxWrapper.appendChild(usersmagicCheckBoxSpan);
+
+        contentInnerWrapper.appendChild(usersmagicCheckBoxWrapper);
+
         document.addEventListener('click', function listenForStartButton(event) {
-          if (event.target.id == 'usersmagic-start-questions-button') {
+          if (event.target.classList.contains('usersmagic-check-box-wrapper') || (event.target.parentNode && event.target.parentNode.classList.contains('usersmagic-check-box-wrapper')) || (event.target.parentNode && event.target.parentNode.parentNode && event.target.parentNode.parentNode.classList.contains('usersmagic-check-box-wrapper'))) {
+            if (isCheckboxChecked) {
+              usersmagicCheckBox.style.backgroundColor = 'rgb(254, 254, 254)';
+            } else {
+              usersmagicCheckBox.style.backgroundColor = 'rgb(46, 197, 206)';
+            }
+            
+            isCheckboxChecked = !isCheckboxChecked;
+          }
+
+          if (event.target.id == 'usersmagic-start-questions-button' && isCheckboxChecked) {
             document.removeEventListener('click', listenForStartButton);
             callback(null);
           }
@@ -520,6 +601,21 @@ function usersmagic() {
         return callback('bad_request');
       }
     } else {
+      contentClickerWrapper = document.createElement('div');
+      contentClickerWrapper.classList.add('usersmagic');
+      contentClickerWrapper.classList.add('usersmagic-content-clicker-wrapper');
+
+      const openButton = document.createElement('div');
+      openButton.classList.add('usersmagic');
+      openButton.classList.add('usersmagic-open-button');
+
+      const openButtonSpan = document.createElement('span');
+      openButtonSpan.classList.add('usersmagic');
+      openButtonSpan.innerHTML = defaultContentText[language].openButtonText;
+      openButton.appendChild(openButtonSpan);
+
+      contentClickerWrapper.appendChild(openButton);
+
       contentOuterWrapper = document.createElement('div');
       contentOuterWrapper.classList.add('usersmagic');
       contentOuterWrapper.classList.add('usersmagic-content-outer-wrapper');
@@ -558,22 +654,24 @@ function usersmagic() {
       
       const footerSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       footerSvg.classList.add('usersmagic');
-      footerSvg.setAttributeNS(null, 'width', '20');
-      footerSvg.setAttributeNS(null, 'height', '40');
-      footerSvg.setAttributeNS(null, 'viewBox', '0 0 20 40');
+      footerSvg.setAttributeNS(null, 'width', '72');
+      footerSvg.setAttributeNS(null, 'height', '14');
+      footerSvg.setAttributeNS(null, 'viewBox', '0 0 72 14');
       footerSvg.setAttributeNS(null, 'fill', 'none');
 
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.classList.add('usersmagic');
-      path.setAttributeNS(null, 'd', 'M8.55804 10.1338C9.09275 8.88554 9.14437 6.85164 8.588 4.70523C8.03117 2.55932 7.01109 0.854949 5.95597 0.0964456C5.42126 1.34471 5.37009 3.3786 5.92646 5.52502C6.48283 7.67093 7.50338 9.3753 8.55804 10.1338ZM13.5271 5.42355C14.0116 3.25704 13.8917 1.22616 13.316 0C12.2871 0.800196 11.3242 2.54325 10.8398 4.71025C10.3553 6.87676 10.4747 8.90764 11.0504 10.1338C12.0793 9.33361 13.0426 7.59005 13.5271 5.42355ZM13.8286 15.0696C13.8286 12.5771 11.9677 10.5487 9.68 10.5487C7.39229 10.5487 5.53143 12.5771 5.53143 15.0696V16.5766H13.8286V15.0696ZM9.91047 15.0696C9.8182 15.0722 9.72639 15.0547 9.64043 15.018C9.55447 14.9814 9.47612 14.9264 9.41 14.8562C9.34387 14.786 9.29131 14.7021 9.25541 14.6094C9.21951 14.5168 9.201 14.4172 9.20097 14.3166C9.20094 14.216 9.21939 14.1165 9.25523 14.0238C9.29107 13.9311 9.34359 13.8471 9.40967 13.7769C9.47575 13.7067 9.55407 13.6516 9.64 13.6149C9.72593 13.5782 9.81774 13.5606 9.91001 13.5631C10.0902 13.5681 10.2615 13.6497 10.3874 13.7903C10.5133 13.931 10.5838 14.1197 10.5838 14.3161C10.5839 14.5126 10.5135 14.7013 10.3877 14.8421C10.262 14.9828 10.0907 15.0645 9.91047 15.0696ZM12.2152 15.0696C12.0319 15.0696 11.856 14.9902 11.7263 14.8489C11.5967 14.7076 11.5238 14.516 11.5238 14.3161C11.5238 14.1163 11.5967 13.9246 11.7263 13.7833C11.856 13.642 12.0319 13.5626 12.2152 13.5626C12.3986 13.5626 12.5745 13.642 12.7042 13.7833C12.8338 13.9246 12.9067 14.1163 12.9067 14.3161C12.9067 14.516 12.8338 14.7076 12.7042 14.8489C12.5745 14.9902 12.3986 15.0696 12.2152 15.0696ZM19.36 18.0835H0V21.0974H4.14857L2.76571 39.181H16.5943L15.2114 21.0974H19.36V18.0835Z');
-      path.setAttributeNS(null, 'fill', '#2EC5CE');
+      path.setAttributeNS(null, 'd', 'M0 8.8204V3.89339H1.76763V8.54829C1.76763 9.33869 2.15717 9.73389 2.93623 9.73389C3.59746 9.73389 4.10156 9.46178 4.44854 8.91758V3.89339H6.23582V9.06335L6.35366 11.1041H4.77261L4.60567 10.1518C4.08192 10.9033 3.29303 11.279 2.239 11.279C1.48612 11.279 0.923097 11.049 0.54993 10.5891C0.18331 10.1226 0 9.53305 0 8.8204ZM10.6353 9.90881C11.0477 9.90881 11.362 9.82783 11.578 9.66586C11.7875 9.49742 11.8922 9.27714 11.8922 9.00504C11.8922 8.70054 11.7908 8.48351 11.5878 8.35394C11.3849 8.21788 11.0215 8.12718 10.4978 8.08183C9.48957 8.00409 8.7727 7.81297 8.34715 7.50847C7.91507 7.20398 7.69902 6.73428 7.69902 6.09937V5.99247C7.69902 5.24743 7.96744 4.68055 8.50428 4.29183C9.04111 3.90959 9.75144 3.71847 10.6353 3.71847C12.6058 3.71847 13.5911 4.53802 13.5911 6.17711V6.24514H11.853C11.853 5.47418 11.4471 5.0887 10.6353 5.0887C10.2621 5.0887 9.97403 5.16645 9.77108 5.32193C9.56158 5.47742 9.45683 5.68474 9.45683 5.94388C9.45683 6.22894 9.55176 6.43626 9.74162 6.56583C9.92493 6.6954 10.2752 6.77963 10.7924 6.8185C11.7809 6.90272 12.5076 7.08736 12.9725 7.37242C13.4438 7.66396 13.6795 8.15634 13.6795 8.84955V8.93701C13.6795 9.66262 13.4209 10.236 12.9037 10.6571C12.3865 11.0717 11.6304 11.279 10.6353 11.279C9.64015 11.279 8.88399 11.0588 8.3668 10.6182C7.85615 10.1712 7.60082 9.59783 7.60082 8.89814V8.84955H9.37827C9.37827 9.55572 9.79727 9.90881 10.6353 9.90881ZM21.3491 7.32383V8.14986H16.5372C16.6027 9.32249 17.1493 9.90881 18.1772 9.90881C18.6354 9.90881 18.9955 9.79867 19.2574 9.5784C19.5258 9.35165 19.66 9.08926 19.66 8.79124H21.3491V8.84955C21.3491 9.52981 21.0676 10.1032 20.5045 10.5696C19.9415 11.0426 19.1592 11.279 18.1575 11.279C17.0315 11.279 16.1837 10.9486 15.6141 10.2878C15.038 9.62699 14.7499 8.75561 14.7499 7.67368V7.32383C14.7499 6.2419 15.0347 5.37052 15.6043 4.7097C16.1738 4.04888 17.002 3.71847 18.0888 3.71847C19.1624 3.71847 19.9742 4.04888 20.5242 4.7097C21.0741 5.37052 21.3491 6.2419 21.3491 7.32383ZM18.0495 5.0887C17.1133 5.0887 16.6092 5.67502 16.5372 6.84765H19.552C19.4931 5.67502 18.9922 5.0887 18.0495 5.0887ZM26.2297 3.71847C26.2559 3.71847 26.2952 3.72171 26.3475 3.72819C26.3999 3.72819 26.4294 3.72819 26.4359 3.72819V5.44827H26.1315C25.3459 5.44827 24.7829 5.70093 24.4424 6.20627V11.1041H22.6552V5.93417L22.5275 3.89339H24.1085L24.2657 4.76801C24.7501 4.06832 25.4048 3.71847 26.2297 3.71847ZM30.5309 9.90881C30.9434 9.90881 31.2544 9.82783 31.4639 9.66586C31.6799 9.49742 31.7879 9.27714 31.7879 9.00504C31.7879 8.70054 31.6865 8.48351 31.4835 8.35394C31.2806 8.21788 30.9172 8.12718 30.3935 8.08183C29.3853 8.00409 28.6651 7.81297 28.233 7.50847C27.8075 7.20398 27.5947 6.73428 27.5947 6.09937V5.99247C27.5947 5.24743 27.8599 4.68055 28.3901 4.29183C28.927 3.90959 29.6406 3.71847 30.5309 3.71847C32.5015 3.71847 33.4868 4.53802 33.4868 6.17711V6.24514H31.7388C31.7388 5.47418 31.3362 5.0887 30.5309 5.0887C30.1578 5.0887 29.8664 5.16645 29.6569 5.32193C29.454 5.47742 29.3525 5.68474 29.3525 5.94388C29.3525 6.22894 29.4475 6.43626 29.6373 6.56583C29.8206 6.6954 30.1709 6.77963 30.6881 6.8185C31.6766 6.90272 32.4033 7.08736 32.8681 7.37242C33.3395 7.66396 33.5752 8.15634 33.5752 8.84955V8.93701C33.5752 9.66262 33.3166 10.236 32.7994 10.6571C32.2757 11.0717 31.5195 11.279 30.5309 11.279C29.5358 11.279 28.7797 11.0588 28.2625 10.6182C27.7518 10.1712 27.4965 9.59783 27.4965 8.89814V8.84955H29.2641C29.2641 9.55572 29.6864 9.90881 30.5309 9.90881ZM45.055 6.0605V11.1041H43.2677V6.3326C43.2677 5.61347 42.924 5.25391 42.2366 5.25391C41.6867 5.25391 41.2349 5.51305 40.8814 6.03134V11.1041H39.1138V6.3326C39.1138 5.61347 38.7635 5.25391 38.063 5.25391C37.5065 5.25391 37.0646 5.51305 36.7373 6.03134V11.1041H34.95V5.93417L34.8224 3.89339H36.4034L36.5507 4.78745C37.0679 4.0748 37.8077 3.71847 38.7701 3.71847C39.6932 3.71847 40.3217 4.09747 40.6556 4.85547C41.1466 4.09747 41.9027 3.71847 42.924 3.71847C43.6245 3.71847 44.1548 3.93227 44.5149 4.35986C44.875 4.78097 45.055 5.34785 45.055 6.0605ZM52.5183 11.1041H50.9373L50.7998 10.2781C50.2106 10.9454 49.4184 11.279 48.4233 11.279C47.6901 11.279 47.1401 11.0814 46.7735 10.6862C46.4069 10.2846 46.2236 9.776 46.2236 9.16053V9.02447C46.2236 8.29887 46.4462 7.77086 46.8914 7.44045C47.33 7.11004 47.9552 6.88329 48.767 6.76019L50.623 6.47837V6.44922C50.623 5.97628 50.5314 5.63291 50.3481 5.41911C50.1713 5.19884 49.8571 5.0887 49.4053 5.0887C48.6001 5.0887 48.1975 5.4839 48.1975 6.27429H46.4986V6.14796C46.4986 5.45475 46.7244 4.87491 47.1762 4.40845C47.6279 3.94846 48.3873 3.71847 49.4544 3.71847C50.5347 3.71847 51.2974 3.94846 51.7425 4.40845C52.1877 4.87491 52.4103 5.55516 52.4103 6.44922V9.06335L52.5183 11.1041ZM49.042 9.82135C49.7163 9.82135 50.2433 9.57192 50.623 9.07306V7.55706L49.0911 7.80001C48.3709 7.91663 48.0109 8.26 48.0109 8.83012V8.93701C48.0109 9.1832 48.096 9.39376 48.2662 9.56868C48.443 9.73713 48.7016 9.82135 49.042 9.82135ZM58.3221 10.9972V9.98655C57.8507 10.5437 57.2026 10.8223 56.3777 10.8223C55.4415 10.8223 54.7541 10.521 54.3154 9.91853C53.8702 9.32249 53.6477 8.49647 53.6477 7.44045V7.0906C53.6477 6.07346 53.8702 5.25715 54.3154 4.64168C54.7672 4.02621 55.4546 3.71847 56.3777 3.71847C57.3204 3.71847 58.0209 4.07156 58.4792 4.77773L58.6363 3.89339H60.2174L60.1093 5.93417V11.0264C60.1093 13.0088 59.0389 14.0001 56.8981 14.0001C55.7983 14.0001 55.0061 13.7604 54.5217 13.2809C54.0306 12.8015 53.7851 12.1634 53.7851 11.3665V11.1041H55.4742C55.4742 11.5771 55.579 11.9366 55.7885 12.1828C55.998 12.4225 56.3548 12.5424 56.8589 12.5424C57.376 12.5424 57.7492 12.4225 57.9784 12.1828C58.2075 11.9366 58.3221 11.5414 58.3221 10.9972ZM58.3221 8.46083V6.07993C57.962 5.52925 57.4808 5.25391 56.8785 5.25391C56.4071 5.25391 56.0471 5.41911 55.7983 5.74952C55.556 6.07993 55.4349 6.52696 55.4349 7.0906V7.44045C55.4349 8.66491 55.9161 9.27714 56.8785 9.27714C57.4743 9.27714 57.9554 9.00504 58.3221 8.46083ZM63.4973 11.1041H61.71V3.89339H63.4973V11.1041ZM61.6315 0.725342H63.5857V2.63978H61.6315V0.725342ZM66.6103 7.28496V7.71255C66.6103 9.06011 67.1013 9.73389 68.0833 9.73389C68.5089 9.73389 68.8297 9.61727 69.0457 9.38404C69.2617 9.15081 69.3698 8.84955 69.3698 8.48027H71.0588V8.76209C71.0588 9.50065 70.8002 10.1032 70.283 10.5696C69.7658 11.0426 69.0162 11.279 68.0342 11.279C66.9671 11.279 66.1651 10.9551 65.6283 10.3072C65.0914 9.65938 64.823 8.79448 64.823 7.71255V7.28496C64.823 6.19655 65.0914 5.32841 65.6283 4.68055C66.1651 4.03916 66.9671 3.71847 68.0342 3.71847C69.0293 3.71847 69.7822 3.96142 70.2929 4.44732C70.8035 4.93969 71.0588 5.57136 71.0588 6.34232V6.64358H69.3698C69.3698 6.20951 69.2617 5.86938 69.0457 5.62319C68.8297 5.377 68.5089 5.25391 68.0833 5.25391C67.1013 5.25391 66.6103 5.93093 66.6103 7.28496Z');
+      path.setAttributeNS(null, 'fill', '#748297');
       footerSvg.appendChild(path);
       
       footerWrapper.appendChild(footerSvg);
       
       contentOuterWrapper.appendChild(footerWrapper);
 
-      document.querySelector('body').appendChild(contentOuterWrapper);
+      contentClickerWrapper.appendChild(contentOuterWrapper);
+
+      document.querySelector('html').appendChild(contentClickerWrapper);
 
       isPopupOn = true;
       createContent(data, err => callback(err));
