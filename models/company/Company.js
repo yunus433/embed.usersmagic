@@ -101,15 +101,22 @@ CompanySchema.statics.findCompanyById = function (id, callback) {
 CompanySchema.statics.findCompanyByIdAndRemoveFromWaitlist = function (id, data, callback) {
   const Company = this;
 
-  if (!data || !data.preferred_language || !preferred_language_values.includes(data.preferred_language))
+  if (!data)
     return callback('bad_request');
+
+  if (!data.preferred_language || !preferred_language_values.includes(data.preferred_language))
+    return callback('bad_request');
+
+  if (!data.preferred_color || typeof data.preferred_color != 'string' || !data.preferred_color.trim().length)
+    return callback('bad_request');  
 
   Company.findCompanyById(id, (err, company) => {
     if (err) return callback(err);
 
     Company.findByIdAndUpdate(company._id, {$set: {
       is_on_waitlist: false,
-      preferred_language: data.preferred_language
+      preferred_language: data.preferred_language,
+      preferred_color: data.preferred_color.trim()
     }}, err => {
       if (err) return callback('bad_request');
 
@@ -311,7 +318,7 @@ CompanySchema.statics.findCompanyByIdAndDeleteIntegrationRouteById = function (i
     }}, err => {
       if (err) return callback('database_error');
 
-      return callbakc(null);
+      return callback(null);
     });
   });
 };
