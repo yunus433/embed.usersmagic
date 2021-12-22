@@ -333,6 +333,7 @@ function createIntegrationRoutes () {
 function createIntegrationRoute (route) {
   const eachIntegrationRoute = document.createElement('div');
   eachIntegrationRoute.classList.add('each-integration-route');
+  eachIntegrationRoute.id = route._id.toString();
   
   const eachIntegrationRouteName = document.createElement('span');
   eachIntegrationRouteName.classList.add('each-integration-route-name');
@@ -528,6 +529,30 @@ window.addEventListener('load', () => {
 
     if (event.target.id == 'create-integration-route-open-button') {
       createIntegrationRouteWrapper.style.display = 'flex';
+    }
+
+    if (event.target.classList.contains('each-integration-route-delete-button')) {
+      const id = event.target.parentNode.id;
+
+      console.log(id);
+
+      createConfirm({
+        title: 'Are you sure you want to delete this route?',
+        text: 'Please confirm you want to delete this route. The Usersmagic pop-ups will be deactivated from this page. You may retake this action whenever you like.',
+        accept: 'Delete',
+        reject: 'Cancel'
+      }, res => {
+        if (res) {
+          serverRequest('/integration/delete', 'POST', {
+            integration_route_id: id
+          }, res => {
+            if (!res.success)
+              return throwError(res.error);
+
+            event.target.parentNode.remove();
+          });
+        }
+      });
     }
 
     if (event.target.classList.contains('create-target-group-button') || event.target.parentNode.classList.contains('create-target-group-button')) {
