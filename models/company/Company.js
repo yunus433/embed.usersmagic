@@ -2,6 +2,8 @@ const dns = require('dns');
 const mongoose = require('mongoose');
 const validator = require('validator');
 
+const IntegrationPath = require('../integration_path/IntegrationPath');
+
 const getCompany = require('./functions/getCompany');
 const validateDomain = require('./functions/validateDomain');
 
@@ -40,17 +42,6 @@ const CompanySchema = new Schema({
     type: String,
     maxlength: MAX_DATABASE_TEXT_FIELD_LENGTH,
     default: null
-  },
-  integration_routes: {
-    type: Array,
-    default: [],
-    maxlength: MAX_DATABASE_ARRAY_FIELD_LENGTH
-    // {
-    //   _id: mongoose.Types.ObjectId(),
-    //   name: String,
-    //   route: String,
-    //   is_active: Boolean
-    // }
   },
   preferred_language: {
     type: String,
@@ -259,120 +250,18 @@ CompanySchema.statics.findCompanyByIdAndUpdatePreferredLanguage = function (id, 
   });
 };
 
-CompanySchema.statics.findCompanyByIdAndCreateIntegrationRoute = function (id, data, callback) {
+CompanySchema.statics.findCompanyByIdAndCreateIntegrationPath = function (id, data, callback) {
   const Company = this;
-
-  if (!data)
-    return callback('bad_request');
-
-  if (!data.name || typeof data.name != 'string' || !data.name.trim().length || data.name.trim().length > MAX_DATABASE_TEXT_FIELD_LENGTH)
-    return callback('bad_request');
-
-  if (!data.route || typeof data.route != 'string' || !data.route.trim().length || data.route.trim().length > MAX_DATABASE_TEXT_FIELD_LENGTH)
-    return callback('bad_request');
 
   Company.findCompanyById(id, (err, company) => {
     if (err) return callback(err);
 
-    if (company.integration_routes && company.integration_routes.length >= MAX_DATABASE_ARRAY_FIELD_LENGTH)
-      return callback('too_many_documents');
+    data.company_id = company._id;
 
-    const newIntegrationRoute = {
-      _id: mongoose.Types.ObjectId(),
-      name: data.name.trim(),
-      route: data.route.trim(),
-      is_active: true
-    };
+    IntegrationPath.createIntegrationPath(data, (err, id) => {
+      if (err) return callback(err);
 
-    const integrationRouteUpdateArray = [];
-    integrationRouteUpdateArray.push(newIntegrationRoute);
-
-    Company.findByIdAndUpdate(company._id, {$push: {
-      integration_routes: {
-        $each: integrationRouteUpdateArray,
-        $sort: {
-          name: 1
-        }
-      }
-    }}, err => {
-      if (err) return callback('database_error');
-
-      return callback(null, newIntegrationRoute._id.toString());
-    });
-  });
-};
-
-CompanySchema.statics.findCompanyByIdAndDeleteIntegrationRouteById = function (id, data, callback) {
-  const Company = this;
-
-  if (!data || !data.integration_route_id || !validator.isMongoId(data.integration_route_id.toString()))
-    return callback('bad_request');
-
-  Company.findCompanyById(id, (err, company) => {
-    if (err) return callback(err);
-
-    Company.findByIdAndUpdate(company._id, {$pull: {
-      integration_routes: {
-        _id: mongoose.Types.ObjectId(data.integration_route_id.toString())
-      }
-    }}, err => {
-      if (err) return callback('database_error');
-
-      return callback(null);
-    });
-  });
-};
-
-CompanySchema.statics.findCompanyByIdAndActivateIntegrationRouteById = function (id, data, callback) {
-  const Company = this;
-
-  if (!data || !data.integration_route_id || !validator.isMongoId(data.integration_route_id.toString()))
-    return callback('bad_request');
-
-  Company.findCompanyById(id, (err, company) => {
-    if (err) return callback(err);
-
-    const integrationRoute = company.integration_routes.find(each => each._id == data.integration_route_id.toString());
-
-    if (!integrationRoute)
-      return callback('document_not_found');
-
-    if (integrationRoute.is_active)
-      return callback(null);
-
-    Company.findByIdAndUpdate(company._id, {$set: {
-      [`integration_routes.${integrationRoute._id.toString()}.is_active`]: true
-    }}, err => {
-      if (err) return callback('database_error');
-
-      return callback(null);
-    });
-  });
-};
-
-CompanySchema.statics.findCompanyByIdAndDeactivateIntegrationRouteById = function (id, data, callback) {
-  const Company = this;
-
-  if (!data || !data.integration_route_id || !validator.isMongoId(data.integration_route_id.toString()))
-    return callback('bad_request');
-
-  Company.findCompanyById(id, (err, company) => {
-    if (err) return callback(err);
-
-    const integrationRoute = company.integration_routes.find(each => each._id == data.integration_route_id.toString());
-
-    if (!integrationRoute)
-      return callback('document_not_found');
-
-    if (!integrationRoute.is_active)
-      return callback(null);
-
-    Company.findByIdAndUpdate(company._id, {$set: {
-      [`integration_routes.${integrationRoute._id.toString()}.is_active`]: false
-    }}, err => {
-      if (err) return callback('database_error');
-
-      return callback(null);
+      return callback(null, id);
     });
   });
 };

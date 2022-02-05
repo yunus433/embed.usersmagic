@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 
 const Company = require('../company/Company');
+const IntegrationPath = require('../integration_path/IntegrationPath');
 
 const getProduct = require('./functions/getProduct');
 
@@ -22,7 +23,7 @@ const ProductSchema = new Schema({
     required: true,
     maxlength: MAX_DATABASE_SHORT_TEXT_FIELD_LENGTH
   },
-  link: {
+  path: {
     type: String,
     required: true,
     maxlength: MAX_DATABASE_TEXT_FIELD_LENGTH
@@ -75,7 +76,7 @@ ProductSchema.statics.findProductsByCompanyId = function (company_id, callback) 
 ProductSchema.statics.createProduct = function (data, callback) {
   const Product = this;
 
-  if (!data || !data.company_id || !data.name || !data.link)
+  if (!data || !data.company_id || !data.name || !data.path)
     return callback('bad_request');
 
   Company.findCompanyById(data.company_id, (err, company) => {
@@ -88,13 +89,13 @@ ProductSchema.statics.createProduct = function (data, callback) {
       if (typeof data.name != 'string' || !data.name.trim().length || data.name.length > MAX_DATABASE_SHORT_TEXT_FIELD_LENGTH)
         return callback('bad_request');
 
-      if (typeof data.link != 'string' || !validator.isURL(data.link))
+      if (typeof data.path != 'string' || !data.path.length || data.path.length > MAX_DATABASE_TEXT_FIELD_LENGTH)
         return callback('bad_request');
 
       const newProductData = {
         company_id: company._id,
         name: data.name.trim(),
-        link: data.link.trim()
+        path: data.path.trim()
       };
 
       const newProduct = new Product(newProductData);
@@ -102,7 +103,17 @@ ProductSchema.statics.createProduct = function (data, callback) {
       newProduct.save((err, product) => {
         if (err) return callback('database_error');
 
-        return callback(null, product._id.toString());
+        IntegrationPath.createIntegrationPath({
+          type: 'product',
+          name: `${product.name} - Product Page`,
+          path: product.path,
+          product_id: product._id,
+          company_id: company._id
+        }, (err, integration_path_id) => {
+          if (err) return callback(err);
+
+          return callback(null, product._id.toString());
+        });
       });
     });
   });

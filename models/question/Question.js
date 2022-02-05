@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 
 const Company = require('../company/Company');
+const IntegrationPath = require('../integration_path/IntegrationPath');
 const Product = require('../product/Product');
 const Template = require('../template/Template');
 
@@ -10,6 +11,7 @@ const getQuestion = require('./functions/getQuestion');
 
 const DUPLICATED_UNIQUE_FIELD_ERROR_CODE = 11000;
 const MAX_QUESTION_NUMBER_PER_COMPANY = 20;
+const QUESTION_CREATED_AT_LENGTH = 10;
 
 const Schema = mongoose.Schema;
 
@@ -41,6 +43,15 @@ const QuestionSchema = new Schema({
   is_active: {
     type: Boolean,
     default: true
+  },
+  integration_path_id_list: {
+    type: Array,
+    default: []
+  },
+  created_at: {
+    type: String,
+    required: true,
+    length: QUESTION_CREATED_AT_LENGTH
   }
 });
 
@@ -95,46 +106,71 @@ QuestionSchema.statics.createQuestion = function (data, callback) {
           if (order_number >= MAX_QUESTION_NUMBER_PER_COMPANY)
             return callback('too_many_documents');
 
-          if (template.type == 'product') {
-            Product.findProductById(data.product_id, (err, product) => {
+          if (!data.integration_path_id_list || !Array.isArray(data.integration_path_id_list))
+            data.integration_path_id_list = [];
+
+          if (!data.created_at || typeof data.created_at != 'string' || data.created_at.length != QUESTION_CREATED_AT_LENGTH)
+            return callback('bad_request');
+
+          async.timesSeries(
+            data.integration_path_id_list.length,
+            (time, next) => IntegrationPath.findIntegrationPathById(data.integration_path_id_list[time], (err, integration_path) => {
+              if (err) return next(err);
+              if (integration_path.company_id.toString() != company._id.toString())
+                return next('not_authenticated_request');
+
+              return next(null, integration_path._id.toString());
+            }),
+            (err, integration_path_id_list) => {
               if (err) return callback(err);
+
+              if (template.type == 'product') {
+                Product.findProductById(data.product_id, (err, product) => {
+                  if (err) return callback(err);
+        
+                  const newQuestionData = {
+                    signature: template._id.toString() + company._id.toString() + product._id.toString(),
+                    template_id: template._id,
+                    company_id: company._id,
+                    product_id: product._id,
+                    order_number,
+                    created_at: data.created_at,
+                    integration_path_id_list,
+                    created_at: moment
+                  };
     
-              const newQuestionData = {
-                signature: template._id.toString() + company._id.toString() + product._id.toString(),
-                template_id: template._id,
-                company_id: company._id,
-                product_id: product._id,
-                order_number
-              };
-
-              const newQuestion = new Question(newQuestionData);
-
-              newQuestion.save((err, question) => {
-                if (err && err.code == DUPLICATED_UNIQUE_FIELD_ERROR_CODE)
-                  return callback('duplicated_unique_field');
-                if (err) return callback('database_error');
-
-                return callback(null, question._id.toString());
-              });
-            });
-          } else {
-            const newQuestionData = {
-              signature: template._id.toString() + company._id.toString(),
-              template_id: template._id,
-              company_id: company._id,
-              order_number
-            };
-
-            const newQuestion = new Question(newQuestionData);
-
-            newQuestion.save((err, question) => {
-              if (err && err.code == DUPLICATED_UNIQUE_FIELD_ERROR_CODE)
-                return callback('duplicated_unique_field');
-              if (err) return callback('database_error');
-
-              return callback(null, question._id.toString());
-            });
-          }
+                  const newQuestion = new Question(newQuestionData);
+    
+                  newQuestion.save((err, question) => {
+                    if (err && err.code == DUPLICATED_UNIQUE_FIELD_ERROR_CODE)
+                      return callback('duplicated_unique_field');
+                    if (err) return callback('database_error');
+    
+                    return callback(null, question._id.toString());
+                  });
+                });
+              } else {
+                const newQuestionData = {
+                  signature: template._id.toString() + company._id.toString(),
+                  template_id: template._id,
+                  company_id: company._id,
+                  order_number,
+                  created_at: data.created_at,
+                  integration_path_id_list
+                };
+    
+                const newQuestion = new Question(newQuestionData);
+    
+                newQuestion.save((err, question) => {
+                  if (err && err.code == DUPLICATED_UNIQUE_FIELD_ERROR_CODE)
+                    return callback('duplicated_unique_field');
+                  if (err) return callback('database_error');
+    
+                  return callback(null, question._id.toString());
+                });
+              }
+            }
+          );
         })
         .catch(err => callback('database_error'));
     });
@@ -171,7 +207,7 @@ QuestionSchema.statics.createQuestionsForDefaultTemplates = function (company_id
   });
 };
 
-QuestionSchema.statics.findQuestionsByFiltersAndSorted = function (data, callback) {
+QuestionSchema.statics.findQuestionsByFiltersAndSorted = function (data, callback) {
   const Question = this;
 
   const filters = {};
@@ -190,17 +226,17 @@ QuestionSchema.statics.findQuestionsByFiltersAndSorted = function (data, callbac
 
   Question
     .find(filters)
-    .sort({ order_number: 1 })
+    .sort({ order_number: -1 })
     .then(questions => callback(null, questions))
     .catch(err => callback('database_error'));
 };
 
-QuestionSchema.statics.findQuestionByIdAndDeactivate = function (id, data, callback) {
+QuestionSchema.statics.findQuestionByIdAndCompanyIdAndDeactivate = function (id, company_id, callback) {
   const Question = this;
 
   Question.findQuestionById(id, (err, question) => {
     if (err) return callback(err);
-    if (question.company_id.toString() != data.company_id.toString())
+    if (question.company_id.toString() != company_id.toString())
       return callback('not_authenticated_request');
 
     Question.findByIdAndUpdate(question._id, {$set: {
@@ -213,12 +249,12 @@ QuestionSchema.statics.findQuestionByIdAndDeactivate = function (id, data, callb
   });
 };
 
-QuestionSchema.statics.findQuestionByIdAndActivate = function (id, data, callback) {
+QuestionSchema.statics.findQuestionByIdAndCompanyIdAndActivate = function (id, company_id, callback) {
   const Question = this;
 
   Question.findQuestionById(id, (err, question) => {
     if (err) return callback(err);
-    if (question.company_id.toString() != data.company_id.toString())
+    if (question.company_id.toString() != company_id.toString())
       return callback('not_authenticated_request');
 
     Question.findByIdAndUpdate(question._id, {$set: {
@@ -414,7 +450,9 @@ QuestionSchema.statics.findUnusedTemplatesForCompany = function (company_id, cal
   Company.findCompanyById(company_id, (err, company) => {
     if (err) return callback(err);
 
-    Question.findQuestionsForCompany(company._id, (err, questions) => {
+    Question.findQuestionsByFiltersAndSorted({
+      company_id: company._id
+    }, (err, questions) => {
       if (err) return callback(err);
       
       const template_id_list = questions.map(each => each.template_id.toString());
@@ -428,6 +466,55 @@ QuestionSchema.statics.findUnusedTemplatesForCompany = function (company_id, cal
         return callback(null, templates);
       });
     });
+  });
+};
+
+QuestionSchema.statics.findUnusedProductTemplatesForCompanyByProductId = function (data, callback) {
+  const Question = this;
+
+  Company.findCompanyById(data.company_id, (err, company) => {
+    if (err) return callback(err);
+
+    Product.findProductById(data.product_id, (err, product) => {
+      if (err) return callback(err);
+
+      if (product.company_id.toString() != company._id.toString())
+        return callback('not_authenticated_request');
+
+      Question.findQuestionsByFiltersAndSorted({
+        company_id: company._id,
+        product_id: product._id
+      }, (err, questions) => {
+        if (err) return callback(err);
+        
+        const template_id_list = questions.map(each => each.template_id.toString());
+    
+        Template.findTemplatesByFiltersAndSorted({
+          language: company.preferred_language,
+          type: 'product',
+          nin_id_list: template_id_list
+        }, (err, templates) => {
+          if (err) return callback(err);
+    
+          return callback(null, templates);
+        });
+      });
+    });
+  });
+};
+
+QuestionSchema.statics.findQuestionsByIntegrationPathId = function (integration_path_id, callback) {
+  const Question = this;
+
+  if (!integration_path_id || !validator.isMongoId(integration_path_id.toString()))
+    return callback('bad_request');
+
+  Question.find({
+    integration_path_id_list: integration_path_id.toString()
+  }, (err, questions) => {
+    if (err) return callback('database_error');
+
+    return callback(null, questions);
   });
 };
 

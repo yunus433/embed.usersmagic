@@ -51,7 +51,7 @@ const TemplateSchema = new Schema({
     type: String,
     required: true
   },
-  subtype: {
+  subtype: {
     type: String,
     required: true
   },
@@ -122,7 +122,10 @@ TemplateSchema.statics.createTemplate = function (data, callback) {
   };
   let timeout_duration_in_week_by_choices = null;
 
-  if (!data.timeout_duration_in_week || !Number.isInteger(data.timeout_duration_in_week))
+  if (!data.type || !type_values.includes(data.type))
+    return callback('bad_request');
+
+  if (!data.timeout_duration_in_week || !Number.isInteger(data.timeout_duration_in_week))
     return callback('bad_request');
 
   if (!data.name || !data.text || !data.type || !data.subtype)
@@ -175,7 +178,7 @@ TemplateSchema.statics.createTemplate = function (data, callback) {
         language: data.language && language_values.includes(data.language) ? data.language : DEFAULT_LANGUAGE_VALUE,
         name: data.name.trim(),
         text: data.text.trim(),
-        type: 'demographics',
+        type: data.type,
         subtype: data.subtype,
         choices: choices,
         min_value: min_value,

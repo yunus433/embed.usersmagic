@@ -11,9 +11,11 @@ module.exports = (question, callback) => {
     if (template.type != 'product')
       return callback(null, {
         _id: question._id.toString(),
+        company_id: question.company_id.toString(),
         is_active: question.is_active,
         timeout_duration_in_week: template.timeout_duration_in_week,
         order_number: template.order_number,
+        created_at: question.created_at,
         name: template.name,
         text: template.text,
         type: template.type,
@@ -29,9 +31,11 @@ module.exports = (question, callback) => {
 
       return callback(null, {
         _id: question._id.toString(),
+        company_id: question.company_id.toString(),
         is_active: question.is_active,
         timeout_duration_in_week: template.timeout_duration_in_week,
         order_number: template.order_number,
+        created_at: question.created_at,
         name: template.name.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
         text: template.text.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
         product_link: product.link,

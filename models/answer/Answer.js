@@ -102,7 +102,7 @@ AnswerSchema.statics.findOneAnswer = function (data, callback) {
   });
 };
 
-AnswerSchema.statics.findAnswers = function (data, callback) {
+AnswerSchema.statics.findAnswers = function (data, callback) { // Does not return answers' person_id_list
   const Answer = this;
 
   if (!data || typeof data != 'object')
@@ -139,9 +139,28 @@ AnswerSchema.statics.findAnswers = function (data, callback) {
     Answer
       .find(filters)
       .then(answers => {
-        if (!answers || !answers.length) return callback('document_not_found');
+        async.timesSeries(
+          answers.length,
+          (time, next) => {
+            const answer = answers[time];
 
-        return callback(null, answers);
+            return next(null, {
+              _id: answer._id,
+              template_id: answer.template_id,
+              question_id: answer.question_id,
+              answer_given_to_question: answer.answer_given_to_question,
+              week_answer_is_given_in_unix_time: answer.week_answer_is_given_in_unix_time,
+              week_answer_will_be_outdated_in_unix_time: answer.week_answer_will_be_outdated_in_unix_time,
+              person_id_list_length: answer.person_id_list_length
+            });
+          },
+          (err, answers) => {
+            if (err)
+              return callback(err);
+
+            return callback(null, answers);
+          }
+        );
       })
       .catch(err => callback('database_error'));
   });
@@ -255,44 +274,23 @@ AnswerSchema.statics.checkAnswerExists = function (data, callback) {
 AnswerSchema.statics.findAnswersAndCountUsersByFilters = function (data, callback) {
   const Answer = this;
 
-  if (!data.question_id || !validator.isMongoId(data.question_id.toString()) || !data.answer_given_to_question || typeof data.answer_given_to_question != 'string')
-    return callback('bad_request');
+  Answer.findAnswers(data, (err, answers) => {
+    if (err && err != 'document_not_found') return callback(err);
 
-  if (!data.filters)
-    data.filters = {};
+    let user_count = 0;
+  
+    async.timesSeries(
+      answers.length,
+      (time, next) => {
+        user_count += answers[time].person_id_list_length;
+        return next(null);
+      },
+      err => {
+        if (err) return callback('unknown_error');
 
-  getWeek(0, (err,  curr_week) => {
-    if (err) return callback(err);
-
-    getWeek(data.filters.latest_week_count, (err, latest_week) => {
-      const filters = {
-        question_id: mongoose.Types.ObjectId(data.question_id.toString()),
-        answer_given_to_question: data.answer_given_to_question.trim(),
-        week_answer_will_be_outdated_in_unix_time: { $gte: curr_week }
-      };
-
-      if (!err && latest_week && latest_week <= curr_week)
-        filters.week_answer_is_given_in_unix_time = { $gte: latest_week };
-  
-      Answer.find(filters, (err, answers) => {
-        if (err) return callback('database_error');
-  
-        let user_count = 0;
-  
-        async.timesSeries(
-          answers.length,
-          (time, next) => {
-            user_count += answers[time].person_id_list_length;
-            return next(null);
-          },
-          err => {
-            if (err) return callback('unknown_error');
-  
-            return callback(null, user_count);
-          }
-        );
-      });
-    });
+        return callback(null, user_count);
+      }
+    );
   });
 };
 

@@ -1,0 +1,74 @@
+.general-button {
+  height: 50px;
+  min-height: 50px;
+  padding: 0 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(140, 212, 224);
+  border-radius: 2px;
+  font-size: 15px;
+  color: rgb(254, 254, 254);
+  font-weight: 600;
+  outline: none;
+  border: none;
+  box-shadow: 0 0 10px rgba(98, 98, 103, 0.4);
+  cursor: pointer;
+}
+.general-button:hover {
+  box-shadow: 0 0 10px rgba(98, 98, 103, 0.5);
+}
+.general-button:focus {
+  box-shadow: 0 0 10px rgba(98, 98, 103, 0.5);
+}
+
+.general-bordered-button {
+  height: 50px;
+  min-height: 50px;
+  padding: 0 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(254, 254, 254);
+  border-radius: 2px;
+  font-size: 15px;
+  color: rgb(140, 212, 224);
+  font-weight: 600;
+  outline: none;
+  border: 1px solid rgb(140, 212, 224);
+  box-shadow: 0 0 10px rgba(98, 98, 103, 0.4);
+  cursor: pointer;
+}
+.general-bordered-button:hover {
+  box-shadow: 0 0 10px rgba(98, 98, 103, 0.5);
+}
+.general-bordered-button:focus {
+  box-shadow: 0 0 10px rgba(98, 98, 103, 0.5);
+}
+
+.general-small-button {
+  margin: 10px 0px;
+  height: 40px;
+  min-height: 40px;
+  width: 100px;
+  padding: 0 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(140, 212, 224);
+  border-radius: 2px;
+  font-size: 14px;
+  color: rgb(254, 254, 254);
+  font-weight: 600;
+  outline: none;
+  border: none;
+  box-shadow: 0 0 10px rgba(98, 98, 103, 0.4);
+  cursor: pointer;
+  text-align: center;
+}
+.general-small-button:hover {
+  box-shadow: 0 0 10px rgba(98, 98, 103, 0.5);
+}
+.general-small-button:focus {
+  box-shadow: 0 0 10px rgba(98, 98, 103, 0.5);
+}

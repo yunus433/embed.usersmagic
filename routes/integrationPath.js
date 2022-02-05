@@ -5,10 +5,10 @@ const isConfirmed = require('../middleware/isConfirmed');
 const hasLeftWaitlist = require('../middleware/hasLeftWaitlist');
 const isLoggedIn = require('../middleware/isLoggedIn');
 
-const indexGetController = require('../controllers/product/index/get');
-const templatesGetController = require('../controllers/product/templates/get');
+const deleteGetController = require('../controllers/integration/delete/get');
+const indexGetController = require('../controllers/integration/index/get');
 
-const createPostController = require('../controllers/product/create/post');
+const createPostController = require('../controllers/integration/create/post');
 
 router.get(
   '/',
@@ -18,11 +18,11 @@ router.get(
     indexGetController
 );
 router.get(
-  '/templates',
+  '/delete',
     isLoggedIn,
     isConfirmed,
     hasLeftWaitlist,
-    templatesGetController
+    deleteGetController
 );
 
 router.post(

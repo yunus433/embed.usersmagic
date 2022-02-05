@@ -28,8 +28,8 @@ module.exports = (req, res) => {
               title: 'Dashboard',
               includes: {
                 external: {
-                  css: ['confirm', 'dashboard', 'fontawesome', 'general', 'page'],
-                  js: ['confirm', 'dragAndDrop', 'duplicateElement', 'page', 'serverRequest']
+                  css: ['button', 'confirm', 'form', 'input', 'fontawesome', 'general', 'text', 'page'],
+                  js: ['confirm', 'dragAndDrop', 'duplicateElement', 'form', 'input', 'page', 'serverRequest']
                 }
               },
               pie_chart_colors: [
@@ -42,7 +42,8 @@ module.exports = (req, res) => {
               templates,
               products,
               target_groups,
-              filters
+              filters,
+              company: req.session.user.company
             });
           });
         });

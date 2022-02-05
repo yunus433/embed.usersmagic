@@ -1,358 +1,14 @@
 let graphs = [];
 let pieChartColors = [];
-let loadingGraphs = true;
+let loadingGraphs = false;
 let filters = {};
 let graphInfoId;
-let selectedGraphType = 'all';
-
-function createGraph(graph) {
-  const eachGraphWrapper = document.createElement('div');
-  eachGraphWrapper.classList.add('each-graph-wrapper');
-  eachGraphWrapper.id = graph._id;
-
-  const eachGraphTitleWrapper = document.createElement('div');
-  eachGraphTitleWrapper.classList.add('each-graph-title-wrapper');
-
-  const eachGraphTitle = document.createElement('span');
-  eachGraphTitle.classList.add('each-graph-title');
-  eachGraphTitle.innerHTML = graph.title;
-  eachGraphTitleWrapper.appendChild(eachGraphTitle);
-
-  const eachGraphSubtitle = document.createElement('span');
-  eachGraphSubtitle.classList.add('each-graph-subtitle');
-  eachGraphSubtitle.innerHTML = graph.description;
-  eachGraphTitleWrapper.appendChild(eachGraphSubtitle);
-
-  eachGraphWrapper.appendChild(eachGraphTitleWrapper);
-
-  const eachGraphContentWrapper = document.createElement('div');
-  eachGraphContentWrapper.classList.add('each-graph-content-wrapper');
-
-  const eachGraphTotalCount = document.createElement('span');
-  eachGraphTotalCount.classList.add('each-graph-total-count')
-  eachGraphTotalCount.innerHTML = (graph.total >= 1000 ? (graph.total >= 1000000 ? (Math.floor(graph.total / 1000000 * 10) / 10  + 'm') : (Math.floor(graph.total / 1000 * 10) / 10  + 'k') ) : graph.total) + ' answer' + (graph.total > 1 ? 's' : '');
-  eachGraphContentWrapper.appendChild(eachGraphTotalCount);
-
-  if (graph.type == 'pie_chart') {
-    const pieChartLabelWrapper = document.createElement('div');
-    pieChartLabelWrapper.classList.add('pie-chart-label-wrapper');
-
-    let conicGradientValueArray = [];
-
-    for (let i = 0; i < pieChartColors.length && i < graph.data.length && graph.data[i].value > 0; i++) {
-      const pieChartEachColorWrapper = document.createElement('div');
-      pieChartEachColorWrapper.classList.add('pie-chart-each-color-wrapper');
-
-      const pieChartEachColor = document.createElement('div');
-      pieChartEachColor.classList.add('pie-chart-each-color');
-      pieChartEachColor.style.backgroundColor = pieChartColors[i];
-      pieChartEachColorWrapper.appendChild(pieChartEachColor);
-
-      const pieChartEachLabel = document.createElement('span');
-      pieChartEachLabel.classList.add('pie-chart-each-label');
-      pieChartEachLabel.innerHTML = graph.data[i].name;
-      pieChartEachColorWrapper.appendChild(pieChartEachLabel);
-
-      pieChartLabelWrapper.appendChild(pieChartEachColorWrapper);
-
-      const lastPercentage = i > 0 ? conicGradientValueArray[conicGradientValueArray.length-1].percentage : 0;
-
-      conicGradientValueArray.push({ color: pieChartColors[i], percentage: lastPercentage + (graph.data[i].value / graph.total * 100) });
-    }
-
-    if (graph.data.length > pieChartColors.length && graph.data[pieChartColors.length].value > 0) {
-      const pieChartEachColorWrapper = document.createElement('div');
-      pieChartEachColorWrapper.classList.add('pie-chart-each-color-wrapper');
-
-      const pieChartEachColor = document.createElement('div');
-      pieChartEachColor.classList.add('pie-chart-each-color');
-      pieChartEachColor.style.backgroundColor = 'rgb(186, 183, 178)';
-      pieChartEachColorWrapper.appendChild(pieChartEachColor);
-
-      const pieChartEachLabel = document.createElement('span');
-      pieChartEachLabel.classList.add('pie-chart-each-label');
-      pieChartEachLabel.innerHTML = 'Others';
-      pieChartEachColorWrapper.appendChild(pieChartEachLabel);
-
-      pieChartLabelWrapper.appendChild(pieChartEachColorWrapper);
-    }
-
-    eachGraphContentWrapper.appendChild(pieChartLabelWrapper);
-
-    let otherCount = 0;
-
-    for (let i = pieChartColors.length; i < graph.data.length; i++)
-      otherCount += graph.data[i].value;
-
-    if (otherCount > 0) {
-      const lastPercentageOther = conicGradientValueArray.length > 0 ? conicGradientValueArray[conicGradientValueArray.length-1].percentage : 0;
-      conicGradientValueArray.push({ color: 'rgb(186, 183, 178)', percentage: lastPercentageOther + (otherCount / graph.total * 100) });  
-    }
-
-    const pieChartWrapper = document.createElement('div');
-    pieChartWrapper.classList.add('pie-chart-wrapper');
-
-    const pieChartColor = document.createElement('div');
-    pieChartColor.classList.add('pie-chart-color');
-    pieChartColor.style.background = `conic-gradient(at center, ${conicGradientValueArray.map((each, i) => each.color + ' ' + (i > 0 ? conicGradientValueArray[i-1].percentage : 0) + '% ' + conicGradientValueArray[i].percentage + '%').join(', ')}${(conicGradientValueArray[conicGradientValueArray.length-1].percentage < 100) ? ', rgb(186, 183, 178) ' + conicGradientValueArray[conicGradientValueArray.length-1].percentage + '% 100%' : ''})`;
-    pieChartWrapper.appendChild(pieChartColor);
-
-    const pieChartWhite = document.createElement('div');
-    pieChartWhite.classList.add('pie-chart-white');
-    pieChartWrapper.appendChild(pieChartWhite);
-
-    eachGraphContentWrapper.appendChild(pieChartWrapper);
-  } else if (graph.type == 'bar_chart') {
-    const barChartWrapper = document.createElement('div');
-    barChartWrapper.classList.add('bar-chart-wrapper');
-
-    for (let i = 0; i < graph.data.length && i < 6; i++) {
-      const eachBarWrapper = document.createElement('div');
-      eachBarWrapper.classList.add('each-bar-wrapper');
-
-      const eachBarName = document.createElement('span');
-      eachBarName.classList.add('each-bar-name');
-      eachBarName.innerHTML = graph.data[i].name;
-      eachBarWrapper.appendChild(eachBarName);
-
-      const eachBar = document.createElement('div');
-      eachBar.classList.add('each-bar');
-
-      const eachBarColor = document.createElement('div');
-      eachBarColor.classList.add('each-bar-color');
-      eachBarColor.style.backgroundColor = i % 2 ? 'rgba(186, 183, 178)' : 'rgba(140, 212, 224)';
-      eachBarColor.style.width = (graph.data[i].value / graph.total * 100) + '%';
-      eachBar.appendChild(eachBarColor);
-      
-      eachBarWrapper.appendChild(eachBar);
-
-      const eachBarTotal = document.createElement('span');
-      eachBarTotal.classList.add('each-bar-total');
-      eachBarTotal.innerHTML = graph.data[i].value;
-
-      eachBarWrapper.appendChild(eachBarTotal);
-
-      barChartWrapper.appendChild(eachBarWrapper);
-    }
-
-    let othersCount = 0;
-
-    for (let i = 6; i < graph.data.length; i++)
-      othersCount += graph.data[i].value;
-
-    if (graph.data.length > 6) {
-      const eachBarWrapper = document.createElement('div');
-      eachBarWrapper.classList.add('each-bar-wrapper');
-      eachBarWrapper.style.marginBottom = '0px';
-
-      const eachBarName = document.createElement('span');
-      eachBarName.classList.add('each-bar-name');
-      eachBarName.innerHTML = 'Others';
-      eachBarWrapper.appendChild(eachBarName);
-
-      const eachBar = document.createElement('div');
-      eachBar.classList.add('each-bar');
-
-      const eachBarColor = document.createElement('div');
-      eachBarColor.classList.add('each-bar-color');
-      eachBarColor.style.backgroundColor = 'rgba(140, 212, 224)';
-      eachBarColor.style.width = (othersCount / graph.total * 100) + '%';
-      eachBar.appendChild(eachBarColor);
-      
-      eachBarWrapper.appendChild(eachBar);
-
-      const eachBarTotal = document.createElement('span');
-      eachBarTotal.classList.add('each-bar-total');
-      eachBarTotal.innerHTML = othersCount;
-
-      eachBarWrapper.appendChild(eachBarTotal);
-      
-      barChartWrapper.appendChild(eachBarWrapper);
-    }
-
-    eachGraphContentWrapper.appendChild(barChartWrapper);
-  }
-
-  eachGraphWrapper.appendChild(eachGraphContentWrapper);
-
-  document.querySelector('.graph-outer-wrapper').appendChild(eachGraphWrapper);
-}
-
-function createGraphInfo(percentage, position) {
-  const graphInfo = document.createElement('span');
-  graphInfo.classList.add('graph-info');
-  graphInfo.innerHTML = Math.round(percentage * 100) / 100 + '%';
-  graphInfo.style.left = position.x + 'px';
-  graphInfo.style.top = position.y + 'px';
-  document.querySelector('body').appendChild(graphInfo);
-}
-
-function loadGraphs(callback) {
-  serverRequest('/graphs/filters', 'POST', filters, res => {
-    if (res.error || !res.success) return callback(res.error || 'unknown_error');
-
-    graphs = res.graphs;
-    loadingGraphs = false;
-    return callback(null);
-  });
-}
-
-function createGraphs() {
-  document.querySelector('.loading-icon-wrapper').style.display = 'flex';
-  document.querySelector('.graph-outer-wrapper').innerHTML = '';
-  document.querySelector('.graph-outer-wrapper').style.display = 'none';
-  document.querySelector('.no-graph-wrapper').style.display = 'none';
-  document.querySelector('.no-graph-found-wrapper').style.display = 'none';
-
-  loadGraphs(err => {
-    document.querySelector('.loading-icon-wrapper').style.display = 'none';
-
-    if (err || !graphs.length) {
-      if ('latest_week_count' in filters)
-        document.querySelector('.no-graph-found-wrapper').style.display = 'flex';
-      else
-        document.querySelector('.no-graph-wrapper').style.display = 'flex';
-
-      return;
-    }
-
-    document.querySelector('.graph-outer-wrapper').innerHTML = '';
-
-    graphs.forEach(graph => {
-      if (selectedGraphType == 'all' || graph.question_type == selectedGraphType)
-        createGraph(graph);
-    });
-
-    document.querySelector('.graph-outer-wrapper').style.display = 'initial';
-  });
-}
-
-function createQuestion(question) {
-  const eachQuestion = document.createElement('div');
-  eachQuestion.classList.add('each-question');
-  eachQuestion.style = 'cursor: move;';
-  eachQuestion.id = question._id;
-
-  const eachQuestionTitle = document.createElement('div');
-  eachQuestionTitle.classList.add('each-question-title');
-
-  const span = document.createElement('span');
-  span.innerHTML = question.text;
-  eachQuestionTitle.appendChild(span);
-
-  const i = document.createElement('i');
-  i.classList.add('delete-question-button');
-  i.classList.add('fas');
-  i.classList.add('fa-trash-alt');
-  eachQuestionTitle.appendChild(i);
-
-  eachQuestion.appendChild(eachQuestionTitle);
-
-  const eachQuestionContent = document.createElement('div');
-  eachQuestionContent.classList.add('each-question-content');
-  eachQuestion.appendChild(eachQuestionContent);
-
-  document.querySelector('.company-questions-wrapper').appendChild(eachQuestion);
-}
-
-function uploadImage (file, callback) {
-  const formdata = new FormData();
-  formdata.append('file', file);
-
-  const xhr = new XMLHttpRequest();
-  xhr.open('POST', '/image/upload');
-  xhr.send(formdata);
-
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState == 4 && xhr.responseText) {
-      const res = JSON.parse(xhr.responseText);
-
-      if (!res.success)
-        return callback(res.error || 'unknown_error');
-
-      return callback(null, res.url);
-    }
-  };
-}
-
-function createImagePicker (wrapper) {
-  const settingsImagePicker = document.createElement('label');
-  settingsImagePicker.classList.add('all-choose-image-input-text');
-
-  const span = document.createElement('span');
-  span.innerHTML = 'Click to choose an image from your device';
-  settingsImagePicker.appendChild(span);
-
-  const input = document.createElement('input');
-  input.classList.add('display-none');
-  input.classList.add('image-input');
-  input.accept = 'image/*';
-  input.type = 'file';
-
-  settingsImagePicker.appendChild(input);
-
-  wrapper.innerHTML = '';
-  wrapper.appendChild(settingsImagePicker);
-}
-
-function createUploadedImage (url, wrapper) {
-  const imageInputWrapper = document.createElement('div');
-  imageInputWrapper.classList.add('all-image-input-wrapper');
-
-  const imageWrapper = document.createElement('div');
-  imageWrapper.classList.add('all-image-input-wrapper-image');
-  const image = document.createElement('img');
-  image.src = url;
-  image.alt = 'usersmagic';
-  imageWrapper.appendChild(image);
-  imageInputWrapper.appendChild(imageWrapper);
-
-  const i = document.createElement('i');
-  i.classList.add('fas');
-  i.classList.add('fa-times');
-  i.classList.add('delete-image-button');
-  imageInputWrapper.appendChild(i);
-
-  wrapper.innerHTML = '';
-  wrapper.appendChild(imageInputWrapper);
-}
-
-function createIntegrationRoutes () {
-  document.querySelector('.integration-routes-wrapper').innerHTML = '';
-
-  serverRequest('/company', 'GET', {}, res => {
-    if (!res.success)
-      return throwError();
-
-    const integrationRoutes = res.company.integration_routes;
-
-    integrationRoutes.forEach(integration_route => createIntegrationRoute(integration_route));
-  });
-}
-
-function createIntegrationRoute (route) {
-  const eachIntegrationRoute = document.createElement('div');
-  eachIntegrationRoute.classList.add('each-integration-route');
-  eachIntegrationRoute.id = route._id.toString();
-  
-  const eachIntegrationRouteName = document.createElement('span');
-  eachIntegrationRouteName.classList.add('each-integration-route-name');
-  eachIntegrationRouteName.innerHTML = route.name;
-  eachIntegrationRoute.appendChild(eachIntegrationRouteName);
-
-  const eachIntegrationRouteUrl = document.createElement('span');
-  eachIntegrationRouteUrl.classList.add('each-integration-route-url');
-  eachIntegrationRouteUrl.innerHTML = route.route;
-  eachIntegrationRoute.appendChild(eachIntegrationRouteUrl);
-
-  const eachIntegrationRouteDeleteButton = document.createElement('i');
-  eachIntegrationRouteDeleteButton.classList.add('fas');
-  eachIntegrationRouteDeleteButton.classList.add('fa-trash-alt');
-  eachIntegrationRouteDeleteButton.classList.add('each-integration-route-delete-button');
-  eachIntegrationRoute.appendChild(eachIntegrationRouteDeleteButton);
-
-  document.querySelector('.integration-routes-wrapper').appendChild(eachIntegrationRoute);
-}
+let newQuestion = {
+  type: null,
+  template_id: null,
+  product_id: null,
+  integration_path_id_list: []
+};
 
 function throwError (err) {
   if (err)
@@ -367,24 +23,602 @@ function throwError (err) {
     text: 'An unknown error occured, please reload the page and try again',
     reject: 'Close'
   }, res => {});
+};
+
+function getDate() {
+  return ((new Date()).getDate() < 10 ? '0' : '') + (new Date()).getDate() + '.' + ((new Date()).getMonth() + 1 < 10 ? '0' : '') + ((new Date()).getMonth() + 1) + '.' + (new Date()).getFullYear();
+};
+
+function loadGraphData(callback) {
+  if (loadingGraphs)
+    return; // Do not call callback, finish the function
+  
+  loadingGraphs = true;
+
+  serverRequest('/graphs', 'POST', filters, res => {
+    loadingGraphs = false;
+
+    if (res.error || !res.success) return callback(res.error || 'unknown_error');
+
+    graphs = res.graphs;
+
+    return callback(null);
+  });
+};
+
+function createGraphInfo(percentage, position) {
+  const graphInfo = document.createElement('span');
+  graphInfo.classList.add('graph-info');
+  graphInfo.innerHTML = Math.round(percentage * 100) / 100 + '%';
+  graphInfo.style.left = position.x + 'px';
+  graphInfo.style.top = position.y + 'px';
+  document.querySelector('body').appendChild(graphInfo);
+};
+
+function createGraph(graph) {
+  const eachGraphWrapper = document.createElement('div');
+  eachGraphWrapper.classList.add('each-graph-wrapper');
+  eachGraphWrapper.id = graph._id;
+
+  const eachGraphTitleWrapper = document.createElement('div');
+  eachGraphTitleWrapper.classList.add('each-graph-title-wrapper');
+
+  const eachGraphTitle = document.createElement('span');
+  eachGraphTitle.classList.add('general-subtitle');
+  eachGraphTitle.classList.add('general-text-overflow');
+  eachGraphTitle.innerHTML = graph.title;
+  eachGraphTitleWrapper.appendChild(eachGraphTitle);
+
+  const eachGraphSubtitle = document.createElement('span');
+  eachGraphSubtitle.classList.add('general-text');
+  eachGraphSubtitle.classList.add('general-text-overflow');
+  eachGraphSubtitle.innerHTML = graph.description;
+  eachGraphTitleWrapper.appendChild(eachGraphSubtitle);
+
+  eachGraphWrapper.appendChild(eachGraphTitleWrapper);
+
+  const eachGraphContentWrapper = document.createElement('div');
+  eachGraphContentWrapper.classList.add('each-graph-content-wrapper');
+
+  const eachGraphContentDataWrapper = document.createElement('div');
+  eachGraphContentDataWrapper.classList.add('each-graph-content-data-wrapper');
+
+  if (graph.data && graph.data.length && graph.data[0].value) {
+    if (graph.type == 'pie_chart') {
+      const pieChartLabelWrapper = document.createElement('div');
+      pieChartLabelWrapper.classList.add('pie-chart-label-wrapper');
+  
+      let conicGradientValueArray = [];
+  
+      for (let i = 0; i < pieChartColors.length && i < graph.data.length && graph.data[i].value > 0; i++) {
+        const pieChartEachColorWrapper = document.createElement('div');
+        pieChartEachColorWrapper.classList.add('pie-chart-each-color-wrapper');
+  
+        const pieChartEachColor = document.createElement('div');
+        pieChartEachColor.classList.add('pie-chart-each-color');
+        pieChartEachColor.style.backgroundColor = pieChartColors[i];
+        pieChartEachColorWrapper.appendChild(pieChartEachColor);
+  
+        const pieChartEachLabel = document.createElement('span');
+        pieChartEachLabel.classList.add('pie-chart-each-label');
+        pieChartEachLabel.innerHTML = graph.data[i].name;
+        pieChartEachColorWrapper.appendChild(pieChartEachLabel);
+  
+        pieChartLabelWrapper.appendChild(pieChartEachColorWrapper);
+  
+        const lastPercentage = i > 0 ? conicGradientValueArray[conicGradientValueArray.length-1].percentage : 0;
+  
+        conicGradientValueArray.push({ color: pieChartColors[i], percentage: lastPercentage + (graph.data[i].value / graph.total * 100) });
+      }
+  
+      if (graph.data.length > pieChartColors.length && graph.data[pieChartColors.length].value > 0) {
+        const pieChartEachColorWrapper = document.createElement('div');
+        pieChartEachColorWrapper.classList.add('pie-chart-each-color-wrapper');
+  
+        const pieChartEachColor = document.createElement('div');
+        pieChartEachColor.classList.add('pie-chart-each-color');
+        pieChartEachColor.style.backgroundColor = 'rgb(186, 183, 178)';
+        pieChartEachColorWrapper.appendChild(pieChartEachColor);
+  
+        const pieChartEachLabel = document.createElement('span');
+        pieChartEachLabel.classList.add('pie-chart-each-label');
+        pieChartEachLabel.innerHTML = 'Others';
+        pieChartEachColorWrapper.appendChild(pieChartEachLabel);
+  
+        pieChartLabelWrapper.appendChild(pieChartEachColorWrapper);
+      }
+  
+      eachGraphContentDataWrapper.appendChild(pieChartLabelWrapper);
+  
+      let otherCount = 0;
+  
+      for (let i = pieChartColors.length; i < graph.data.length; i++)
+        otherCount += graph.data[i].value;
+  
+      if (otherCount > 0) {
+        const lastPercentageOther = conicGradientValueArray.length > 0 ? conicGradientValueArray[conicGradientValueArray.length-1].percentage : 0;
+        conicGradientValueArray.push({ color: 'rgb(186, 183, 178)', percentage: lastPercentageOther + (otherCount / graph.total * 100) });  
+      }
+  
+      const pieChartWrapper = document.createElement('div');
+      pieChartWrapper.classList.add('pie-chart-wrapper');
+  
+      const pieChartColor = document.createElement('div');
+      pieChartColor.classList.add('pie-chart-color');
+      pieChartColor.style.background = `conic-gradient(at center, ${
+        conicGradientValueArray.map((each, i) =>
+          each.color + ' ' +
+          (i > 0 ?
+            conicGradientValueArray[i-1].percentage
+            :
+            0
+          ) + '% ' +
+          conicGradientValueArray[i].percentage + '%').join(', ')}${(
+            conicGradientValueArray[conicGradientValueArray.length-1].percentage < 100) ?
+              ', rgb(186, 183, 178) ' + conicGradientValueArray[conicGradientValueArray.length-1].percentage + '% 100%'
+              :
+              ''})`;
+      pieChartWrapper.appendChild(pieChartColor);
+  
+      const pieChartWhite = document.createElement('div');
+      pieChartWhite.classList.add('pie-chart-white');
+      pieChartWrapper.appendChild(pieChartWhite);
+  
+      eachGraphContentDataWrapper.appendChild(pieChartWrapper);
+    } else if (graph.type == 'bar_chart') {
+      const barChartWrapper = document.createElement('div');
+      barChartWrapper.classList.add('bar-chart-wrapper');
+  
+      for (let i = 0; i < graph.data.length && i < 6; i++) {
+        const eachBarWrapper = document.createElement('div');
+        eachBarWrapper.classList.add('each-bar-wrapper');
+  
+        const eachBarName = document.createElement('span');
+        eachBarName.classList.add('each-bar-name');
+        eachBarName.innerHTML = graph.data[i].name;
+        eachBarWrapper.appendChild(eachBarName);
+  
+        const eachBar = document.createElement('div');
+        eachBar.classList.add('each-bar');
+  
+        const eachBarColor = document.createElement('div');
+        eachBarColor.classList.add('each-bar-color');
+        eachBarColor.style.backgroundColor = i % 2 ? 'rgba(186, 183, 178)' : 'rgba(140, 212, 224)';
+        eachBarColor.style.width = (graph.data[i].value / graph.total * 100) + '%';
+        eachBar.appendChild(eachBarColor);
+        
+        eachBarWrapper.appendChild(eachBar);
+  
+        const eachBarTotal = document.createElement('span');
+        eachBarTotal.classList.add('each-bar-total');
+        eachBarTotal.innerHTML = graph.data[i].value;
+  
+        eachBarWrapper.appendChild(eachBarTotal);
+  
+        barChartWrapper.appendChild(eachBarWrapper);
+      }
+  
+      let othersCount = 0;
+  
+      for (let i = 6; i < graph.data.length; i++)
+        othersCount += graph.data[i].value;
+  
+      if (graph.data.length > 6) {
+        const eachBarWrapper = document.createElement('div');
+        eachBarWrapper.classList.add('each-bar-wrapper');
+        eachBarWrapper.style.marginBottom = '0px';
+  
+        const eachBarName = document.createElement('span');
+        eachBarName.classList.add('each-bar-name');
+        eachBarName.innerHTML = 'Others';
+        eachBarWrapper.appendChild(eachBarName);
+  
+        const eachBar = document.createElement('div');
+        eachBar.classList.add('each-bar');
+  
+        const eachBarColor = document.createElement('div');
+        eachBarColor.classList.add('each-bar-color');
+        eachBarColor.style.backgroundColor = 'rgba(140, 212, 224)';
+        eachBarColor.style.width = (othersCount / graph.total * 100) + '%';
+        eachBar.appendChild(eachBarColor);
+        
+        eachBarWrapper.appendChild(eachBar);
+  
+        const eachBarTotal = document.createElement('span');
+        eachBarTotal.classList.add('each-bar-total');
+        eachBarTotal.innerHTML = othersCount;
+  
+        eachBarWrapper.appendChild(eachBarTotal);
+        
+        barChartWrapper.appendChild(eachBarWrapper);
+      }
+  
+      eachGraphContentDataWrapper.appendChild(barChartWrapper);
+    }
+  } else {
+    const pieChartWrapper = document.createElement('div');
+    pieChartWrapper.classList.add('pie-chart-wrapper');
+
+    const pieChartColor = document.createElement('div');
+    pieChartColor.classList.add('pie-chart-color');
+    pieChartColor.classList.add('pie-chart-color-default');
+    pieChartColor.style.cursor = 'default';
+    pieChartWrapper.appendChild(pieChartColor);
+
+    const pieChartWhite = document.createElement('div');
+    pieChartWhite.classList.add('pie-chart-white');
+    
+    const noDataText = document.createElement('span');
+    noDataText.classList.add('general-text');
+    noDataText.innerHTML = 'No Data';
+    pieChartWhite.appendChild(noDataText)
+
+    pieChartWrapper.appendChild(pieChartWhite);
+
+    eachGraphContentDataWrapper.appendChild(pieChartWrapper);
+  }
+
+  eachGraphContentWrapper.appendChild(eachGraphContentDataWrapper);
+
+  const eachGraphContentInfoWrapper = document.createElement('div');
+  eachGraphContentInfoWrapper.classList.add('each-graph-content-info-wrapper');
+
+  const eachGraphCreatedAt = document.createElement('span');
+  eachGraphCreatedAt.classList.add('general-text');
+  eachGraphCreatedAt.innerHTML = 'Created At: ' + graph.created_at;
+  eachGraphContentInfoWrapper.appendChild(eachGraphCreatedAt);
+
+  const eachGraphStatus = document.createElement('span');
+  eachGraphStatus.classList.add('general-text');
+  eachGraphStatus.innerHTML = 'Status: ' + (graph.is_active ? 'Active' : 'Paused');
+  eachGraphContentInfoWrapper.appendChild(eachGraphStatus);
+
+  const eachGraphTotalCount = document.createElement('span');
+  eachGraphTotalCount.classList.add('general-text');
+  eachGraphTotalCount.innerHTML = 'Answer Count: ' + (graph.total >= 1000 ? (graph.total >= 1000000 ? (Math.floor(graph.total / 1000000 * 10) / 10  + 'm') : (Math.floor(graph.total / 1000 * 10) / 10  + 'k') ) : graph.total);
+  eachGraphContentInfoWrapper.appendChild(eachGraphTotalCount);
+
+  const eachGraphIntegrationPathCount = document.createElement('span');
+  eachGraphIntegrationPathCount.classList.add('general-text');
+  eachGraphIntegrationPathCount.innerHTML = 'Integrated Path Count: ' + graph.integration_path_id_list.length;
+  eachGraphContentInfoWrapper.appendChild(eachGraphIntegrationPathCount);
+
+  const eachGraphButtonsWrapper = document.createElement('div');
+  eachGraphButtonsWrapper.classList.add('each-graph-buttons-wrapper');
+
+  const deleteButton = document.createElement('div');
+  deleteButton.classList.add('each-graph-button');
+  deleteButton.classList.add('each-graph-delete-button');
+  deleteButton.style.borderColor = 'rgb(237, 72, 80)';
+  const deleteButtonI = document.createElement('i');
+  deleteButtonI.classList.add('fas');
+  deleteButtonI.classList.add('fa-trash-alt');
+  deleteButtonI.style.color = 'rgb(237, 72, 80)';
+  deleteButton.appendChild(deleteButtonI);
+  const deleteButtonSpan = document.createElement('span');
+  deleteButtonSpan.innerHTML = 'Delete';
+  deleteButtonSpan.style.color = 'rgb(237, 72, 80)';
+  deleteButton.appendChild(deleteButtonSpan);
+  eachGraphButtonsWrapper.appendChild(deleteButton);
+
+  const statusButton = document.createElement('div');
+  statusButton.classList.add('each-graph-button');
+  statusButton.classList.add('each-graph-status-button');
+  if (graph.is_active)
+    statusButton.classList.add('each-graph-deactivate-button');
+  else
+    statusButton.classList.add('each-graph-activate-button')
+  statusButton.style.borderColor = 'rgba(254, 211, 85, 1)';
+  const statusButtonI = document.createElement('i');
+  statusButtonI.classList.add('fas');
+  if (graph.is_active)
+    statusButtonI.classList.add('fa-pause');
+  else
+    statusButtonI.classList.add('fa-play');
+  statusButtonI.style.color = 'rgba(254, 211, 85, 1)';
+  statusButton.appendChild(statusButtonI);
+  const statusButtonSpan = document.createElement('span');
+  if (graph.is_active)
+    statusButtonSpan.innerHTML = 'Pause';
+  else
+    statusButtonSpan.innerHTML = 'Activate';
+  statusButtonSpan.style.color = 'rgba(254, 211, 85, 1)';
+  statusButton.appendChild(statusButtonSpan);
+  eachGraphButtonsWrapper.appendChild(statusButton);
+
+  const integrateButton = document.createElement('div');
+  integrateButton.classList.add('each-graph-button');
+  integrateButton.classList.add('each-graph-integrate-button');
+  integrateButton.style.borderColor = 'rgba(45, 136, 196, 1)';
+  const integrateButtonI = document.createElement('i');
+  integrateButtonI.classList.add('fas');
+  integrateButtonI.classList.add('fa-plus-circle');
+  integrateButtonI.style.color = 'rgba(45, 136, 196, 1)';
+  integrateButton.appendChild(integrateButtonI);
+  const integrateButtonSpan = document.createElement('span');
+  integrateButtonSpan.innerHTML = 'Integrate';
+  integrateButtonSpan.style.color = 'rgba(45, 136, 196, 1)';
+  integrateButton.appendChild(integrateButtonSpan);
+  eachGraphButtonsWrapper.appendChild(integrateButton);
+
+  const exportButton = document.createElement('a');
+  exportButton.href = '/questions/csv?id=' + graph._id;
+  exportButton.classList.add('each-graph-button');
+  exportButton.classList.add('each-graph-export-button');
+  exportButton.style.borderColor = 'rgba(92, 196, 110, 1)';
+  const exportButtonI = document.createElement('i');
+  exportButtonI.classList.add('far');
+  exportButtonI.classList.add('fa-file-excel');
+  exportButtonI.style.color = 'rgba(92, 196, 110, 1)';
+  exportButton.appendChild(exportButtonI);
+  const exportButtonSpan = document.createElement('span');
+  exportButtonSpan.innerHTML = 'Export';
+  exportButtonSpan.style.color = 'rgba(92, 196, 110, 1)';
+  exportButton.appendChild(exportButtonSpan);
+  eachGraphButtonsWrapper.appendChild(exportButton);
+
+  eachGraphContentInfoWrapper.appendChild(eachGraphButtonsWrapper);
+
+  eachGraphContentWrapper.appendChild(eachGraphContentInfoWrapper);
+
+  eachGraphWrapper.appendChild(eachGraphContentWrapper);
+
+  document.querySelector('.graph-outer-wrapper').appendChild(eachGraphWrapper);
+};
+
+function createGraphs() {
+  document.getElementById('loading-data-wrapper').style.display = 'flex';
+  document.getElementById('no-data-wrapper').style.display = 'none';
+  document.getElementById('graph-wrapper').style.display = 'none';
+
+  loadGraphData(err => {
+    document.getElementById('loading-data-wrapper').style.display = 'none';
+
+    if (err || !graphs.length)
+      return document.getElementById('no-data-wrapper').style.display = 'flex';
+
+    document.getElementById('graph-wrapper').style.display = 'flex';
+
+    graphs.forEach(graph => createGraph(graph));
+  });
+};
+
+function createSelectedIntegrationPath(integrationPathId, callback) {
+  serverRequest('/integration?id=' + integrationPathId, 'GET', {}, res => {
+    if (!res.success) return callback(res.error || 'unknown_error');
+
+    const integrationPath = res.integration_path;
+
+    const wrapper = document.getElementById('integration-paths-selected-items-wrapper');
+
+    const integrationPathWrapper = document.createElement('div');
+    integrationPathWrapper.classList.add('general-each-selected-item-wrapper');
+    integrationPathWrapper.id = 'selected_id_' + integrationPath._id;
+  
+    const span = document.createElement('span');
+    span.innerHTML = integrationPath.name + ' (' + integrationPath.path + ')';
+    integrationPathWrapper.appendChild(span);
+  
+    const i = document.createElement('i');
+    i.classList.add('fas');
+    i.classList.add('fa-trash-alt');
+    i.classList.add('create-question-selected-integration-path-delete-button');
+    integrationPathWrapper.appendChild(i);
+  
+    wrapper.appendChild(integrationPathWrapper);
+
+    return callback(null);
+  });
+};
+
+function createSearchIntegrationPath(integrationPathId, callback) {
+  serverRequest('/integration?id=' + integrationPathId, 'GET', {}, res => {
+    if (!res.success) return callback(res.error || 'unknown_error');
+
+    const integrationPath = res.integration_path;
+
+    const wrapper = document.getElementById('integration-paths-search-items-wrapper');
+
+    const integrationPathWrapper = document.createElement('div');
+    integrationPathWrapper.classList.add('general-each-search-item-wrapper');
+    integrationPathWrapper.id = 'search_id_' + integrationPath._id;
+  
+    const name = document.createElement('span');
+    name.classList.add('general-each-search-item-name');
+    name.innerHTML = integrationPath.name;
+    integrationPathWrapper.appendChild(name);
+
+    const path = document.createElement('span');
+    path.classList.add('general-text');
+    path.innerHTML = 'Path: ' + integrationPath.path;
+    integrationPathWrapper.appendChild(path);
+
+    const generalTextLine = document.createElement('div');
+    generalTextLine.classList.add('general-text-line');
+
+    const smallButton = document.createElement('div');
+    smallButton.classList.add('general-small-button');
+    smallButton.classList.add('create-question-select-each-integration-path-button');
+    smallButton.innerHTML = 'Select';
+    generalTextLine.appendChild(smallButton);
+
+    if (integrationPath.type != 'product') {
+      const i = document.createElement('i');
+      i.classList.add('fas');
+      i.classList.add('fa-trash-alt');
+      i.classList.add('general-each-search-item-delete-button');
+      i.classList.add('create-question-delete-integration-path-button');
+      generalTextLine.appendChild(i);
+    }
+
+    integrationPathWrapper.appendChild(generalTextLine);
+  
+    wrapper.appendChild(integrationPathWrapper);
+
+    while(integrationPathWrapper.previousElementSibling)
+      wrapper.insertBefore(integrationPathWrapper, integrationPathWrapper.previousElementSibling);
+
+    return callback(null);
+  });
+};
+
+function createSearchProduct(id) {
+  serverRequest('/product?id=' + id, 'GET', {}, res => {
+    if (!res.success)
+      return throwError(res.error);
+
+    const product = res.product;
+
+    const wrapper = document.getElementById('products-search-items-wrapper');
+
+    const productWrapper = document.createElement('div');
+    productWrapper.classList.add('general-each-search-item-wrapper');
+    productWrapper.id = product._id;
+  
+    const name = document.createElement('span');
+    name.classList.add('general-each-search-item-name');
+    name.innerHTML = product.name;
+    productWrapper.appendChild(name);
+
+    const path = document.createElement('span');
+    path.classList.add('general-text');
+    path.innerHTML = 'Path: ' + product.path;
+    productWrapper.appendChild(path);
+
+    const generalTextLine = document.createElement('div');
+    generalTextLine.classList.add('general-text-line');
+
+    const smallButton = document.createElement('div');
+    smallButton.classList.add('general-small-button');
+    smallButton.classList.add('create-question-select-each-product-button');
+    smallButton.innerHTML = 'Select';
+    generalTextLine.appendChild(smallButton);
+
+    const i = document.createElement('i');
+    i.classList.add('fas');
+    i.classList.add('fa-trash-alt');
+    i.classList.add('general-each-search-item-delete-button');
+    i.classList.add('create-question-delete-product-button');
+    generalTextLine.appendChild(i);
+
+    productWrapper.appendChild(generalTextLine);
+  
+    wrapper.appendChild(productWrapper);
+
+    while(productWrapper.previousElementSibling)
+      wrapper.insertBefore(productWrapper, productWrapper.previousElementSibling);
+  });
+};
+
+function createProductTemplates(id) {
+  const wrapper = document.getElementById('product-templates-wrapper');
+  wrapper.innerHTML = '';
+
+  serverRequest('/product/templates?id=' + id, 'GET', {}, res => {
+    if (!res.success)
+      return throwError(res.error);
+
+    const templates = res.templates;
+
+    templates.forEach(template => {
+      const templateWrapper = document.createElement('div');
+      templateWrapper.classList.add('general-each-search-item-wrapper');
+      templateWrapper.id = template._id;
+
+      const templateName = document.createElement('span');
+      templateName.classList.add('general-each-search-item-name');
+      templateName.innerHTML = template.name;
+      templateWrapper.appendChild(templateName);
+
+      const templateRefreshingTime = document.createElement('span');
+      templateRefreshingTime.classList.add('general-text');
+      templateRefreshingTime.innerHTML = `Template Refreshing Time: ${template.timeout_duration_in_week} weeks`;
+      templateWrapper.appendChild(templateRefreshingTime);
+
+      const templateQuestion = document.createElement('span');
+      templateQuestion.classList.add('general-text');
+      templateQuestion.innerHTML = `Question Asked: ${template.text}`;
+      templateWrapper.appendChild(templateQuestion);
+
+      if (template.subtype == 'single' || template.subtype == 'multiple') {
+        template.choices.forEach(choice => {
+          const eachChoice = document.createElement('span');
+          eachChoice.classList.add('general-text');
+          eachChoice.style.marginLeft = '5px';
+          eachChoice.innerHTML = `• ${choice}`;
+          templateWrapper.appendChild(eachChoice);
+        });
+      }
+
+      if (template.min_value && template.max_value) {
+        const templateRange = document.createElement('span');
+        templateRange.classList.add('general-text');
+        templateRange.style.marginLeft = '5px';
+        templateRange.innerHTML = `Answer should be in range from ${template.min_value} to #{template.max_value}, inclusive`;
+        templateWrapper.appendChild(templateRange);
+      }
+
+      const templateSelectButton = document.createElement('div');
+      templateSelectButton.classList.add('general-small-button');
+      templateSelectButton.classList.add('create-question-select-each-product-template-button')
+      templateSelectButton.innerHTML = 'Select';
+      templateWrapper.appendChild(templateSelectButton);
+
+      wrapper.appendChild(templateWrapper);
+    });
+  });
+};
+
+function updateIntegrationPathSelectFormDesign() {
+  const stepsWrapper = document.getElementById('select-integration-path-steps-wrapper');
+  
+  if (newQuestion.type == 'product') {
+    if (stepsWrapper.childElementCount == 5) {
+      const stepLine = document.createElement('div');
+      stepLine.classList.add('general-form-each-step-line');
+      stepLine.classList.add('general-form-each-step-line-finished');
+      stepsWrapper.appendChild(stepLine);
+
+      const step = document.createElement('span');
+      step.classList.add('general-form-each-step');
+      step.classList.add('general-form-each-step-finished');
+      step.innerHTML = 4;
+      stepsWrapper.appendChild(step);
+    }
+  } else {
+    if (stepsWrapper.childElementCount == 7)  {
+      stepsWrapper.childNodes[6].remove();
+      stepsWrapper.childNodes[5].remove();
+    }
+  }
 }
 
 window.addEventListener('load', () => {
   pieChartColors = JSON.parse(document.getElementById('pie-chart-colors').value);
 
   createGraphs();
-  createIntegrationRoutes();
 
-  const dashboardContentWrapper = document.querySelector('.dashboard-content-wrapper');
-  const integrationContentWrapper = document.querySelector('.integration-content-wrapper');
-  const questionsContentWrapper = document.querySelector('.questions-content-wrapper');
-  const adsContentWrapper = document.querySelector('.ads-content-wrapper');
-
-  const addTargetGroupWrapper = document.querySelector('.add-target-group-wrapper');
-  const createTargetGroupWrapper = document.getElementById('create-target-group-wrapper');
-  const createIntegrationRouteWrapper = document.getElementById('create-integration-route-wrapper');
+  const dataContentWrapper = document.getElementById('data-content-wrapper');
+  const analysisContentWrapper = document.getElementById('analysis-content-wrapper');
+  const bannerContentWrapper = document.getElementById('banner-content-wrapper');
 
   document.addEventListener('click', event => {
+    if (event.target.classList.contains('each-all-header-button') && !event.target.classList.contains('each-all-header-button-selected')) {
+      document.querySelector('.each-all-header-button-selected').classList.remove('each-all-header-button-selected');
+      event.target.classList.add('each-all-header-button-selected');
+
+      dataContentWrapper.style.display = 'none';
+      analysisContentWrapper.style.display = 'none';
+      bannerContentWrapper.style.display = 'none';
+
+      if (event.target.id == 'data-button')
+        dataContentWrapper.style.display = 'flex';
+      else if (event.target.id == 'analysis-button')
+        analysisContentWrapper.style.display = 'flex';
+      else if (event.target.id == 'banner-button')
+        bannerContentWrapper.style.display = 'flex';
+    }
+
     if (event.target.classList.contains('navigation-types-title') || event.target.parentNode.classList .contains('navigation-types-title')) {
       const target = event.target.classList.contains('navigation-types-title') ? event.target : event.target.parentNode;
       const icon = target.childNodes[0];
@@ -404,33 +638,98 @@ window.addEventListener('load', () => {
       }
     }
 
-    if ((event.target.classList.contains('each-navigation-button') && !event.target.classList.contains('selected-navigation-button')) || (event.target.parentNode.classList.contains('each-navigation-button') && !event.target.parentNode.classList.contains('selected-navigation-button'))) {
-      const target = event.target.classList.contains('each-navigation-button') ? event.target : event.target.parentNode;
-      
-      document.querySelector('.selected-navigation-button').classList.remove('selected-navigation-button');
-      target.classList.add('selected-navigation-button');
+    if (event.target.classList.contains('each-graph-delete-button') || event.target.parentNode.classList.contains('each-graph-delete-button')) {
+      const target = event.target.classList.contains('each-graph-delete-button') ? event.target : event.target.parentNode;
+      const id = target.parentNode.parentNode.parentNode.parentNode.id;
 
-      if (target.id == 'dashboard') {
-        dashboardContentWrapper.style.display = 'flex';
-        integrationContentWrapper.style.display = 'none';
-        questionsContentWrapper.style.display = 'none';
-        adsContentWrapper.style.display = 'none';
-      } else if (target.id == 'integration') {
-        dashboardContentWrapper.style.display = 'none';
-        integrationContentWrapper.style.display = 'flex';
-        questionsContentWrapper.style.display = 'none';
-        adsContentWrapper.style.display = 'none';
-      } else if (target.id == 'questions') {
-        dashboardContentWrapper.style.display = 'none';
-        integrationContentWrapper.style.display = 'none';
-        questionsContentWrapper.style.display = 'flex';
-        adsContentWrapper.style.display = 'none';
-      } else if (target.id == 'ads') {
-        dashboardContentWrapper.style.display = 'none';
-        integrationContentWrapper.style.display = 'none';
-        questionsContentWrapper.style.display = 'none';
-        adsContentWrapper.style.display = 'flex';
+      createConfirm({
+        title: 'Are you sure you want to delete this question?',
+        text: 'This action cannot be taken back. Once you delete, you will loose access to all of the data that Usersmagic has collected from your customers. If you have a Target Group using this question, it will continue to exist, but new customers will no longer be selected for this Target Group.',
+        reject: 'Cancel',
+        accept: 'Delete'
+      }, res => {
+        if (!res) return;
+
+        serverRequest('/questions/delete?id=' + id, 'GET', {}, res => {
+          if (!res.success)
+            return throwError(res.error);
+
+          target.parentNode.parentNode.parentNode.parentNode.remove();
+        });
+      });
+    }
+
+    if (event.target.classList.contains('each-graph-deactivate-button') || event.target.parentNode.classList.contains('each-graph-deactivate-button')) {
+      const target = event.target.classList.contains('each-graph-deactivate-button') ? event.target : event.target.parentNode;
+      const id = target.parentNode.parentNode.parentNode.parentNode.id;
+
+      serverRequest('/questions/deactivate?id=' + id, 'GET', {}, res => {
+        if (!res.success)
+          return throwError(res.error);
+
+        target.classList.remove('each-graph-deactivate-button');
+        target.classList.add('each-graph-activate-button');
+        target.childNodes[0].classList.remove('fa-pause');
+        target.childNodes[0].classList.add('fa-play');
+        target.childNodes[1].innerHTML = 'Activate';
+      });
+    }
+
+    if (event.target.classList.contains('each-graph-activate-button') || event.target.parentNode.classList.contains('each-graph-activate-button')) {
+      const target = event.target.classList.contains('each-graph-activate-button') ? event.target : event.target.parentNode;
+      const id = target.parentNode.parentNode.parentNode.parentNode.id;
+
+      serverRequest('/questions/activate?id=' + id, 'GET', {}, res => {
+        if (!res.success)
+          return throwError(res.error);
+
+        target.classList.remove('each-graph-activate-button');
+        target.classList.add('each-graph-deactivate-button');
+        target.childNodes[0].classList.remove('fa-play');
+        target.childNodes[0].classList.add('fa-pause');
+        target.childNodes[1].innerHTML = 'Pause';
+      });
+    }
+
+    if (event.target.classList.contains('create-question-button')) {
+      document.getElementById('create-question-form-outer-wrapper').style.display = 'flex';
+    }
+
+    if (event.target.classList.contains('each-question-type-wrapper') || event.target.parentNode.classList.contains('each-question-type-wrapper')) {
+      const target = event.target.classList.contains('each-question-type-wrapper') ? event.target : event.target.parentNode;
+
+      document.getElementById('question-type-form').style.display = 'none';
+
+      if (target.id == 'question-type-demographics-button') {
+        newQuestion.type = 'demographics';
+        document.getElementById('demographics-template-form').style.display = 'flex';
+      } else if (target.id == 'question-type-brand-button') {
+        newQuestion.type = 'brand';
+        document.getElementById('brand-template-form').style.display = 'flex';
+      } else if (target.id == 'question-type-product-button') {
+        newQuestion.type = 'product';
+        document.getElementById('product-select-form').style.display = 'flex';
       }
+    }
+
+    if (event.target.classList.contains('create-question-back-to-question-type-button')) {
+      document.getElementById('demographics-template-form').style.display = 'none';
+      document.getElementById('brand-template-form').style.display = 'none';
+      document.getElementById('product-select-form').style.display = 'none';
+      document.getElementById('question-type-form').style.display = 'flex';
+    }
+
+    if (event.target.classList.contains('create-question-select-each-template-button')) {
+      newQuestion.template_id = event.target.parentNode.id;
+      document.getElementById('demographics-template-form').style.display = 'none';
+      document.getElementById('brand-template-form').style.display = 'none';
+      document.getElementById('select-integration-path-form').style.display = 'flex';
+      updateIntegrationPathSelectFormDesign();
+    }
+
+    if (event.target.classList.contains('create-integration-path-open-form-button')) {
+      document.getElementById('create-question-form-outer-wrapper').style.display = 'none';
+      document.getElementById('create-integration-path-form-outer-wrapper').style.display = 'flex';
     }
 
     if (event.target.classList.contains('copy-code-button') || event.target.parentNode.classList.contains('copy-code-button')) {
@@ -446,168 +745,199 @@ window.addEventListener('load', () => {
       }, 1500);
     }
 
-    if (event.target.classList.contains('add-product-outer-wrapper') || event.target.classList.contains('add-product-close-button') || event.target.parentNode.classList.contains('add-product-close-button')) {
-      document.querySelector('.add-product-outer-wrapper').style.display = 'none';
-    }
+    if (event.target.id == 'create-integration-path-button') {
+      const name = document.getElementById('integration-path-name-input').value.trim();
+      const path = document.getElementById('integration-path-link-input').value.trim();
+      const error = document.getElementById('create-integration-path-error');
 
-    if (event.target.classList.contains('create-product-button') || event.target.parentNode.classList.contains('create-product-button') || event.target.classList.contains('create-product-main-button')) {
-      document.querySelector('.add-product-outer-wrapper').style.display = 'flex';
-    }
+      error.innerHTML = '';
 
-    if (event.target.classList.contains('delete-question-button')) {
-      const id = event.target.parentNode.parentNode.id;
+      if (!name || !name.length)
+        return error.innerHTML = 'Please write a name for your integration path.';
 
-      createConfirm({
-        title: 'Are you sure you want to delete this question?',
-        text: 'Once you delete, your users won\'t be able to see and answer this question on your website. Your old data will be preserved until the answers are expired, but you won\'t be able to see the graphs anymore. You can retake this action whenever you like.',
-        accept: 'Confirm',
-        reject: 'Cancel'
+      if (!path || !path.link)
+        return error.innerHTML = 'Please write the link of your integration path.'
+
+      serverRequest('/integration/create', 'POST', {
+        type: 'page',
+        name,
+        path
       }, res => {
-        if (res) {
-          serverRequest(`/questions/delete?id=${id}`, 'GET', {}, res => {
-            if (!res.success)
-              return throwError(res.error);
-    
-            event.target.parentNode.parentNode.remove();
-          }); 
-        }
+        if (!res.success && res.error == 'duplicated_unique_field')
+          return error.innerHTML = 'An integration path with this name alreadt exists.';
+        if (!res.success)
+          return error.innerHTML = 'An unknown error occured, please try again later.';
+
+        createSelectedIntegrationPath(res.id, err => {
+          if (err) return throwError(err);
+
+          document.getElementById('create-integration-path-form-outer-wrapper').style.display = 'none';
+          document.getElementById('create-question-form-outer-wrapper').style.display = 'flex';
+        });
       });
     }
 
-    if (event.target.classList.contains('delete-image-button')) {
-      const wrapper = event.target.parentNode.parentNode;
-      const url = event.target.parentNode.childNodes[0].childNodes[0].src;
+    if (event.target.id == 'create-integration-path-back-button') {
+      document.getElementById('create-question-form-outer-wrapper').style.display = 'flex';
+      document.getElementById('create-integration-path-form-outer-wrapper').style.display = 'none';
+    }
 
-      serverRequest(`/image/delete?url=${url}`, 'GET', {}, res => {
-        if (!res.success) return throwError(res.error);
+    if (event.target.classList.contains('create-question-select-each-integration-path-button')) {
+      const id = event.target.parentNode.parentNode.id.replace('search_id_', '');
 
-        createImagePicker(wrapper);
+      createSelectedIntegrationPath(id, err => {
+        if (err) return throwError(err);
+
+        newQuestion.integration_path_id_list.push(id);
+        event.target.parentNode.parentNode.remove();
       });
     }
 
-    if (event.target.classList.contains('add-template-button')) {
-      const id = event.target.parentNode.parentNode.id;
+    if (event.target.classList.contains('create-question-selected-integration-path-delete-button')) {
+      const id = event.target.parentNode.id.replace('selected_id_', '');
 
+      createSearchIntegrationPath(id, err => {
+        if (err) return throwError(err);
+
+        newQuestion.integration_path_id_list = newQuestion.integration_path_id_list.filter(each => each != id);
+        event.target.parentNode.remove();
+      });
+    }
+
+    if (event.target.classList.contains('create-question-delete-integration-path-button')) {
       createConfirm({
-        title: 'Are you sure you want to add this question?',
-        text: 'Once you add, your users will be able to see and answer this question on your website.',
-        accept: 'Confirm',
-        reject: 'Cancel'
-      }, res => {
-        if (res) {
-          serverRequest('/questions/create', 'POST', {
-            template_id: id
-          }, res => {
-            if (!res.success)
-              return throwError(res.error);
-
-            serverRequest(`/questions?id=${res.id}`, 'GET', {}, res => {
-              if (!res.success)
-                return throwError(res.error);
-
-              event.target.parentNode.parentNode.remove();
-              createQuestion(res.question);
-            });
-          });
-        }
-      });
-    }
-
-    if (event.target.classList.contains('add-new-item-close-button') || event.target.parentNode.classList.contains('add-new-item-close-button')) {
-      const id = event.target.classList.contains('add-new-item-close-button') ? event.target.id : event.target.parentNode.id;
-
-      if (id == 'create-target-group-close-button') {
-        createTargetGroupWrapper.style.display = 'none';
-      } else if (id == 'create-integration-route-close-button') {
-        createIntegrationRouteWrapper.style.display = 'none';
-      }
-    }
-
-    if (event.target.classList.contains('add-new-item-outer-wrapper')) {
-      event.target.style.display = 'none';
-    }
-
-    if (event.target.id == 'create-integration-route-open-button') {
-      createIntegrationRouteWrapper.style.display = 'flex';
-    }
-
-    if (event.target.classList.contains('each-integration-route-delete-button')) {
-      const id = event.target.parentNode.id;
-
-      console.log(id);
-
-      createConfirm({
-        title: 'Are you sure you want to delete this route?',
-        text: 'Please confirm you want to delete this route. The Usersmagic pop-ups will be deactivated from this page. You may retake this action whenever you like.',
+        title: 'Are you sure you want to delete this integration path?',
+        text: 'This action cannot be taken back. Please make sure you will not use this integation path.',
         accept: 'Delete',
         reject: 'Cancel'
       }, res => {
-        if (res) {
-          serverRequest('/integration/delete', 'POST', {
-            integration_route_id: id
-          }, res => {
-            if (!res.success)
-              return throwError(res.error);
+        if (!res) return;
 
-            event.target.parentNode.remove();
-          });
-        }
+        const id = event.target.parentNode.parentNode.id.replace('search_id_', '');
+
+        serverRequest('/integration/delete?id=' + id, 'GET', {}, res => {
+          if (res.error == 'document_still_used')
+            return createConfirm({
+              title: 'This integration path cannot be deleted',
+              text: 'Apparently one or more questions are still using this integration path. Please remove this path from every question before you delete it.',
+              reject: 'Close'
+            }, res => {});
+          if (!res.success)
+            return throwError(res.error);
+          
+          event.target.parentNode.parentNode.remove();
+        });
       });
     }
 
-    if (event.target.classList.contains('create-target-group-button') || event.target.parentNode.classList.contains('create-target-group-button')) {
-      createTargetGroupWrapper.style.display = 'flex';
-      addTargetGroupWrapper.style.overflow = 'hidden';
-      addTargetGroupWrapper.style.borderColor = 'rgb(186, 183, 178)';
-      addTargetGroupWrapper.style.boxShadow = 'none';
+    if (event.target.id == 'create-product-open-form-button') {
+      document.getElementById('create-question-form-outer-wrapper').style.display = 'none';
+      document.getElementById('create-product-form-outer-wrapper').style.display = 'flex';
     }
-    
-    if (!event.target.classList.contains('add-target-group-wrapper') && event.target.parentNode && !event.target.parentNode.classList.contains('add-target-group-wrapper')  && event.target.parentNode.parentNode && !event.target.parentNode.parentNode.classList.contains('add-target-group-wrapper') && event.target.parentNode.parentNode.parentNode && !event.target.parentNode.parentNode.parentNode.classList.contains('add-target-group-wrapper')) {
-      addTargetGroupWrapper.style.overflow = 'hidden';
-      addTargetGroupWrapper.style.borderColor = 'rgb(186, 183, 178)';
-      addTargetGroupWrapper.style.boxShadow = 'none';
-    }  
 
-    if (event.target.classList.contains('each-target-group-filter') || event.target.parentNode.classList.contains('each-target-group-filter')) {
-      const target = event.target.classList.contains('each-target-group-filter') ? event.target : event.target.parentNode;
-
-      target.style.height = 'fit-content';
-      target.style.minHeight = 'fit-content';
+    if (event.target.id == 'create-product-back-button') {
+      document.getElementById('create-question-form-outer-wrapper').style.display = 'flex';
+      document.getElementById('create-product-form-outer-wrapper').style.display = 'none';
     }
-  });
 
-  // Don't allow these actions while graphs are loading
-  document.addEventListener('click', event => {
-    if (loadingGraphs)
-      return;
+    if (event.target.id == 'create-product-button') {
+      const name = document.getElementById('product-name-input').value.trim();
+      const path = document.getElementById('product-link-input').value.trim();
+      const error = document.getElementById('create-product-error');
 
-    if (event.target.classList.contains('each-time-filter-button') && !event.target.classList.contains('each-time-filter-button-selected') && event.target.id != 'custom-time-filter-button') {
-      let weekFilter;
+      error.innerHTML = '';
 
-      document.querySelector('.each-time-filter-button-selected').classList.remove('each-time-filter-button-selected');
-      event.target.classList.add('each-time-filter-button-selected');
+      if (!name || !name.length)
+        return error.innerHTML = 'Please write a name for your product.';
 
-      if (event.target.id == 'all-time-filter-button') weekFilter = null;
-      else if (event.target.id == 'this-week-filter-button') weekFilter = 0;
-      else if (event.target.id == 'last-week-filter-button') weekFilter = -1;
-      else if (event.target.id == 'two-weeks-filter-button') weekFilter = -2;
-      else if (event.target.id == 'four-weeks-filter-button') weekFilter = -4;
-      else if (event.target.id == 'three-months-time-filter-button') weekFilter = -12;
-      else if (event.target.id == 'six-months-time-filter-button') weekFilter = -24;
-      else if (event.target.id == 'twelve-months-time-filter-button') weekFilter = -52;
+      if (!path || !path.link)
+        return error.innerHTML = 'Please write the link of your product.'
 
-      if (isNaN(weekFilter) && 'latest_week_count' in filters)
-        delete filters.latest_week_count;
-      else
-        filters.latest_week_count = weekFilter;
+      serverRequest('/product/create', 'POST', {
+        name,
+        path
+      }, res => {
+        if (!res.success)
+          return error.innerHTML = 'An unknown error occured, please try again later.';
 
-      createGraphs();
+        newQuestion.product_id = res.id;
+        document.getElementById('create-question-form-outer-wrapper').style.display = 'flex';
+        document.getElementById('create-product-form-outer-wrapper').style.display = 'none';
+        document.getElementById('product-template-form').style.display = 'flex';
+        document.getElementById('product-select-form').style.display = 'none';
+        createProductTemplates(res.id);
+        createSearchProduct(res.id);
+      });
     }
+
+    if (event.target.classList.contains('create-question-select-each-product-button')) {
+      const id = event.target.parentNode.parentNode.id;
+      newQuestion.product_id = id;
+      createProductTemplates(id);
+      document.getElementById('product-template-form').style.display = 'flex';
+      document.getElementById('product-select-form').style.display = 'none';
+    }
+
+    if (event.target.classList.contains('create-question-product-template-back-button')) {
+      document.getElementById('product-template-form').style.display = 'none';
+      document.getElementById('product-select-form').style.display = 'flex';
+    }
+
+    if (event.target.classList.contains('create-question-select-each-product-template-button')) {
+      const id = event.target.parentNode.id;
+      newQuestion.template_id = id;
+      document.getElementById('product-template-form').style.display = 'none';
+      document.getElementById('select-integration-path-form').style.display = 'flex';
+      updateIntegrationPathSelectFormDesign();
+    }
+
+    if (event.target.id == 'create-question-integration-path-back-button') {
+      document.getElementById(`${newQuestion.type}-template-form`).style.display = 'flex';
+      document.getElementById('select-integration-path-form').style.display = 'none';
+    }
+
+    if (event.target.classList.contains('create-question-finish-button')) {
+      if (newQuestion.type == 'demographics' || newQuestion.type == 'brand') {
+        document.getElementById('integration-path-error').innerHTML = '';
+
+        if (!newQuestion.integration_path_id_list || !newQuestion.integration_path_id_list.length)
+          return document.getElementById('integration-path-error').innerHTML = 'Please select at least one integration path to ask your question';
+
+        serverRequest('/questions/create', 'POST', {
+          template_id: newQuestion.template_id,
+          integration_path_id_list: newQuestion.integration_path_id_list,
+          created_at: getDate()
+        }, res => {
+          if (!res.success)
+            return throwError(res.error);
+
+          location.reload();
+        });
+      } else if (newQuestion.type == 'product') {
+        document.getElementById('integration-path-error').innerHTML = '';
+
+        serverRequest('/questions/create', 'POST', {
+          template_id: newQuestion.template_id,
+          product_id: newQuestion.product_id,
+          integration_path_id_list: newQuestion.integration_path_id_list,
+          created_at: getDate()
+        }, res => {
+          if (!res.success)
+            return throwError(res.error);
+
+          location.reload();
+        });
+      }
+    }
+
+    // if (event.target.id == 'create-target-group-button') {
+    //   document.getElementById('create-target-group-form-outer-wrapper').style.display = 'flex';
+    // }
   });
 
   document.addEventListener('mouseover', event => {
-    if (event.target.classList.contains('pie-chart-color')) {
-      const graphWrapper = event.target.parentNode.parentNode.parentNode;
+    if (event.target.classList.contains('pie-chart-color') && !event.target.classList.contains('pie-chart-color-default')) {
+      const graphWrapper = event.target.parentNode.parentNode.parentNode.parentNode;
       const graph = graphs.find(each => each._id == graphWrapper.id);
 
       if (graphInfoId == graph._id)
@@ -657,104 +987,6 @@ window.addEventListener('load', () => {
     } else if (!event.target.classList.contains('graph-info') && document.querySelector('.graph-info')) {
       document.querySelector('.graph-info').remove();
       graphInfoId = null;
-    }
-  });
-
-  document.addEventListener('submit', event => {
-    if (event.target.classList.contains('add-product-wrapper')) {
-      event.preventDefault();
-
-      const name = document.getElementById('product-name-input').value;
-      const link = document.getElementById('product-link-input').value;
-
-      serverRequest('/product/create', 'POST', {
-        name,
-        link
-      }, res => {
-        console.log(res);
-        if (!res.success) return createConfirm({
-          title: 'An error occured',
-          text: 'Please make sure all the information you gave is correct. If the problem continues, please reload the page and try again later. Error code: ' + (res.error || 'unknown_error'),
-          reject: 'Confirm'
-        }, res => {});
-
-        return location.reload();
-      });
-    }
-
-    if (event.target.id == 'create-integration-route-form') {
-      event.preventDefault();
-
-      const integrationRouteName = document.getElementById('integration-route-name-input').value;
-      const integrationRouteURL = document.getElementById('integration-route-url-input').value;
-
-      serverRequest('/integration/create', 'POST', {
-        name: integrationRouteName,
-        route: integrationRouteURL
-      }, res => {
-        if (!res.success) return throwError(res.error);
-
-        createIntegrationRoutes();
-        createIntegrationRouteWrapper.style.display = 'none';
-      })
-    }
-  });
-
-  document.addEventListener('input', event => {
-    if (event.target.classList.contains('template-search-input')) {
-      const text = event.target.value.toLocaleLowerCase().trim();
-      const templatesWrapper = document.querySelector('.templates-wrapper');
-      const nodes = templatesWrapper.childNodes;
-      const newNodes = [];
-
-      for (let i = 0; i < nodes.length; i++)
-        newNodes.push(nodes[i].cloneNode(true));
-
-      newNodes.forEach(each => {
-        if (each.innerHTML.toLocaleLowerCase().indexOf(text) > -1)
-          each.style.display = 'flex';
-        else 
-          each.style.display = 'none';
-      });
-
-      templatesWrapper.innerHTML = '';
-
-      newNodes.sort((x, y) => {
-        if (x.innerHTML.toLocaleLowerCase().indexOf(text) < y.innerHTML.toLocaleLowerCase().indexOf(text))
-          return -1;
-        else if (x.innerHTML.toLocaleLowerCase().indexOf(text) > y.innerHTML.toLocaleLowerCase().indexOf(text))
-          return 1;
-        else
-          return 0;
-      });
-
-      newNodes.forEach(node => {
-        templatesWrapper.appendChild(node);
-      });
-    }
-  });
-
-  document.addEventListener('focusin', event => {
-    if (event.target.classList.contains('add-target-group-input')) {
-      addTargetGroupWrapper.style.overflow = 'visible';
-      addTargetGroupWrapper.style.borderColor = 'rgb(140, 212, 224)';
-      addTargetGroupWrapper.style.boxShadow = '0px 4px 10px 3px rgba(0, 0, 0, 0.05)';
-    }
-  });
-
-  document.addEventListener('change', event => {
-    if (event.target.classList.contains('image-input')) {
-      const file = event.target.files[0];
-
-      event.target.parentNode.style.cursor = 'progress';
-      event.target.parentNode.childNodes[0].innerHTML = 'Uploading...';
-      event.target.parentNode.childNodes[1].type = 'text';
-
-      uploadImage(file, (err, url) => {
-        if (err) return throwError(err);
-
-        createUploadedImage(url, event.target.parentNode.parentNode);
-      });
     }
   });
 });

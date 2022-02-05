@@ -1,15 +1,15 @@
-const Product = require('../../../models/product/Product');
+const Person = require('../../models/person/Person');
 
 module.exports = (req, res) => {
   req.body.company_id = req.session.user.company._id;
 
-  Product.createProduct(req.body, (err, id) => {
+  Person.getCumulativeResponsesForCompanyQuestions(req.body, (err, graphs) => {
     if (err) {
       res.write(JSON.stringify({ error: err, success: false }));
       return res.end();
     }
 
-    res.write(JSON.stringify({ id, success: true }));
+    res.write(JSON.stringify({ graphs, success: true }));
     return res.end();
   });
 }

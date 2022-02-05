@@ -5,14 +5,14 @@ const isConfirmed = require('../middleware/isConfirmed');
 const hasLeftWaitlist = require('../middleware/hasLeftWaitlist');
 const isLoggedIn = require('../middleware/isLoggedIn');
 
-const filtersPostController = require('../controllers/graphs/filters/post');
+const indexPostController = require('../controllers/graphs/post');
 
 router.post(
-  '/filters',
+  '/',
     isLoggedIn,
     isConfirmed,
     hasLeftWaitlist,
-    filtersPostController
+    indexPostController  
 );
 
 module.exports = router;
