@@ -7,6 +7,7 @@ const isLoggedIn = require('../middleware/isLoggedIn');
 
 const deleteGetController = require('../controllers/integration/delete/get');
 const indexGetController = require('../controllers/integration/index/get');
+const productGetController = require('../controllers/integration/product/get');
 
 const createPostController = require('../controllers/integration/create/post');
 
@@ -23,6 +24,13 @@ router.get(
     isConfirmed,
     hasLeftWaitlist,
     deleteGetController
+);
+router.get(
+  '/product',
+    isLoggedIn,
+    isConfirmed,
+    hasLeftWaitlist,
+    productGetController
 );
 
 router.post(

@@ -103,6 +103,7 @@
   min-height: fit-content;
   display: flex;
   flex-direction: column;
+  margin-top: 10px;
 }
 .general-each-selected-item-wrapper {
   width: 100%;

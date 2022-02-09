@@ -573,22 +573,76 @@ function updateIntegrationPathSelectFormDesign() {
   const stepsWrapper = document.getElementById('select-integration-path-steps-wrapper');
   
   if (newQuestion.type == 'product') {
-    if (stepsWrapper.childElementCount == 5) {
-      const stepLine = document.createElement('div');
-      stepLine.classList.add('general-form-each-step-line');
-      stepLine.classList.add('general-form-each-step-line-finished');
-      stepsWrapper.appendChild(stepLine);
+    serverRequest('/integration/product?product_id=' + newQuestion.product_id, 'GET', {}, res => {
+      if (!res.success)
+        return throwError(res.error);
 
-      const step = document.createElement('span');
-      step.classList.add('general-form-each-step');
-      step.classList.add('general-form-each-step-finished');
-      step.innerHTML = 4;
-      stepsWrapper.appendChild(step);
-    }
+      const integrationPath = res.integration_path;
+
+      if (stepsWrapper.childElementCount == 5) {
+        const stepLine = document.createElement('div');
+        stepLine.classList.add('general-form-each-step-line');
+        stepLine.classList.add('general-form-each-step-line-finished');
+        stepsWrapper.appendChild(stepLine);
+    
+        const step = document.createElement('span');
+        step.classList.add('general-form-each-step');
+        step.classList.add('general-form-each-step-finished');
+        step.innerHTML = 4;
+        stepsWrapper.appendChild(step);
+      }
+    
+      if (document.getElementById('product-default-integration-path'))
+        document.getElementById('product-default-integration-path').remove();
+
+      const defaultIntegrationPath = document.createElement('div');
+      defaultIntegrationPath.classList.add('general-each-selected-item-wrapper');
+      defaultIntegrationPath.id = 'product-default-integration-path';
+      defaultIntegrationPath.style.marginTop = '10px';
+  
+      const pathName = document.createElement('span');
+      pathName.innerHTML = `${integrationPath.name} (${integrationPath.path})`;
+      defaultIntegrationPath.appendChild(pathName);
+
+      const pathDefault = document.createElement('span');
+      pathDefault.innerHTML = 'DEFAULT';
+      pathDefault.style.fontWeight = '600';
+      pathDefault.style.color = 'rgb(156, 156, 156)';
+      pathDefault.style.fontSize = '12px';
+      defaultIntegrationPath.appendChild(pathDefault);
+
+      const wrapper = document.getElementById('select-integration-path-inner-content');
+
+      wrapper.appendChild(defaultIntegrationPath);
+
+      while (!defaultIntegrationPath.previousElementSibling.classList.contains('create-integration-path-open-form-button')) {
+        wrapper.insertBefore(defaultIntegrationPath, defaultIntegrationPath.previousElementSibling);
+      }
+      wrapper.insertBefore(defaultIntegrationPath, defaultIntegrationPath.previousElementSibling);
+
+      const searchItems = document.getElementById('integration-paths-search-items-wrapper').childNodes;
+
+      for (let i = 0; i < searchItems.length; i++) {
+        const id = searchItems[i].id.replace('search_id_', '');
+        if (id == integrationPath._id.toString())
+          searchItems[i].style.display = 'none';
+        else
+          searchItems[i].style.display = 'flex';   
+      }
+    });
   } else {
     if (stepsWrapper.childElementCount == 7)  {
       stepsWrapper.childNodes[6].remove();
       stepsWrapper.childNodes[5].remove();
+    }
+
+    if (document.getElementById('product-default-integration-path'))
+      document.getElementById('product-default-integration-path').remove();
+
+    const searchItems = document.getElementById('integration-paths-search-items-wrapper').childNodes;
+
+    for (let i = 0; i < searchItems.length; i++) {
+      searchItems[i].style.display = 'flex';   
     }
   }
 }

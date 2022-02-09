@@ -146,4 +146,20 @@ IntegrationPathSchema.statics.findIntegrationPathByIdAndDelete = function (id, c
   });
 };
 
+IntegrationPathSchema.statics.findIntegrationPathByProductId = function (product_id, callback) {
+  const IntegrationPath = this;
+
+  if (!product_id || !validator.isMongoId(product_id.toString()))
+    return callback('bad_request');
+
+  IntegrationPath.findOne({
+    product_id: mongoose.Types.ObjectId(product_id.toString())
+  }, (err, integration_path) => {
+    if (err) return callback('database_error');
+    if (!integration_path) return callback('document_not_found');
+
+    return callback(null, integration_path);
+  });
+};
+
 module.exports = mongoose.model('IntegrationPath', IntegrationPathSchema);

@@ -1,6 +1,6 @@
 extends ../partials/head
 block content
-  .general-form-outer-wrapper#create-question-form-outer-wrapper
+  .general-form-outer-wrapper#create-question-form-outer-wrapper(style="display: none")
     .general-form-wrapper
       .general-form-header
         span.general-title Create New Question
@@ -122,7 +122,7 @@ block content
           span.general-form-each-step.general-form-each-step-finished 2
           .general-form-each-step-line.general-form-each-step-line-finished
           span.general-form-each-step.general-form-each-step-finished 3
-        .general-form-inner-content-wrapper
+        .general-form-inner-content-wrapper#select-integration-path-inner-content
           span.general-subtitle Please select the integration paths your question will be asked on
           span.general-text Note, you can update the integration paths you will be using whenever you want. When you have more integration paths, you will be able to collect more data from your customers.
           span.general-small-button.create-integration-path-open-form-button Create New Integration Path
