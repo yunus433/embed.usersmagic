@@ -10,8 +10,10 @@ const csvGetController = require('../controllers/questions/csv/get');
 const deactivateGetController = require('../controllers/questions/deactivate/get');
 const deleteGetController = require('../controllers/questions/delete/get');
 const indexGetController = require('../controllers/questions/index/get');
+const integrateGetController = require('../controllers/questions/integrate/get');
 
 const createPostController = require('../controllers/questions/create/post');
+const integratePostController = require('../controllers/questions/integrate/post');
 
 router.get(
   '/',
@@ -48,6 +50,13 @@ router.get(
     hasLeftWaitlist,
     deleteGetController
 );
+router.get(
+  '/integrate',
+    isLoggedIn,
+    isConfirmed,
+    hasLeftWaitlist,
+    integrateGetController
+);
 
 router.post(
   '/create',
@@ -55,6 +64,13 @@ router.post(
     isConfirmed,
     hasLeftWaitlist,
     createPostController
+);
+router.post(
+  '/integrate',
+    isLoggedIn,
+    isConfirmed,
+    hasLeftWaitlist,
+    integratePostController
 );
 
 module.exports = router;

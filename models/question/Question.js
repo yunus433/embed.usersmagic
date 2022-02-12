@@ -127,26 +127,32 @@ QuestionSchema.statics.createQuestion = function (data, callback) {
               if (template.type == 'product') {
                 Product.findProductById(data.product_id, (err, product) => {
                   if (err) return callback(err);
-        
-                  const newQuestionData = {
-                    signature: template._id.toString() + company._id.toString() + product._id.toString(),
-                    template_id: template._id,
-                    company_id: company._id,
-                    product_id: product._id,
-                    order_number,
-                    created_at: data.created_at,
-                    integration_path_id_list,
-                    created_at: moment
-                  };
-    
-                  const newQuestion = new Question(newQuestionData);
-    
-                  newQuestion.save((err, question) => {
-                    if (err && err.code == DUPLICATED_UNIQUE_FIELD_ERROR_CODE)
-                      return callback('duplicated_unique_field');
-                    if (err) return callback('database_error');
-    
-                    return callback(null, question._id.toString());
+
+                  IntegrationPath.findIntegrationPathByProductId(product._id, (err, integration_path) => {
+                    if (err) return callback(err);
+
+                    if (!integration_path_id_list.includes(integration_path._id.toString()))
+                      integration_path_id_list.push(integration_path._id.toString());
+
+                    const newQuestionData = {
+                      signature: template._id.toString() + company._id.toString() + product._id.toString(),
+                      template_id: template._id,
+                      company_id: company._id,
+                      product_id: product._id,
+                      order_number,
+                      created_at: data.created_at,
+                      integration_path_id_list
+                    };
+      
+                    const newQuestion = new Question(newQuestionData);
+      
+                    newQuestion.save((err, question) => {
+                      if (err && err.code == DUPLICATED_UNIQUE_FIELD_ERROR_CODE)
+                        return callback('duplicated_unique_field');
+                      if (err) return callback('database_error');
+      
+                      return callback(null, question._id.toString());
+                    });
                   });
                 });
               } else {
@@ -173,36 +179,6 @@ QuestionSchema.statics.createQuestion = function (data, callback) {
           );
         })
         .catch(err => callback('database_error'));
-    });
-  });
-};
-
-QuestionSchema.statics.createQuestionsForDefaultTemplates = function (company_id, callback) {
-  const Question = this;
-
-  Company.findCompanyById(company_id, (err, company) => {
-    if (err) return callback(err);
-
-    Template.findTemplatesByFiltersAndSorted({
-      language: company.preferred_language,
-      is_default_template: true
-    }, (err, templates) => {
-      if (err) return callback(err);
-
-      async.timesSeries(
-        templates.length,
-        (time, next) => {
-          Question.createQuestion({
-            company_id: company._id,
-            template_id: templates[time]._id
-          }, err => next(err));
-        },
-        err => {
-          if (err) return callback(err);
-
-          return callback(null);
-        }
-      );
     });
   });
 };
@@ -373,9 +349,6 @@ QuestionSchema.statics.findQuestionsForCompany = function (company_id, callback)
             Product.findProductById(question.product_id, (err, product) => {
               if (err) return next(err);
 
-              if (!data[product._id.toString()])
-                data[product._id.toString()] = [];
-
               return next(null, {
                 _id: question._id.toString(),
                 template_id: question.template_id,
@@ -495,11 +468,55 @@ QuestionSchema.statics.findUnusedProductTemplatesForCompanyByProductId = functio
           nin_id_list: template_id_list
         }, (err, templates) => {
           if (err) return callback(err);
-    
-          return callback(null, templates);
+
+          async.timesSeries(
+            templates.length,
+            (time, next) => {
+              const template = templates[time];
+
+              return next(null, {
+                _id: template._id.toString(),
+                timeout_duration_in_week: template.timeout_duration_in_week,
+                order_number: template.order_number,
+                name: template.name.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
+                text: template.text.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
+                type: template.type,
+                subtype: template.subtype,
+                choices: template.choices,
+                min_value: template.min_value,
+                max_value: template.max_value,
+                labels: template.labels
+              });
+            },
+            (err, templates) => {
+              if (err) return callback(err);
+
+              return callback(null, templates);
+            }
+          );
         });
       });
     });
+  });
+};
+
+QuestionSchema.statics.findQuestionByIdAndGetIntegrationPathList = function (id, callback) {
+  const Question = this;
+
+  Question.findQuestionById(id, (err, question) => {
+    if (err) return callback(err);
+
+    async.timesSeries(
+      question.integration_path_id_list.length,
+      (time, next) => IntegrationPath.findIntegrationPathById(question.integration_path_id_list[time],
+        (err, integration_path) => next(err, integration_path)
+      ),
+      (err, integration_path_list) => {
+        if (err) return callback(err);
+
+        return callback(null, integration_path_list);
+      }
+    );
   });
 };
 
@@ -515,6 +532,60 @@ QuestionSchema.statics.findQuestionsByIntegrationPathId = function (integration_
     if (err) return callback('database_error');
 
     return callback(null, questions);
+  });
+};
+
+QuestionSchema.statics.findQuestionByIdAndUpdateIntegrationPathIdList = function (id, data, callback) {
+  const Question = this;
+
+  Question.findQuestionById(id, (err, question) => {
+    if (err) return callback(err);
+
+    if (!data || !data.integration_path_id_list || !Array.isArray(data.integration_path_id_list))
+      return callback('bad_request');
+
+    Company.findCompanyById(question.company_id, (err, company) => {
+      if (err) return callback(err);
+
+      async.timesSeries(
+        data.integration_path_id_list.length,
+        (time, next) => IntegrationPath.findIntegrationPathById(data.integration_path_id_list[time], (err, integration_path) => {
+          if (err) return next(err);
+          if (integration_path.company_id.toString() != company._id.toString())
+            return next('not_authenticated_request');
+
+          return next(null, integration_path._id.toString());
+        }),
+        (err, integration_path_id_list) => {
+          if (err) return callback(err);
+
+          if (question.product_id) {
+            IntegrationPath.findIntegrationPathByProductId(question.product_id, (err, integration_path) => {
+              if (err) return callback(err);
+
+              if (!integration_path_id_list.includes(integration_path._id.toString()))
+                integration_path_id_list.push(integration_path._id.toString());
+
+              Question.findByIdAndUpdate(question._id, {$set: {
+                integration_path_id_list
+              }}, err => {
+                if (err) return callback(err);
+    
+                return callback(null);
+              });
+            });
+          } else {
+            Question.findByIdAndUpdate(question._id, {$set: {
+              integration_path_id_list
+            }}, err => {
+              if (err) return callback(err);
+  
+              return callback(null);
+            });
+          }
+        }
+      );
+    });
   });
 };
 

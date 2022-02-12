@@ -12,7 +12,14 @@ module.exports = (req, res) => {
       return res.end();
     }
 
-    res.write(JSON.stringify({ success: true, question }));
-    return res.end();
+    Question.findQuestionByIdAndUpdateIntegrationPathIdList(req.query.id, req.body, err => {
+      if (err) {
+        res.write(JSON.stringify({ error: err, success: false }));
+        return res.end();
+      }
+  
+      res.write(JSON.stringify({ success: true }));
+      return res.end();
+    });
   });
 }

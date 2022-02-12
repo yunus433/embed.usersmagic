@@ -127,11 +127,10 @@ block content
           span.general-text Note, you can update the integration paths you will be using whenever you want. When you have more integration paths, you will be able to collect more data from your customers.
           span.general-small-button.create-integration-path-open-form-button Create New Integration Path
           .general-selected-items-wrapper#integration-paths-selected-items-wrapper
-          input.general-search-input#integration-path-search-input(type="search" autocomplete="off" placeholder="Search Integration Paths")
+          input.general-search-input(type="search" autocomplete="off" placeholder="Search Integration Paths")
           .general-search-items-wrapper#integration-paths-search-items-wrapper
             each integration_path in company.integration_paths
               .general-each-search-item-wrapper(id=('search_id_' + integration_path._id))
-                span.display-none= integration_path.product_id
                 span.general-each-search-item-name= integration_path.name
                 span.general-text Path: #{integration_path.path}
                 .general-text-line
@@ -144,8 +143,35 @@ block content
           span.general-form-error#integration-path-error
           .general-bordered-button#create-question-integration-path-back-button Back
           .general-button.create-question-finish-button(style="margin-left: 15px;") Create
-        
-    
+
+  .general-form-outer-wrapper#update-question-integration-form-outer-wrapper(style="display: none")
+    .general-form-wrapper
+      .general-form-header
+        span.general-title Update Question Integration Path List
+        i.general-form-close-button.fas.fa-times#update-question-integration-form-close-button
+      form.general-form-inner-wrapper
+        .general-form-inner-content-wrapper#update-question-integration-path-inner-content
+          span.general-subtitle Please select the integration paths your question will be asked on
+          span.general-text Note, you can update the integration paths you will be using whenever you want. When you have more integration paths, you will be able to collect more data from your customers.
+          span.general-small-button.create-integration-path-open-form-button Create New Integration Path
+          .general-selected-items-wrapper#update-integration-paths-selected-items-wrapper
+          input.general-search-input(type="search" autocomplete="off" placeholder="Search Integration Paths")
+          .general-search-items-wrapper#update-integration-paths-search-items-wrapper
+            each integration_path in company.integration_paths
+              .general-each-search-item-wrapper(id=('search_id_' + integration_path._id))
+                span.general-each-search-item-name= integration_path.name
+                span.general-text Path: #{integration_path.path}
+                .general-text-line
+                  .general-small-button.update-question-select-each-integration-path-button Select
+                  if integration_path.type != 'product'
+                    i.fas.fa-trash-alt.general-each-search-item-delete-button.create-question-delete-integration-path-button
+          if !company.integration_paths || !company.integration_paths.length
+            span.general-text(style="width: 100%; text-align: center;") You do not have any integration path, please create one.
+        .general-form-bottom-wrapper
+          span.general-form-error
+          .general-bordered-button#update-question-integration-path-back-button Cancel
+          .general-button#update-question-integration-path-save-button(style="margin-left: 15px;") Save
+
   .general-form-outer-wrapper#create-integration-path-form-outer-wrapper(style="display: none")
     .general-form-wrapper
       .general-form-header
@@ -220,8 +246,7 @@ block content
         .general-bordered-button#create-product-back-button Back
         .general-button#create-product-button(style="margin-left: 15px;") Create
 
-
-  .general-form-outer-wrapper#create-target-group-form-outer-wrapper(style="display: none")
+  //- .general-form-outer-wrapper#create-target-group-form-outer-wrapper(style="display: none")
     .general-form-wrapper
       .general-form-header
         span.general-title Create New Target Group
@@ -251,7 +276,7 @@ block content
                 span.general-text(style="margin-left: 5px") Answer should be in range from #{question.min_value} to #{question.max_value}, inclusive
               .general-small-button#select-each-template-button Select
  
-  .general-form-outer-wrapper#create-banner-form-outer-wrapper(style="display: none")
+  //- .general-form-outer-wrapper#create-banner-form-outer-wrapper(style="display: none")
     .general-form-wrapper
       .general-form-header
         span.general-title Create New Banner
@@ -285,7 +310,6 @@ block content
           span.general-form-error#banner-info-error
           .general-bordered-button#banner-info-cancel-button Cancel
           .general-button#banner-info-continue-button(style="margin-left: 15px;") Continue
-
 
   input.display-none#pie-chart-colors(type="text" value=JSON.stringify(pie_chart_colors))
   span.copy-data#copy-data

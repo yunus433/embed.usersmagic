@@ -60,6 +60,20 @@ function createUploadedImage (url, wrapper) {
   wrapper.appendChild(imageInputWrapper);
 }
 
+function makeElementInvisible (node) {
+  node.style.position = 'absolute';
+  node.style.visibility = 'hidden';
+  node.style.left = (-1 * node.innerWidth) + 'px';
+  node.style.top = (-1 * node.innerHeight) + 'px';
+}
+
+function makeElementVisible (node) {
+  node.style.position = 'initial';
+  node.style.visibility = 'initial';
+  node.style.left = 'initial';
+  node.style.top = 'initial';
+}
+
 window.addEventListener('load', () => {
   document.addEventListener('click', event => {
     if (event.target.classList.contains('delete-image-button')) {
@@ -119,9 +133,9 @@ window.addEventListener('load', () => {
         const text = nodes[i].childNodes[0].innerHTML.trim().split(' ').join('').toLocaleLowerCase();
 
         if (text.includes(search))
-          nodes[i].style.display = 'flex';
+          makeElementVisible(nodes[i]);
         else
-          nodes[i].style.display = 'none';
+          makeElementInvisible(nodes[i]);
       }
     }
   });

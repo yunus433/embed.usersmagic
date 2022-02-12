@@ -28,11 +28,6 @@ const TemplateSchema = new Schema({
     required: true,
     index: true
   },
-  is_default_template: {
-    type: Boolean,
-    default: false,
-    index: true
-  },
   language: {
     type: String,
     default: DEFAULT_LANGUAGE_VALUE
@@ -174,7 +169,6 @@ TemplateSchema.statics.createTemplate = function (data, callback) {
       const newTemplateData = {
         timeout_duration_in_week: data.timeout_duration_in_week,
         order_number,
-        is_default_template: data.is_default_template ? true : false,
         language: data.language && language_values.includes(data.language) ? data.language : DEFAULT_LANGUAGE_VALUE,
         name: data.name.trim(),
         text: data.text.trim(),
@@ -214,9 +208,6 @@ TemplateSchema.statics.findTemplatesByFiltersAndSorted = function (data, callbac
     filters.language = data.language;
   else if (data.language && Array.isArray(data.language) && !data.language.find(each => !language_values.includes(each)))
     filters.language = data.language;
-
-  if (data.is_default_template)
-    filters.is_default_template = true;
 
   if (data.nin_id_list && Array.isArray(data.nin_id_list) && data.nin_id_list.length && !data.nin_id_list.find(each => !validator.isMongoId(each.toString())))
     filters._id = { $nin: data.nin_id_list.map(each => mongoose.Types.ObjectId(each.toString())) };

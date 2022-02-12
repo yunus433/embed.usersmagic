@@ -9,6 +9,7 @@ let newQuestion = {
   product_id: null,
   integration_path_id_list: []
 };
+let currentUpdateQuestionId = null;
 
 function throwError (err) {
   if (err)
@@ -411,6 +412,34 @@ function createSelectedIntegrationPath(integrationPathId, callback) {
   });
 };
 
+function createSelectedIntegrationPathUpdate(integrationPathId, callback) {
+  serverRequest('/integration?id=' + integrationPathId, 'GET', {}, res => {
+    if (!res.success) return callback(res.error || 'unknown_error');
+
+    const integrationPath = res.integration_path;
+
+    const selectedItemsWrapper = document.getElementById('update-integration-paths-selected-items-wrapper');
+
+    const integrationPathWrapper = document.createElement('div');
+    integrationPathWrapper.classList.add('general-each-selected-item-wrapper');
+    integrationPathWrapper.id = 'selected_id_' + integrationPath._id;
+  
+    const span = document.createElement('span');
+    span.innerHTML = integrationPath.name + ' (' + integrationPath.path + ')';
+    integrationPathWrapper.appendChild(span);
+  
+    const i = document.createElement('i');
+    i.classList.add('fas');
+    i.classList.add('fa-trash-alt');
+    i.classList.add('update-question-selected-integration-path-delete-button');
+    integrationPathWrapper.appendChild(i);
+  
+    selectedItemsWrapper.appendChild(integrationPathWrapper);
+
+    return callback(null);
+  });
+};
+
 function createSearchIntegrationPath(integrationPathId, callback) {
   serverRequest('/integration?id=' + integrationPathId, 'GET', {}, res => {
     if (!res.success) return callback(res.error || 'unknown_error');
@@ -645,7 +674,110 @@ function updateIntegrationPathSelectFormDesign() {
       searchItems[i].style.display = 'flex';   
     }
   }
-}
+};
+
+function updateQuestionIntegrationPathForm(id) {
+  const form = document.getElementById('update-question-integration-form-outer-wrapper');
+
+  serverRequest('/questions?id=' + id, 'GET', {}, res => {
+    if (!res.success)
+      return throwError(res.error);
+
+    const question = res.question;
+  
+    if (document.getElementById('product-default-integration-path'))
+      document.getElementById('product-default-integration-path').remove();
+
+    const wrapper = document.getElementById('update-question-integration-path-inner-content');
+    const selectedItemsWrapper = document.getElementById('update-integration-paths-selected-items-wrapper');
+
+    selectedItemsWrapper.innerHTML = '';
+
+    serverRequest('/questions/integrate?id=' + id, 'GET', {}, res => {
+      if (!res.success)
+        return throwError(res.error);
+
+      const integrationPaths = res.integration_path_list;
+
+      for (let i = 0; i < integrationPaths.length; i++) {
+        const integrationPath = integrationPaths[i];
+
+        if (!integrationPath.product_id || !question.product_id || integrationPath.product_id.toString() != question.product_id.toString()) {
+          const integrationPathWrapper = document.createElement('div');
+          integrationPathWrapper.classList.add('general-each-selected-item-wrapper');
+          integrationPathWrapper.id = 'selected_id_' + integrationPath._id;
+        
+          const span = document.createElement('span');
+          span.innerHTML = integrationPath.name + ' (' + integrationPath.path + ')';
+          integrationPathWrapper.appendChild(span);
+        
+          const i = document.createElement('i');
+          i.classList.add('fas');
+          i.classList.add('fa-trash-alt');
+          i.classList.add('update-question-selected-integration-path-delete-button');
+          integrationPathWrapper.appendChild(i);
+        
+          selectedItemsWrapper.appendChild(integrationPathWrapper);
+        }
+      }
+
+      if (question.product_id) {
+        serverRequest('/integration/product?product_id=' + question.product_id, 'GET', {}, res => {
+          const integrationPath = res.integration_path;
+  
+          const defaultIntegrationPath = document.createElement('div');
+          defaultIntegrationPath.classList.add('general-each-selected-item-wrapper');
+          defaultIntegrationPath.id = 'product-default-integration-path';
+          defaultIntegrationPath.style.marginTop = '10px';
+        
+          const pathName = document.createElement('span');
+          pathName.innerHTML = `${integrationPath.name} (${integrationPath.path})`;
+          defaultIntegrationPath.appendChild(pathName);
+      
+          const pathDefault = document.createElement('span');
+          pathDefault.innerHTML = 'DEFAULT';
+          pathDefault.style.fontWeight = '600';
+          pathDefault.style.color = 'rgb(156, 156, 156)';
+          pathDefault.style.fontSize = '12px';
+          defaultIntegrationPath.appendChild(pathDefault);
+      
+          wrapper.appendChild(defaultIntegrationPath);
+  
+          while (!defaultIntegrationPath.previousElementSibling.classList.contains('create-integration-path-open-form-button')) {
+            wrapper.insertBefore(defaultIntegrationPath, defaultIntegrationPath.previousElementSibling);
+          }
+          wrapper.insertBefore(defaultIntegrationPath, defaultIntegrationPath.previousElementSibling);
+  
+          const searchItems = document.getElementById('update-integration-paths-search-items-wrapper').childNodes;
+  
+          for (let i = 0; i < searchItems.length; i++) {
+            const id = searchItems[i].id.replace('search_id_', '');
+  
+            if (question.integration_path_id_list.includes(id.toString()) || id == integrationPath._id.toString())
+              searchItems[i].style.display = 'none';
+            else
+              searchItems[i].style.display = 'flex';   
+          }
+  
+          form.style.display = 'flex';
+        });
+      } else {
+        const searchItems = document.getElementById('update-integration-paths-search-items-wrapper').childNodes;
+  
+        for (let i = 0; i < searchItems.length; i++) {
+          const id = searchItems[i].id.replace('search_id_', '');
+  
+          if (question.integration_path_id_list.includes(id.toString()))
+            searchItems[i].style.display = 'none';
+          else
+            searchItems[i].style.display = 'flex';   
+        }
+  
+        form.style.display = 'flex';
+      }
+    });
+  });
+};
 
 window.addEventListener('load', () => {
   pieChartColors = JSON.parse(document.getElementById('pie-chart-colors').value);
@@ -743,6 +875,15 @@ window.addEventListener('load', () => {
         target.childNodes[0].classList.add('fa-pause');
         target.childNodes[1].innerHTML = 'Pause';
       });
+    }
+
+    if (event.target.classList.contains('each-graph-integrate-button') || event.target.parentNode.classList.contains('each-graph-integrate-button')) {
+      const target = event.target.classList.contains('each-graph-integrate-button') ? event.target : event.target.parentNode;
+      const id = target.parentNode.parentNode.parentNode.parentNode.id;
+
+      currentUpdateQuestionId = id;
+      updateQuestionIntegrationPathForm(id);
+      document.getElementById('update-question-integration-form-outer-wrapper').style.display = 'flex';
     }
 
     if (event.target.classList.contains('create-question-button')) {
@@ -982,6 +1123,63 @@ window.addEventListener('load', () => {
           location.reload();
         });
       }
+    }
+
+    if (event.target.classList.contains('update-question-select-each-integration-path-button')) {
+      const id = event.target.parentNode.parentNode.id.replace('search_id_', '');
+
+      createSelectedIntegrationPathUpdate(id, err => {
+        if (err) return throwError(err);
+
+        event.target.parentNode.parentNode.style.display = 'none';
+      });
+    }
+
+    if (event.target.classList.contains('update-question-selected-integration-path-delete-button')) {
+      const selectedId = event.target.parentNode.id.replace('selected_id_', '');
+
+      event.target.parentNode.remove();
+
+      const searchItems = document.getElementById('update-integration-paths-search-items-wrapper').childNodes;
+  
+      for (let i = 0; i < searchItems.length; i++) {
+        const id = searchItems[i].id.replace('search_id_', '');
+  
+        if (selectedId.toString() == id.toString())
+          searchItems[i].style.display = 'flex';   
+      }
+    }
+
+    if (event.target.id == 'update-question-integration-path-back-button') {
+      document.getElementById('update-question-integration-form-outer-wrapper').style.display = 'none';
+    }
+
+    if (event.target.id == 'update-question-integration-path-save-button') {
+      const integrationPathIdList = [];
+      const integrationPathSelectedItems = document.getElementById('update-integration-paths-selected-items-wrapper').children;
+
+      for (let i = 0; i < integrationPathSelectedItems.length; i++)
+        integrationPathIdList.push(integrationPathSelectedItems[i].id.replace('selected_id_', ''));
+
+      serverRequest('/questions/integrate?id=' + currentUpdateQuestionId, 'POST', {
+        integration_path_id_list: integrationPathIdList
+      }, res => {
+        if (!res.success)
+          return throwError(res.error);
+
+        document.getElementById('update-question-integration-form-outer-wrapper').style.display = 'none';
+
+        serverRequest('/questions?id=' + currentUpdateQuestionId, 'GET', {}, res => {
+          if (!res.success)
+            return throwError(res.error);
+
+          const question = res.question;
+          console.log(currentUpdateQuestionId);
+          const questionWrapper = document.getElementById(currentUpdateQuestionId);
+          console.log(questionWrapper);
+          questionWrapper.childNodes[1].childNodes[1].childNodes[3].innerHTML = 'Integrated Path Count: ' + question.integration_path_id_list.length;
+        });
+      });
     }
 
     // if (event.target.id == 'create-target-group-button') {
