@@ -9,6 +9,7 @@ const activateGetController = require('../controllers/questions/activate/get');
 const csvGetController = require('../controllers/questions/csv/get');
 const deactivateGetController = require('../controllers/questions/deactivate/get');
 const deleteGetController = require('../controllers/questions/delete/get');
+const formatGetController = require('../controllers/questions/format/get');
 const indexGetController = require('../controllers/questions/index/get');
 const integrateGetController = require('../controllers/questions/integrate/get');
 
@@ -49,6 +50,13 @@ router.get(
     isConfirmed,
     hasLeftWaitlist,
     deleteGetController
+);
+router.get(
+  '/format',
+    isLoggedIn,
+    isConfirmed,
+    hasLeftWaitlist,
+    formatGetController
 );
 router.get(
   '/integrate',

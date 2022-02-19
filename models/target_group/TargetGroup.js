@@ -26,7 +26,6 @@ const TargetGroupSchema = new Schema({
     type: String,
     minlength: 1,
     maxlength: MAX_DATABASE_TEXT_FIELD_LENGTH,
-    unique: true,
     required: true
   },
   filters: {
@@ -77,7 +76,7 @@ TargetGroupSchema.statics.createTargetGroup = function (data, callback) {
       async.timesSeries(
         data.filters.length,
         (time, next) => {
-          const filter = filters[time];
+          const filter = data.filters[time];
           const newFilter = {};
 
           if (!filter.question_id || !filter.allowed_answers || !Array.isArray(filter.allowed_answers))
@@ -122,7 +121,7 @@ TargetGroupSchema.statics.createTargetGroup = function (data, callback) {
   });
 };
 
-TargetGroupSchema.statics.findTargetGroupsByCompanyId = function (company_id, callback) {
+TargetGroupSchema.statics.findTargetGroupsByCompanyIdAndFormat = function (company_id, callback) {
   const TargetGroup = this;
 
   Company.findCompanyById(company_id, (err, company) => {
@@ -133,7 +132,33 @@ TargetGroupSchema.statics.findTargetGroupsByCompanyId = function (company_id, ca
         company_id: company._id
       })
       .sort({ name: 1 })
-      .then(target_groups => callback(null, target_groups))
+      .then(target_groups => {
+        async.timesSeries(
+          target_groups.length,
+          (time, next) => {
+            const target_group = target_groups[time];
+
+            TargetGroup.findTargetGroupByIdAndEstimatePeopleCount({
+              company_id: company_id,
+              target_group_id: target_group._id
+            }, (err, count) => {
+              if (err) return next(err);
+
+              return next(null, {
+                _id: target_group._id,
+                name: target_group.name,
+                filters: target_group.filters,
+                estimated_people_count: count
+              });
+            });
+          },
+          (err, target_groups) => {
+            if (err) return callback(err);
+
+            return callback(null, target_groups);
+          }
+        )
+      })
       .catch(err => callback('database_error'));
   });
 };
@@ -242,7 +267,7 @@ TargetGroupSchema.statics.findTargetGroupByIdAndGetTheFilterWithSmallestUserCoun
   });
 };
 
-TargetGroupSchema.statics.findTargetGroupByIdAndEstimatePersonCount = function (data, callback) { // This is a statistical function, approximately 5000 documents are looked through for arrays with more than 5000 elements
+TargetGroupSchema.statics.findTargetGroupByIdAndEstimatePeopleCount = function (data, callback) { // This is a statistical function, approximately 5000 documents are looked through for arrays with more than 5000 elements
   const TargetGroup = this;
 
   TargetGroup.findTargetGroupById(data.target_group_id, (err, target_group) => {

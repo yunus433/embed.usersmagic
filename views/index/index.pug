@@ -246,36 +246,46 @@ block content
         .general-bordered-button#create-product-back-button Back
         .general-button#create-product-button(style="margin-left: 15px;") Create
 
-  //- .general-form-outer-wrapper#create-target-group-form-outer-wrapper(style="display: none")
+  .general-form-outer-wrapper#create-target-group-form-outer-wrapper(style="display: none")
     .general-form-wrapper
       .general-form-header
         span.general-title Create New Target Group
         i.general-form-close-button.fas.fa-times
       .general-form-inner-wrapper
-        span.general-title.general-required-input Target Group Name
-        input.general-input#target-group-name-input(type="text" placeholder="ex. Female 20-22 Basketball players" autocomplete="none" required)
-        span.general-title.general-required-input Target Group Filters
-        span.general-text Specify the filters you want to use to segment your customers.
-        input.general-search-input(type="search" autocomplete="off" placeholder="Search Templates")
-        .general-search-items-wrapper
-          each question in questions
-            .general-each-search-item-wrapper(id=question._id)
-              span.general-each-search-item-name= question.name
-              span.general-text Question Refreshing Time: #{question.timeout_duration_in_week} weeks
-              span.general-text Question Asked: #{question.text}
-              span.general-text Allowed Answers:
-              if question.subtype == 'single' || question.subtype == 'multiple'
-                .general-checked-input-wrapper
-                  input.general-checked-input-value(type="text" value="[]")
-                  each choice in question.choices
-                    .each-general-checked-input
-                      div
-                        i.fas.fa-check
-                      span #{choice}
-              if question.min_value && question.max_value
-                span.general-text(style="margin-left: 5px") Answer should be in range from #{question.min_value} to #{question.max_value}, inclusive
-              .general-small-button#select-each-template-button Select
- 
+        .general-form-inner-content-wrapper
+          span.general-title.general-required-input Target Group Name
+          input.general-input#target-group-name-input(type="text" placeholder="ex. Female 20-22 Basketball players" autocomplete="none" required)
+          span.general-title.general-required-input Target Group Filters
+          span.general-text Specify the filters you want to use to segment your customers from the questions you ask on your website.
+          .general-selected-items-wrapper#create-target-group-selected-items-wrapper
+          input.general-search-input(type="search" autocomplete="off" placeholder="Search Filters")
+          .general-search-items-wrapper
+            each question in questions
+              .general-each-search-item-wrapper(id=('search_id_' + question._id))
+                span.general-each-search-item-name= question.name
+                span.general-text Question Refreshing Time: #{question.timeout_duration_in_week} weeks
+                span.general-text Question Asked: #{question.text}
+                span.general-text Allowed Answers:
+                if question.subtype == 'single' || question.subtype == 'multiple'
+                  .general-checked-input-wrapper
+                    input.general-checked-input-value(type="text" value="[]")
+                    each choice in question.choices
+                      .each-general-checked-input
+                        div
+                          i.fas.fa-check
+                        span #{choice}
+                if question.min_value && question.max_value
+                  span.general-text(style="margin-left: 5px") Answer should be in range from #{question.min_value} to #{question.max_value}, inclusive
+                  input.general-search-input.select-each-question-min-value(style="margin-left: 5px" type="number" autocomplete="off" placeholder="Min Value (inclusive)")
+                  input.general-search-input.select-each-question-max-value(style="margin-left: 5px" type="number" autocomplete="off" placeholder="Max Value (inclusive)")
+                .general-text-line
+                  span.general-form-error
+                  .general-small-button.create-target-group-select-each-question-button Select
+      .general-form-bottom-wrapper
+        span.general-form-error#create-target-group-error
+        .general-bordered-button#create-target-group-back-button Back
+        .general-button#create-target-group-button(style="margin-left: 15px;") Create
+
   //- .general-form-outer-wrapper#create-banner-form-outer-wrapper(style="display: none")
     .general-form-wrapper
       .general-form-header
@@ -321,10 +331,10 @@ block content
           path(d="M5.08355 5.43146C5.40117 4.76242 5.43183 3.67231 5.10135 2.52188C4.77058 1.37173 4.16464 0.458231 3.53789 0.0516924C3.22027 0.720731 3.18988 1.81085 3.52037 2.96127C3.85086 4.11142 4.45707 5.02492 5.08355 5.43146ZM8.03521 2.90688C8.32299 1.74569 8.2518 0.657192 7.90981 0C7.29867 0.428885 6.72668 1.36312 6.4389 2.52458C6.15113 3.68577 6.22205 4.77427 6.56403 5.43146C7.17518 5.00258 7.74744 4.06808 8.03521 2.90688ZM8.21428 8.07692C8.21428 6.741 7.10892 5.65385 5.75 5.65385C4.39108 5.65385 3.28571 6.741 3.28571 8.07692V8.88462H8.21428V8.07692ZM5.8869 8.07692C5.8321 8.07833 5.77755 8.06894 5.7265 8.04929C5.67544 8.02965 5.6289 8.00015 5.58962 7.96253C5.55034 7.92492 5.51911 7.87996 5.49779 7.83029C5.47646 7.78062 5.46547 7.72726 5.46545 7.67335C5.46543 7.61944 5.47639 7.56607 5.49768 7.51639C5.51898 7.46671 5.55017 7.42172 5.58942 7.38408C5.62867 7.34645 5.6752 7.31692 5.72624 7.29724C5.77729 7.27756 5.83182 7.26813 5.88663 7.2695C5.99369 7.27218 6.09545 7.31588 6.17021 7.39127C6.24498 7.46666 6.28684 7.56778 6.28688 7.67308C6.28691 7.77838 6.24512 7.87953 6.1704 7.95497C6.09569 8.03041 5.99396 8.07417 5.8869 8.07692ZM7.25595 8.07692C7.14702 8.07692 7.04256 8.03438 6.96553 7.95864C6.88851 7.8829 6.84524 7.78018 6.84524 7.67308C6.84524 7.56597 6.88851 7.46325 6.96553 7.38751C7.04256 7.31178 7.14702 7.26923 7.25595 7.26923C7.36488 7.26923 7.46935 7.31178 7.54637 7.38751C7.62339 7.46325 7.66667 7.56597 7.66667 7.67308C7.66667 7.78018 7.62339 7.8829 7.54637 7.95864C7.46935 8.03438 7.36488 8.07692 7.25595 8.07692ZM11.5 9.69231H0V11.3077H2.46429L1.64286 21H9.85714L9.03571 11.3077H11.5V9.69231Z" fill="white")
       .all-header-buttons-wrapper
         span.each-all-header-button.each-all-header-button-selected#data-button Data
-        //- span.each-all-header-button#analysis-button Analysis
+        span.each-all-header-button#analysis-button Analysis
         //- span.each-all-header-button#banner-button Banner
         //- span.each-all-header-button#settings-button Settings
-    .all-content-wrapper#data-content-wrapper
+    .all-content-wrapper#data-content-wrapper(style="display: none")
       //- .navigation-wrapper
       //-   .navigation-types-title
       //-     i.fas.fa-chevron-down
@@ -348,11 +358,13 @@ block content
           span.general-button.create-question-button Create Question
         .all-content-inner-content-wrapper#graph-wrapper
           .graph-outer-wrapper
-    .all-content-wrapper#analysis-content-wrapper(style="display: none")
+    .all-content-wrapper#analysis-content-wrapper
       .all-content-inner-wrapper
         span.general-title Analysis
         span.general-text Create target groups to analyse and target your customers
         span.general-button#create-target-group-button(style="margin-left: auto") Create Target Group
+        .all-content-inner-content-wrapper
+          .target-groups-outer-wrapper
     .all-content-wrapper#banner-content-wrapper(style="display: none")
       .all-content-inner-wrapper
         span.general-title Banners

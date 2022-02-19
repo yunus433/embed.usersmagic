@@ -15,7 +15,7 @@ module.exports = (req, res) => {
       Question.findUnusedTemplatesForCompany(company_id, (err, templates) => {
         if (err) return res.redirect('/auth/login');
 
-        TargetGroup.findTargetGroupsByCompanyId(company_id, (err, target_groups) => {
+        TargetGroup.findTargetGroupsByCompanyIdAndFormat(company_id, (err, target_groups) => {
           if (err) return res.redirect('/auth/login');
 
           Template.findTemplatesByFiltersAndSorted({
