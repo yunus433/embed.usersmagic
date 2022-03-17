@@ -139,7 +139,7 @@ TargetGroupSchema.statics.findTargetGroupsByCompanyIdAndFormat = function (compa
             const target_group = target_groups[time];
 
             TargetGroup.findTargetGroupByIdAndEstimatePeopleCount({
-              company_id: company_id,
+              company_id: company._id,
               target_group_id: target_group._id
             }, (err, count) => {
               if (err) return next(err);
@@ -187,7 +187,7 @@ TargetGroupSchema.statics.findTargetGroupByIdAndCheckIfPersonCanSee = function (
 
     Company.findCompanyById(data.company_id, (err, company) => {
       if (err) return callback(err);
-      if (target_group.company_id != company._id)
+      if (target_group.company_id.toString() != company._id.toString())
         return callback('not_authenticated_request');
 
       Person.findPersonById(data.person_id, (err, person) => {
@@ -196,7 +196,7 @@ TargetGroupSchema.statics.findTargetGroupByIdAndCheckIfPersonCanSee = function (
         async.timesSeries(
           target_group.filters.length,
           (time, next) => {
-            const filter = filters[time];
+            const filter = target_group.filters[time];
   
             Answer.findOneAnswer({
               question_id: filter.question_id,
@@ -229,7 +229,7 @@ TargetGroupSchema.statics.findTargetGroupByIdAndGetTheFilterWithSmallestUserCoun
 
     Company.findCompanyById(data.company_id, (err, company) => {
       if (err) return callback(err);
-      if (target_group.company_id != company._id)
+      if (target_group.company_id.toString() != company._id.toString())
         return callback('not_authenticated_request');
 
       if (!target_group.filters || !target_group.filters.length)
@@ -275,7 +275,7 @@ TargetGroupSchema.statics.findTargetGroupByIdAndEstimatePeopleCount = function (
 
     Company.findCompanyById(data.company_id, (err, company) => {
       if (err) return callback(err);
-      if (target_group.company_id != company._id)
+      if (target_group.company_id.toString() != company._id.toString())
         return callback('not_authenticated_request');
 
       TargetGroup.findTargetGroupByIdAndGetTheFilterWithSmallestUserCount(data, (err, min_filter) => {
@@ -353,7 +353,7 @@ TargetGroupSchema.statics.findTargetGroupByIdAndGetHashedPersonEmailList = funct
 
     Company.findCompanyById(data.company_id, (err, company) => {
       if (err) return callback(err);
-      if (target_group.company_id != company._id)
+      if (target_group.company_id.toString() != company._id.toString())
         return callback('not_authenticated_request');
 
       TargetGroup.findTargetGroupByIdAndGetTheFilterWithSmallestUserCount(data, (err, min_filter) => {

@@ -193,7 +193,7 @@ block content
               span.code-blue= "<script" 
               span.code-space
               span.code-white= "src="
-              a.code-yellow(href="https://integration.usersmagic.com/js/embed/connection.js" target="_blank")= "\"https://embed.usersmagic.com/js/embed/connection.js\""
+              a.code-yellow(href="https://integration.usersmagic.com/js/connection.js" target="_blank")= "\"https://integration.usersmagic.com/js/connection.js\""
               span.code-blue= "></script>"
             span.each-code-line
               span.code-blue= "<link" 
@@ -202,7 +202,7 @@ block content
               span.code-yellow "stylesheet"
               span.code-space
               span.code-white= "href="
-              a.code-yellow(href="https://integration.usersmagic.com/css/embed/styling.css" target="_blank")= "\"https://embed.usersmagic.com/css/embed/styling.css\""
+              a.code-yellow(href="https://integration.usersmagic.com/css/styling.css" target="_blank")= "\"https://integration.usersmagic.com/css/styling.css\""
               span.code-blue= "></link>"
       .general-form-bottom-wrapper
         span.general-form-error#create-integration-path-error
@@ -230,7 +230,7 @@ block content
               span.code-blue= "<script" 
               span.code-space
               span.code-white= "src="
-              a.code-yellow(href="https://integration.usersmagic.com/js/embed/connection.js" target="_blank")= "\"https://embed.usersmagic.com/js/embed/connection.js\""
+              a.code-yellow(href="https://integration.usersmagic.com/js/connection.js" target="_blank")= "\"https://integration.usersmagic.com/js/connection.js\""
               span.code-blue= "></script>"
             span.each-code-line
               span.code-blue= "<link" 
@@ -239,7 +239,7 @@ block content
               span.code-yellow "stylesheet"
               span.code-space
               span.code-white= "href="
-              a.code-yellow(href="https://integration.usersmagic.com/css/embed/styling.css" target="_blank")= "\"https://embed.usersmagic.com/css/embed/styling.css\""
+              a.code-yellow(href="https://integration.usersmagic.com/css/styling.css" target="_blank")= "\"https://integration.usersmagic.com/css/styling.css\""
               span.code-blue= "></link>"
       .general-form-bottom-wrapper
         span.general-form-error#create-product-error
@@ -323,7 +323,7 @@ block content
 
   input.display-none#pie-chart-colors(type="text" value=JSON.stringify(pie_chart_colors))
   span.copy-data#copy-data
-    span= '<script src= "https://integration.usersmagic.com/js/embed/connection.js"></script> <link rel="stylesheet" href="https://integration.usersmagic.com/css/embed/styling.css"></link>'
+    span= '<script src= "https://integration.usersmagic.com/js/connection.js"></script> <link rel="stylesheet" href="https://integration.usersmagic.com/css/styling.css"></link>'
   .all-wrapper
     .all-header-wrapper
       a(href="/")
@@ -334,7 +334,7 @@ block content
         span.each-all-header-button#analysis-button Analysis
         //- span.each-all-header-button#banner-button Banner
         //- span.each-all-header-button#settings-button Settings
-    .all-content-wrapper#data-content-wrapper(style="display: none")
+    .all-content-wrapper#data-content-wrapper
       //- .navigation-wrapper
       //-   .navigation-types-title
       //-     i.fas.fa-chevron-down
@@ -358,7 +358,7 @@ block content
           span.general-button.create-question-button Create Question
         .all-content-inner-content-wrapper#graph-wrapper
           .graph-outer-wrapper
-    .all-content-wrapper#analysis-content-wrapper
+    .all-content-wrapper#analysis-content-wrapper(style="display: none")
       .all-content-inner-wrapper
         span.general-title Analysis
         span.general-text Create target groups to analyse and target your customers
