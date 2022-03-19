@@ -80,6 +80,7 @@ TargetGroupSchema.statics.findTargetGroupByIdAndFormat = function (id, callback)
   
           return callback(null, {
             _id: target_group._id,
+            company_id: target_group.company_id,
             name: target_group.name,
             filters,
             estimated_people_count: count
