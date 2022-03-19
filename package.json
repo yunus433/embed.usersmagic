@@ -24,6 +24,7 @@
     "express": "^4.17.2",
     "express-session": "^1.17.2",
     "fs": "0.0.1-security",
+    "hash.js": "^1.1.7",
     "json-2-csv": "^3.17.0",
     "mongoose": "^6.1.6",
     "multer": "^1.4.4",

@@ -1,6 +1,6 @@
 const async = require('async');
+const hash = require('hash.js');
 const mongoose = require('mongoose');
-const SHA256 = require('crypto-js/sha256');
 const validator = require('validator');
 
 const Answer = require('../answer/Answer');
@@ -53,6 +53,43 @@ TargetGroupSchema.statics.findTargetGroupById = function (id, callback) {
   });
 };
 
+TargetGroupSchema.statics.findTargetGroupByIdAndFormat = function (id, callback) {
+  const TargetGroup = this;
+
+  TargetGroup.findTargetGroupById(id, (err, target_group) => {
+    if (err) return callback(err);
+
+    TargetGroup.findTargetGroupByIdAndEstimatePeopleCount({
+      company_id: target_group.company_id,
+      target_group_id: target_group._id
+    }, (err, count) => {
+      if (err) return callback(err);
+
+      async.timesSeries(
+        target_group.filters.length,
+        (time, next) => Question.findQuestionByIdAndFormat(target_group.filters[time].question_id, (err, question) => {
+          if (err) return next(err);
+  
+          return next(null, {
+            name: question.name,
+            allowed_answers: (question.subtype == 'number' ? `[${target_group.filters[time].allowed_answers[0]} - ${target_group.filters[time].allowed_answers[target_group.filters[time].allowed_answers.length-1]}]` : target_group.filters[time].allowed_answers)
+          });
+        }),
+        (err, filters) => {
+          if (err) return next(err);
+  
+          return callback(null, {
+            _id: target_group._id,
+            name: target_group.name,
+            filters,
+            estimated_people_count: count
+          });
+        }
+      );
+    });
+  })
+};
+
 TargetGroupSchema.statics.createTargetGroup = function (data, callback) {
   const TargetGroup = this;
 
@@ -89,7 +126,7 @@ TargetGroupSchema.statics.createTargetGroup = function (data, callback) {
               if (err) return next(err);
   
               newFilter.question_id = question._id.toString();
-              newFilter.allowed_answers = filter.allowed_answers.map(each => each.trim()).filter(each => template.choices.includes(each));
+              newFilter.allowed_answers = filter.allowed_answers.map(each => each.toString().trim()).filter(each => template.choices.includes(each));
   
               if (!newFilter.allowed_answers.length)
                 return next('bad_request');
@@ -144,12 +181,27 @@ TargetGroupSchema.statics.findTargetGroupsByCompanyIdAndFormat = function (compa
             }, (err, count) => {
               if (err) return next(err);
 
-              return next(null, {
-                _id: target_group._id,
-                name: target_group.name,
-                filters: target_group.filters,
-                estimated_people_count: count
-              });
+              async.timesSeries(
+                target_group.filters.length,
+                (time, next) => Question.findQuestionByIdAndFormat(target_group.filters[time].question_id, (err, question) => {
+                  if (err) return next(err);
+
+                  return next(null, {
+                    name: question.name,
+                    allowed_answers: (question.subtype == 'number' ? `[${target_group.filters[time].allowed_answers[0]} - ${target_group.filters[time].allowed_answers[target_group.filters[time].allowed_answers.length-1]}]` : target_group.filters[time].allowed_answers)
+                  });
+                }),
+                (err, filters) => {
+                  if (err) return next(err);
+
+                  return next(null, {
+                    _id: target_group._id,
+                    name: target_group.name,
+                    filters,
+                    estimated_people_count: count
+                  });
+                }
+              );
             });
           },
           (err, target_groups) => {
@@ -345,7 +397,7 @@ TargetGroupSchema.statics.findTargetGroupByIdAndEstimatePeopleCount = function (
   });
 };
 
-TargetGroupSchema.statics.findTargetGroupByIdAndGetHashedPersonEmailList = function (data, callback) { // Each item in array is a 10k length hashed JASON stringify array
+TargetGroupSchema.statics.findTargetGroupByIdAndGetHashedPersonEmailListForFacebook = function (data, callback) { // Each item in array is a 10k length hashed JASON stringify array
   const TargetGroup = this;
 
   TargetGroup.findTargetGroupById(data.target_group_id, (err, target_group) => {
@@ -389,11 +441,11 @@ TargetGroupSchema.statics.findTargetGroupByIdAndGetHashedPersonEmailList = funct
                           if (err) return next(err);
 
                           eachHashedPersonEmailList.push({
-                            email: SHA256(person.email)
+                            email: hash.sha256().update(person.email).digest('hex')
                           });
 
                           if (eachHashedPersonEmailList.length == FACEBOOK_MAX_EMAIL_COUNT_PER_FILE) {
-                            stringifiedHashedPersonEmailListArray.push(JSON.stringify(eachHashedPersonEmailList));
+                            stringifiedHashedPersonEmailListArray.push(eachHashedPersonEmailList);
                             eachHashedPersonEmailList = [];
                           }
 
@@ -416,7 +468,7 @@ TargetGroupSchema.statics.findTargetGroupByIdAndGetHashedPersonEmailList = funct
               if (err) return callback(err);
 
               if (eachHashedPersonEmailList.length) {
-                stringifiedHashedPersonEmailListArray.push(JSON.stringify(eachHashedPersonEmailList));
+                stringifiedHashedPersonEmailListArray.push(eachHashedPersonEmailList);
                 eachHashedPersonEmailList = [];
               }
 

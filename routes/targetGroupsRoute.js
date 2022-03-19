@@ -6,6 +6,7 @@ const hasLeftWaitlist = require('../middleware/hasLeftWaitlist');
 const isLoggedIn = require('../middleware/isLoggedIn');
 
 const deleteGetController = require('../controllers/target_groups/delete/get');
+const facebookGetController = require('../controllers/target_groups/facebook/get');
 const indexGetController = require('../controllers/target_groups/index/get');
 
 const createPostController = require('../controllers/target_groups/create/post');
@@ -23,6 +24,13 @@ router.get(
     isConfirmed,
     hasLeftWaitlist,
     deleteGetController
+);
+router.get(
+  '/facebook',
+    isLoggedIn,
+    isConfirmed,
+    hasLeftWaitlist,
+    facebookGetController
 );
 
 router.post(

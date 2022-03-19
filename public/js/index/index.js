@@ -819,6 +819,58 @@ function createSelectedTargetGroupFilter(questionId, allowedAnswers) {
   });
 };
 
+function createNewTargetGroup(id) {
+  serverRequest('/target_groups?id=' + id, 'GET', {}, res => {
+    if (!res.success)
+      return throwError(res.error);
+
+    const target_group = res.target_group;
+    const wrapper = document.querySelector('.target-groups-outer-wrapper');
+
+    const eachTargetGroupWrapper = document.createElement('div');
+    eachTargetGroupWrapper.classList.add('each-target-group-wrapper');
+
+    const eachTargetGroupHeaderWrapper = document.createElement('div');
+    eachTargetGroupHeaderWrapper.classList.add('each-target-group-header-wrapper');
+
+    const eachTargetGroupColor = document.createElement('div');
+    eachTargetGroupColor.classList.add('each-target-group-color');
+    eachTargetGroupColor.style.backgroundColor = pieChartColors[(wrapper.childElementCount + 1) % pieChartColors.length];
+    eachTargetGroupHeaderWrapper.appendChild(eachTargetGroupColor);
+
+    const eachTargetGroupName = document.createElement('span');
+    eachTargetGroupName.classList.add('general-subtitle');
+    eachTargetGroupName.innerHTML = `${target_group.name} - (Estimated Count: ${target_group.estimated_people_count})`;
+    eachTargetGroupHeaderWrapper.appendChild(eachTargetGroupName);
+
+    const eachTargetGroupExportButton = document.createElement('a');
+    eachTargetGroupExportButton.classList.add('each-target-group-export-button');
+    eachTargetGroupExportButton.href = `/target_groups/facebook?id=${target_group._id.toString()}`;
+    eachTargetGroupExportButton.innerHTML = 'Facebook Export';
+
+    eachTargetGroupWrapper.appendChild(eachTargetGroupHeaderWrapper);
+
+    const eachTargetGroupContentWrapper = document.createElement('div');
+    eachTargetGroupContentWrapper.classList.add('each-target-group-content-wrapper');
+
+    for (let i = 0; i < target_group.filters.length; i++) {
+      const filterName = document.createElement('span');
+      filterName.classList.add('general-subtitle');
+      filterName.innerHTML = target_group.filters[i].name;
+      eachTargetGroupContentWrapper.appendChild(filterName);
+
+      const filterAnswers = document.createElement('span');
+      filterAnswers.classList.add('general-text');
+      filterAnswers.innerHTML = target_group.filters[i].allowed_answers;
+      eachTargetGroupContentWrapper.appendChild(filterAnswers);
+    }
+
+    eachTargetGroupWrapper.appendChild(eachTargetGroupContentWrapper);    
+
+    wrapper.appendChild(eachTargetGroupWrapper);
+  });
+}
+
 window.addEventListener('load', () => {
   pieChartColors = JSON.parse(document.getElementById('pie-chart-colors').value);
 
@@ -1222,7 +1274,7 @@ window.addEventListener('load', () => {
       });
     }
 
-    if (event.target.id == 'create-target-group-button') {
+    if (event.target.id == 'create-target-group-open-form-button') {
       document.getElementById('create-target-group-form-outer-wrapper').style.display = 'flex';
     }
 
@@ -1279,8 +1331,15 @@ window.addEventListener('load', () => {
         if (!res.success)
           return throwError(res.error);
 
-        
+        createNewTargetGroup(res.id);
+        document.getElementById('create-target-group-form-outer-wrapper').style.display = 'none';
       });
+    }
+
+    if (event.target.classList.contains('each-target-group-wrapper') || (event.target.parentNode && (event.target.parentNode.classList.contains('each-target-group-wrapper' || (event.target.parentNode.parentNode && (event.target.parentNode.parentNode.classList.contains('each-target-group-wrapper'))))))) {
+      const target = event.target.classList.contains('each-target-group-wrapper') ? event.target : (event.target.parentNode.classList.contains('each-target-group-wrapper') ? event.target.parentNode : event.target.parentNode.parentNode);
+
+      target.classList.add('each-target-group-wrapper-opened');
     }
   });
 

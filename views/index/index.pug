@@ -362,9 +362,19 @@ block content
       .all-content-inner-wrapper
         span.general-title Analysis
         span.general-text Create target groups to analyse and target your customers
-        span.general-button#create-target-group-button(style="margin-left: auto") Create Target Group
+        span.general-button#create-target-group-open-form-button(style="margin-left: auto") Create Target Group
         .all-content-inner-content-wrapper
           .target-groups-outer-wrapper
+            each target_group, i in target_groups
+              .each-target-group-wrapper
+                .each-target-group-header-wrapper
+                  .each-target-group-color(style=`background-color: ${pie_chart_colors[i % pie_chart_colors.length]}`)
+                  span.general-subtitle #{target_group.name} - (Estimated Count: #{target_group.estimated_people_count})
+                  a.each-target-group-export-button(href=`/target_groups/facebook?id=${target_group._id.toString()}`) Facebook Export
+                .each-target-group-content-wrapper
+                  each filter in target_group.filters
+                    span.general-subtitle #{filter.name}:
+                    span.general-text= filter.allowed_answers
     .all-content-wrapper#banner-content-wrapper(style="display: none")
       .all-content-inner-wrapper
         span.general-title Banners
