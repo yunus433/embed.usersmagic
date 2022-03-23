@@ -1,9 +1,75 @@
 extends ../partials/head
 block content
+  .general-form-outer-wrapper#select-integration-path-form(style="display: none")
+    .general-form-wrapper
+      .general-form-header
+        span.general-title#select-integration-path-title
+        i.general-form-close-button.fas.fa-times#select-integration-path-close-button
+      form.general-form-inner-wrapper
+        .general-form-steps-wrapper#select-integration-path-steps-wrapper
+        .general-form-inner-content-wrapper#integration-path-inner-content-wrapper
+          span.general-subtitle Please select the integration paths you will be using
+          span.general-text Note, you can update the integration paths you chose whenever you want. When you have more integration paths, you will be able to reach more customers.
+          span.general-small-button.create-integration-path-open-form-button Create New Integration Path
+          .general-selected-items-wrapper#integration-path-selected-items-wrapper
+          input.general-search-input(type="search" autocomplete="off" placeholder="Search Integration Paths")
+          .general-search-items-wrapper#integration-path-search-items-wrapper
+            each integration_path in company.integration_paths
+              .general-each-search-item-wrapper(class=integration_path._id id=('search_id_' + integration_path._id))
+                span.general-each-search-item-name= integration_path.name
+                span.general-text Path: #{integration_path.path}
+                .general-text-line
+                  .general-small-button.select-each-integration-path-button Select
+                  if integration_path.type != 'product'
+                    i.fas.fa-trash-alt.general-each-search-item-delete-button.integration-path-delete-button
+          if !company.integration_paths || !company.integration_paths.length
+            span.general-text(style="width: 100%; text-align: center;") You do not have any integration path, please create one.
+        .general-form-bottom-wrapper
+          span.general-form-error#select-integration-path-error
+          .general-bordered-button#select-integration-path-back-button Back
+          .general-button#select-integration-path-create-button(style="margin-left: 15px;") Confirm
+
+  .general-form-outer-wrapper#create-integration-path-form-outer-wrapper(style="display: none")
+    .general-form-wrapper
+      .general-form-header
+        span.general-title Create New Integration Path
+        i.general-form-close-button.fas.fa-times
+      .general-form-inner-wrapper
+        span.general-title.general-required-input Integration Path Name
+        input.general-input#integration-path-name-input(type="text" placeholder="ex. Login Page" autocomplete="none" required)
+        span.general-title.general-required-input Integration Path Link
+        input.general-input#integration-path-link-input(type="text" placeholder="ex. /auth/login" autocomplete="none" required)
+        span.general-title.general-required-input Integration Code
+        span.general-text= 'Copy and paste the following code to the end of the <head></head> element for the .html files of the route you spesify. Use Copy button for better performance.'
+        span.code-wrapper
+          span.copy-code-button
+            span Copy
+            i.fas.fa-copy
+          span.code-inner-wrapper
+            span.each-code-line
+              span.code-blue= "<script" 
+              span.code-space
+              span.code-white= "src="
+              a.code-yellow(href="https://integration.usersmagic.com/js/connection.js" target="_blank")= "\"https://integration.usersmagic.com/js/connection.js\""
+              span.code-blue= "></script>"
+            span.each-code-line
+              span.code-blue= "<link" 
+              span.code-space
+              span.code-white= "rel="
+              span.code-yellow "stylesheet"
+              span.code-space
+              span.code-white= "href="
+              a.code-yellow(href="https://integration.usersmagic.com/css/styling.css" target="_blank")= "\"https://integration.usersmagic.com/css/styling.css\""
+              span.code-blue= "></link>"
+      .general-form-bottom-wrapper
+        span.general-form-error#create-integration-path-error
+        .general-bordered-button#create-integration-path-back-button Back
+        .general-button#create-integration-path-button(style="margin-left: 15px;") Create
+
   .general-form-outer-wrapper#create-question-form-outer-wrapper(style="display: none")
     .general-form-wrapper
       .general-form-header
-        span.general-title Create New Question
+        span.general-title Create a New Question
         i.general-form-close-button.fas.fa-times#create-question-form-close-button
       .general-form-inner-wrapper#question-type-form
         span.general-title(style="text-align: center") Please select the question type
@@ -105,109 +171,15 @@ block content
           span.general-form-each-step.general-form-each-step-finished 2
           .general-form-each-step-line.general-form-each-step-line-finished
           span.general-form-each-step.general-form-each-step-finished 3
-          .general-form-each-step-line.general-form-each-step-line
-          span.general-form-each-step.general-form-each-step 4
+          .general-form-each-step-line
+          span.general-form-each-step 4
         .general-form-inner-content-wrapper
           span.general-subtitle Please select the template you want to use
           span.general-text Templates are created by our researchers for you to select and use on your website. If you cannot find what you look for in the list, do not hesitate to reach us at info@usersmagic.com to create the question for you.
           input.general-search-input(type="search" autocomplete="off" placeholder="Search Templates")
           .general-search-items-wrapper#product-templates-wrapper
         .general-form-bottom-wrapper
-          span.general-form-error
           .general-bordered-button.create-question-product-template-back-button Back  
-      form.general-form-inner-wrapper#select-integration-path-form(style="display: none")
-        .general-form-steps-wrapper#select-integration-path-steps-wrapper
-          span.general-form-each-step.general-form-each-step-finished 1
-          .general-form-each-step-line.general-form-each-step-line-finished
-          span.general-form-each-step.general-form-each-step-finished 2
-          .general-form-each-step-line.general-form-each-step-line-finished
-          span.general-form-each-step.general-form-each-step-finished 3
-        .general-form-inner-content-wrapper#select-integration-path-inner-content
-          span.general-subtitle Please select the integration paths your question will be asked on
-          span.general-text Note, you can update the integration paths you will be using whenever you want. When you have more integration paths, you will be able to collect more data from your customers.
-          span.general-small-button.create-integration-path-open-form-button Create New Integration Path
-          .general-selected-items-wrapper#integration-paths-selected-items-wrapper
-          input.general-search-input(type="search" autocomplete="off" placeholder="Search Integration Paths")
-          .general-search-items-wrapper#integration-paths-search-items-wrapper
-            each integration_path in company.integration_paths
-              .general-each-search-item-wrapper(id=('search_id_' + integration_path._id))
-                span.general-each-search-item-name= integration_path.name
-                span.general-text Path: #{integration_path.path}
-                .general-text-line
-                  .general-small-button.create-question-select-each-integration-path-button Select
-                  if integration_path.type != 'product'
-                    i.fas.fa-trash-alt.general-each-search-item-delete-button.create-question-delete-integration-path-button
-          if !company.integration_paths || !company.integration_paths.length
-            span.general-text(style="width: 100%; text-align: center;") You do not have any integration path, please create one.
-        .general-form-bottom-wrapper
-          span.general-form-error#integration-path-error
-          .general-bordered-button#create-question-integration-path-back-button Back
-          .general-button.create-question-finish-button(style="margin-left: 15px;") Create
-
-  .general-form-outer-wrapper#update-question-integration-form-outer-wrapper(style="display: none")
-    .general-form-wrapper
-      .general-form-header
-        span.general-title Update Question Integration Path List
-        i.general-form-close-button.fas.fa-times#update-question-integration-form-close-button
-      form.general-form-inner-wrapper
-        .general-form-inner-content-wrapper#update-question-integration-path-inner-content
-          span.general-subtitle Please select the integration paths your question will be asked on
-          span.general-text Note, you can update the integration paths you will be using whenever you want. When you have more integration paths, you will be able to collect more data from your customers.
-          span.general-small-button.create-integration-path-open-form-button Create New Integration Path
-          .general-selected-items-wrapper#update-integration-paths-selected-items-wrapper
-          input.general-search-input(type="search" autocomplete="off" placeholder="Search Integration Paths")
-          .general-search-items-wrapper#update-integration-paths-search-items-wrapper
-            each integration_path in company.integration_paths
-              .general-each-search-item-wrapper(id=('search_id_' + integration_path._id))
-                span.general-each-search-item-name= integration_path.name
-                span.general-text Path: #{integration_path.path}
-                .general-text-line
-                  .general-small-button.update-question-select-each-integration-path-button Select
-                  if integration_path.type != 'product'
-                    i.fas.fa-trash-alt.general-each-search-item-delete-button.create-question-delete-integration-path-button
-          if !company.integration_paths || !company.integration_paths.length
-            span.general-text(style="width: 100%; text-align: center;") You do not have any integration path, please create one.
-        .general-form-bottom-wrapper
-          span.general-form-error
-          .general-bordered-button#update-question-integration-path-back-button Cancel
-          .general-button#update-question-integration-path-save-button(style="margin-left: 15px;") Save
-
-  .general-form-outer-wrapper#create-integration-path-form-outer-wrapper(style="display: none")
-    .general-form-wrapper
-      .general-form-header
-        span.general-title Create New Integration Path
-        i.general-form-close-button.fas.fa-times
-      .general-form-inner-wrapper
-        span.general-title.general-required-input Integration Path Name
-        input.general-input#integration-path-name-input(type="text" placeholder="ex. Login Page" autocomplete="none" required)
-        span.general-title.general-required-input Integration Path Link
-        input.general-input#integration-path-link-input(type="text" placeholder="ex. /auth/login" autocomplete="none" required)
-        span.general-title.general-required-input Integration Code
-        span.general-text= 'Copy and paste the following code to the end of the <head></head> element for the .html files of the route you spesify. Use Copy button for better performance.'
-        span.code-wrapper
-          span.copy-code-button
-            span Copy
-            i.fas.fa-copy
-          span.code-inner-wrapper
-            span.each-code-line
-              span.code-blue= "<script" 
-              span.code-space
-              span.code-white= "src="
-              a.code-yellow(href="https://integration.usersmagic.com/js/connection.js" target="_blank")= "\"https://integration.usersmagic.com/js/connection.js\""
-              span.code-blue= "></script>"
-            span.each-code-line
-              span.code-blue= "<link" 
-              span.code-space
-              span.code-white= "rel="
-              span.code-yellow "stylesheet"
-              span.code-space
-              span.code-white= "href="
-              a.code-yellow(href="https://integration.usersmagic.com/css/styling.css" target="_blank")= "\"https://integration.usersmagic.com/css/styling.css\""
-              span.code-blue= "></link>"
-      .general-form-bottom-wrapper
-        span.general-form-error#create-integration-path-error
-        .general-bordered-button#create-integration-path-back-button Back
-        .general-button#create-integration-path-button(style="margin-left: 15px;") Create
 
   .general-form-outer-wrapper#create-product-form-outer-wrapper(style="display: none")
     .general-form-wrapper
@@ -286,42 +258,70 @@ block content
         .general-bordered-button#create-target-group-back-button Back
         .general-button#create-target-group-button(style="margin-left: 15px;") Create
 
-  //- .general-form-outer-wrapper#create-banner-form-outer-wrapper(style="display: none")
+  .general-form-outer-wrapper#create-banner-form-outer-wrapper(style="display: none")
     .general-form-wrapper
       .general-form-header
-        span.general-title Create New Banner
+        span.general-title Create a New Banner
         i.general-form-close-button.fas.fa-times
       .general-form-inner-wrapper#banner-info-form
         .general-form-steps-wrapper
           span.general-form-each-step.general-form-each-step-finished 1
-          .general-form-each-step-line.general-form-each-step-line
-          span.general-form-each-step.general-form-each-step 2
+          .general-form-each-step-line
+          span.general-form-each-step 2
+          .general-form-each-step-line
+          span.general-form-each-step 3
         .general-form-inner-content-wrapper
           span.general-title.general-required-input Banner Name
           span.general-text This name is only visible to you
-          input.general-input(type="text" placeholder="ex. T-shirt Ad")
+          input.general-input#banner-name-input(type="text" placeholder="ex. T-shirt Ad")
           span.general-title.general-required-input Banner Title
           span.general-text This title will be shown to your customers
-          input.general-input(type="text" placeholder="ex. Our new T-Shirt series is now released!")
+          input.general-input#banner-title-input(type="text" placeholder="ex. Our new T-Shirt series is now released!")
           span.general-title.general-required-input Banner Text
           span.general-text This text will be shown to your customers
-          input.general-input(type="text" placeholder="ex. Go to our new collection page to create your style.")
+          input.general-input#banner-text-input(type="text" placeholder="ex. Go to our new collection page to create your style.")
           span.general-title.general-required-input Banner Button Text
           span.general-text This text will be shown to your customers
-          input.general-input(type="text" placeholder="ex. Go Now")
-          span.general-title.general-required-input Banner Button Link
-          input.general-input(type="text" placeholder="ex. https://example.com/new_collection?from_usersmagic=true")
+          input.general-input#banner-button-text-input(type="text" placeholder="ex. Go Now")
+          span.general-title.general-required-input Banner Button URL
+          span.general-text Your customers will be redirected to this URL when they click the banner button
+          input.general-input#banner-button-url-input(type="text" placeholder="ex. https://example.com/new_collection?from_usersmagic=true")
           span.general-title.general-required-input Banner Image
-          .general-image-input-outer-wrapper
+          .general-image-input-outer-wrapper#banner-image-input-outer-wrapper
             label.general-choose-image-input-text
               span Click to choose an image from your device
-              input.display-none.image-input(type="file")
+              input.display-none.image-input(type="file" accept="image/*")
         .general-form-bottom-wrapper
           span.general-form-error#banner-info-error
-          .general-bordered-button#banner-info-cancel-button Cancel
-          .general-button#banner-info-continue-button(style="margin-left: 15px;") Continue
+          .general-bordered-button.close-banner-form-button Cancel
+          .general-button#banner-continue-button(style="margin-left: 15px;") Continue
+      .general-form-inner-wrapper#banner-target-group-form(style="display: none")
+        .general-form-steps-wrapper
+          span.general-form-each-step.general-form-each-step-finished 1
+          .general-form-each-step-line.general-form-each-step-line-finished
+          span.general-form-each-step.general-form-each-step-finished 2
+          .general-form-each-step-line
+          span.general-form-each-step 3
+        .general-form-inner-content-wrapper
+          span.general-title.general-required-input Choose the Target Group
+          span.general-text Please choose the target group your banner will act on. You may create a new target group from anaysis page.
+          input.general-search-input(type="search" autocomplete="off" placeholder="Search Target Groups")
+          .general-search-items-wrapper
+            each target_group in target_groups
+              .general-each-search-item-wrapper(id=target_group._id)
+                span.general-each-search-item-name= target_group.name
+                each filter in target_group.filters
+                  span.general-text #{filter.name}:
+                  span.general-text(style="margin-left: 5px")= filter.allowed_answers
+                .general-small-button.create-banner-select-each-target-group-button Select
+        .general-form-bottom-wrapper
+          span.general-form-error#banner-target-group-error
+          .general-bordered-button#back-banner-info-form-button Back
+          .general-button#banner-target-group-continue-button(style="margin-left: 15px;") Continue
 
   input.display-none#pie-chart-colors(type="text" value=JSON.stringify(pie_chart_colors))
+  input.display-none#target-groups(type="text" value=JSON.stringify(target_groups))
+  input.display-none#banners(type="text" value=JSON.stringify(ads))
   span.copy-data#copy-data
     span= '<script src= "https://integration.usersmagic.com/js/connection.js"></script> <link rel="stylesheet" href="https://integration.usersmagic.com/css/styling.css"></link>'
   .all-wrapper
@@ -332,22 +332,10 @@ block content
       .all-header-buttons-wrapper
         span.each-all-header-button.each-all-header-button-selected#data-button Data
         span.each-all-header-button#analysis-button Analysis
-        //- span.each-all-header-button#banner-button Banner
+        span.each-all-header-button#banner-button Banner
         //- span.each-all-header-button#settings-button Settings
     .all-content-wrapper#data-content-wrapper
-      //- .navigation-wrapper
-      //-   .navigation-types-title
-      //-     i.fas.fa-chevron-down
-      //-     span DATA
-      //-   .navigation-buttons-wrapper
-      //-     span.each-navigation-button.selected-navigation-button#all
-      //-       span All
-      //-     span.each-navigation-button#demographics
-      //-       span Demographics
-      //-     span.each-navigation-button#integration
-      //-       span Products
-      //-   span.navigation-usersmagic-version Usersmagic Inc. - Copyright 2021
-      .all-content-inner-wrapper#data-all-wrapper
+      .all-content-inner-wrapper
         span.general-title Data / All
         span.general-text This dataset shows all of the data collected on your website
         span.general-button.create-question-button(style="margin-left: auto") Create Question
@@ -379,4 +367,58 @@ block content
       .all-content-inner-wrapper
         span.general-title Banners
         span.general-text Create banners and use your target groups to show your banners to your customers
-        span.general-button(style="margin-left: auto") Create Banner
+        span.general-button#create-banner-open-form-button(style="margin-left: auto") Create Banner
+        .all-content-inner-content-wrapper
+          .banner-outer-wrapper
+            each ad in ads
+              .each-banner-wrapper(id=ad._id.toString())
+                .each-banner-title-wrapper
+                  span.general-subtitle.general-text-overflow= ad.name
+                  span.general-text.general-text-overflow Created At: #{ad.created_at}
+                .each-banner-content-wrapper
+                  .each-banner-content-data-wrapper
+                    if ad.statistics.total
+                      .pie-chart-label-wrapper
+                        .pie-chart-each-color-wrapper  
+                          .pie-chart-each-color(style=`background-color: ${pie_chart_colors[0]}`)
+                          span.pie-chart-each-label Clicked
+                        .pie-chart-each-color-wrapper  
+                          .pie-chart-each-color(style=`background-color: ${pie_chart_colors[1]}`)
+                          span.pie-chart-each-label Showed
+                        .pie-chart-each-color-wrapper  
+                          .pie-chart-each-color(style=`background-color: ${pie_chart_colors[2]}`)
+                          span.pie-chart-each-label Closed
+                      .pie-chart-wrapper
+                        .pie-chart-color.banner-pie-chart-color(style=`background: conic-gradient(at center, ${pie_chart_colors[0]} 0%, ${pie_chart_colors[0]} ${ad.statistics.clicked / ad.statistics.total * 100}%, ${pie_chart_colors[1]} ${ad.statistics.clicked / ad.statistics.total * 100}%, ${pie_chart_colors[1]} ${(ad.statistics.clicked + ad.statistics.showed) / ad.statistics.total * 100}%, ${pie_chart_colors[2]} ${(ad.statistics.clicked + ad.statistics.showed) / ad.statistics.total * 100}%, ${pie_chart_colors[2]} 100%);`)
+                        .pie-chart-white
+                    else
+                      .pie-chart-wrapper
+                        .pie-chart-color.pie-chart-color-default
+                        .pie-chart-white
+                          span.general-text No Data
+                  .each-banner-content-preview-wrapper(style="display: none")
+                  .each-banner-content-info-wrapper
+                    span.general-text Title: #{ad.title}
+                    span.general-text Text: #{ad.text}
+                    span.general-text Button Text: #{ad.button_text}
+                    span.general-text
+                      span Button URL: 
+                      a(href=ad.button_url target="_blank" style="color: rgb(140, 212, 224)") #{ad.button_url}
+                    .each-banner-buttons-wrapper
+                      .each-banner-button.each-banner-delete-button(style="border-color: rgb(237, 72, 80)")
+                        i.fas.fa-trash(style="color: rgb(237, 72, 80)")
+                        span(style="color: rgb(237, 72, 80)") Delete
+                      if ad.is_active
+                        .each-banner-button.each-banner-deactivate-button(style="border-color: rgb(254, 211, 85)")
+                          i.fas.fa-pause(style="color: rgb(254, 211, 85)")
+                          span(style="color: rgb(254, 211, 85)") Pause
+                      else
+                        .each-banner-button.each-banner-activate-button(style="border-color: rgb(254, 211, 85)")
+                          i.fas.fa-play(style="color: rgb(254, 211, 85)")
+                          span(style="color: rgb(254, 211, 85)") Activate
+                      .each-banner-button(style="border-color: rgb(45, 136, 196)")
+                        i.fas.fa-edit(style="color: rgb(45, 136, 196)")
+                        span(style="color: rgb(45, 136, 196)") Edit
+                      .each-banner-button(style="border-color: rgba(92, 196, 110, 1)")
+                        i.fas.fa-eye(style="color: rgba(92, 196, 110, 1)")
+                        span(style="color: rgba(92, 196, 110, 1)") Preview

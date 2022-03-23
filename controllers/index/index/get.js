@@ -1,3 +1,4 @@
+const Ad = require('../../../models/ad/Ad');
 const Product = require('../../../models/product/Product');
 const Question = require('../../../models/question/Question');
 const TargetGroup = require('../../../models/target_group/TargetGroup');
@@ -23,27 +24,32 @@ module.exports = (req, res) => {
           }, (err, filters) => {
             if (err) return res.redirect('/auth/login');
 
-            return res.render('index/index', {
-              page: 'index/index',
-              title: 'Dashboard',
-              includes: {
-                external: {
-                  css: ['button', 'confirm', 'form', 'input', 'fontawesome', 'general', 'text', 'page'],
-                  js: ['confirm', 'dragAndDrop', 'duplicateElement', 'form', 'input', 'page', 'serverRequest']
-                }
-              },
-              pie_chart_colors: [
-                'rgba(92, 196, 110, 1)',
-                'rgba(45, 136, 196, 1)',
-                'rgba(237, 72, 80, 1)',
-                'rgba(254, 211, 85, 1)'
-              ],
-              questions,
-              templates,
-              products,
-              target_groups,
-              filters,
-              company: req.session.user.company
+            Ad.findAdsByCompanyId(company_id, (err, ads) => {
+              if (err) return res.redirect('/auth/login');
+
+              return res.render('index/index', {
+                page: 'index/index',
+                title: 'Dashboard',
+                includes: {
+                  external: {
+                    css: ['button', 'confirm', 'form', 'input', 'fontawesome', 'general', 'text', 'page'],
+                    js: ['confirm', 'dragAndDrop', 'duplicateElement', 'error', 'form', 'input', 'page', 'serverRequest']
+                  }
+                },
+                pie_chart_colors: [
+                  'rgba(92, 196, 110, 1)',
+                  'rgba(45, 136, 196, 1)',
+                  'rgba(237, 72, 80, 1)',
+                  'rgba(254, 211, 85, 1)'
+                ],
+                ads,
+                questions,
+                templates,
+                products,
+                target_groups,
+                filters,
+                company: req.session.user.company
+              });
             });
           });
         });

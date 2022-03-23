@@ -10,8 +10,9 @@ const Template = require('../template/Template');
 const getQuestion = require('./functions/getQuestion');
 
 const DUPLICATED_UNIQUE_FIELD_ERROR_CODE = 11000;
+const MAX_DATABASE_ARRAY_FIELD_LENGTH = 1e4;
 const MAX_QUESTION_NUMBER_PER_COMPANY = 20;
-const QUESTION_CREATED_AT_LENGTH = 10;
+const DATABASE_CREATED_AT_LENGTH = 10;
 
 const Schema = mongoose.Schema;
 
@@ -46,12 +47,13 @@ const QuestionSchema = new Schema({
   },
   integration_path_id_list: {
     type: Array,
-    default: []
+    default: [],
+    maxlength: MAX_DATABASE_ARRAY_FIELD_LENGTH
   },
   created_at: {
     type: String,
     required: true,
-    length: QUESTION_CREATED_AT_LENGTH
+    length: DATABASE_CREATED_AT_LENGTH
   }
 });
 
@@ -72,12 +74,8 @@ QuestionSchema.statics.findQuestionById = function (id, callback) {
 QuestionSchema.statics.findQuestionByIdAndFormat = function (id, callback) {
   const Question = this;
 
-  if (!id || !validator.isMongoId(id.toString()))
-    return callback('bad_request');
-
-  Question.findById(mongoose.Types.ObjectId(id.toString()), (err, question) => {
-    if (err) return callback('database_error');
-    if (!question) return callback('document_not_found');
+  Question.findQuestionById(id, (err, question) => {
+    if (err) return callback(err);
 
     getQuestion(question, (err, question) => {
       if (err) return callback(err);
@@ -109,7 +107,7 @@ QuestionSchema.statics.createQuestion = function (data, callback) {
           if (!data.integration_path_id_list || !Array.isArray(data.integration_path_id_list))
             data.integration_path_id_list = [];
 
-          if (!data.created_at || typeof data.created_at != 'string' || data.created_at.length != QUESTION_CREATED_AT_LENGTH)
+          if (!data.created_at || typeof data.created_at != 'string' || data.created_at.length != DATABASE_CREATED_AT_LENGTH)
             return callback('bad_request');
 
           async.timesSeries(

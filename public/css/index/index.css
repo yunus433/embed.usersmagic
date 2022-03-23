@@ -166,103 +166,10 @@
   display: flex;
 }
 
-/* .navigation-wrapper {
-  width: 250px;
-  min-width: 250px;
-  height: 100%;
-  background-color: rgb(246, 246, 246);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 40px 30px;
-  overflow: scroll;
-  box-shadow: 0 0 10px rgba(98, 98, 103, 0.6);
-}
-.navigation-title {
-  font-weight: 600;
-  color: rgb(42, 42, 47);
-  font-size: 18px;
-  margin-bottom: 30px;
-  cursor: default;
-}
-.navigation-types-title {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  color: rgb(98, 98, 103);
-  margin-bottom: 20px;
-}
-.navigation-types-title i {
-  margin-right: 8px;
-  font-size: 13px;
-}
-.navigation-types-title span {
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.navigation-buttons-wrapper {
-  display: flex;
-  flex-direction: column;
-  height: fit-content;
-  width: 140px;
-  overflow: hidden;
-  margin-left: 20px;
-}
-.each-navigation-button {
-  font-weight: 700;
-  font-size: 20px;
-  color: rgba(98, 98, 103, 0.7);
-  font-size: 14px;
-  line-height: 27px;
-  margin-bottom: 20px;
-  cursor: pointer;
-}
-.selected-navigation-button {
-  color: rgb(98, 98, 103);
-}
-.each-navigation-button:hover {
-  color: rgb(98, 98, 103);
-}
-.each-navigation-button-icon {
-  margin-right: 8px;
-}
-
-.close-up-animation-class {
-  animation: closeUp 0.1s 1 linear forwards;
-}
-.open-bottom-animation-class {
-  animation: openBottom 0.1s 1 linear forwards;
-}
-@keyframes closeUp {
-  from {
-    height: fit-content;
-  }
-  to {
-    height: 0px;
-  }
-}
-@keyframes openBottom {
-  from {
-    height: 0px;
-  }
-  to {
-    height: fit-content;
-  }
-}
-
-.navigation-usersmagic-version {
-  font-weight: 700;
-  font-size: 11px;
-  color: rgba(98, 98, 103, 0.6);
-  margin-top: auto;
-} */
-
 .all-content-inner-wrapper {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  flex: 1;
   width: 100%;
   padding: 40px 60px;
 }
@@ -276,7 +183,7 @@
   height: 100%;
 }
 
-.graph-outer-wrapper {
+.graph-outer-wrapper, .banner-outer-wrapper {
   margin-top: 30px;
   margin-bottom: 100px;
   width: 100%;
@@ -300,7 +207,7 @@
   cursor: default;
 }
 
-.each-graph-wrapper {
+.each-graph-wrapper, .each-banner-wrapper {
   width: calc(50vw - 80px);
   height: 400px;
   min-height: 400px;
@@ -312,7 +219,7 @@
   margin: 10px;
   margin-bottom: 30px;
 }
-.each-graph-title-wrapper {
+.each-graph-title-wrapper, .each-banner-title-wrapper {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -321,14 +228,14 @@
   padding: 0px 15px;
 }
 
-.each-graph-content-wrapper {
+.each-graph-content-wrapper, .each-banner-content-wrapper {
   width: 100%;
   flex: 1;
   padding: 15px;
   display: flex;
 }
 
-.each-graph-content-data-wrapper {
+.each-graph-content-data-wrapper, .each-banner-content-data-wrapper, .each-banner-content-preview-wrapper {
   flex: 1;
   width: 50%;
   min-width: 50%;
@@ -382,6 +289,7 @@
 }
 .pie-chart-color-default {
   background: conic-gradient(at center, rgb(186, 183, 178) 0% 20%, rgb(233, 233, 233) 20% 60%, rgb(98, 98, 103) 60% 100%);
+  cursor: default !important;
 }
 .pie-chart-white {
   width: 100px;
@@ -392,6 +300,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.pie-chart-white span {
+  cursor: default;
 }
 
 .bar-chart-wrapper {
@@ -439,7 +350,7 @@
   text-align: right;
 }
 
-.each-graph-content-info-wrapper {
+.each-graph-content-info-wrapper, .each-banner-content-info-wrapper {
   flex: 1;
   width: 50%;
   min-width: 50%;
@@ -450,15 +361,18 @@
   padding-left: 10px;
   border-left: 1px solid rgb(233, 233, 233);
 }
+.each-banner-content-info-wrapper {
+  align-items: initial !important;
+}
 
-.each-graph-buttons-wrapper {
+.each-graph-buttons-wrapper, .each-banner-buttons-wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-column-gap: 10px;
   width: 100%;
   margin-top: auto;
 }
-.each-graph-button {
+.each-graph-button, .each-banner-button {
   height: 40px;
   min-height: 40px;
   margin-bottom: 10px;
@@ -472,11 +386,11 @@
   outline: none;
   text-decoration: none;
 }
-.each-graph-button i {
+.each-graph-button i, .each-banner-button i {
   margin-right: 7px;
   font-size: 13px;
 }
-.each-graph-button span {
+.each-graph-button span, .each-banner-button span {
   font-size: 12px;
   font-weight: 700;
 }

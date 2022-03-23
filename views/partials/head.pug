@@ -20,6 +20,12 @@ html(lang="en")
         each file_name in includes.external.js
           if file_name == 'page'
             script(src=`/js/${page}.js`)
+            if page == 'index/index'
+              script(src=`/js/index/analysis.js`)
+              script(src=`/js/index/banner.js`)
+              script(src=`/js/index/integration.js`)
+              script(src=`/js/index/graph.js`)
+              script(src=`/js/index/question.js`)
           else
             script(src=`/js/functions/${file_name}.js`)
   body

@@ -7,6 +7,11 @@ module.exports = (req, res) => {
       return res.end();
     }
 
+    if (ad.company_id.toString() != req.session.user.company._id) {
+      res.write(JSON.stringify({ error: 'not_authenticated_request', success: false }));
+      return res.end();
+    }
+
     res.write(JSON.stringify({ success: true, ad }));
     return res.end();
   });

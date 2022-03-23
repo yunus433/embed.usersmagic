@@ -76,7 +76,7 @@ TargetGroupSchema.statics.findTargetGroupByIdAndFormat = function (id, callback)
           });
         }),
         (err, filters) => {
-          if (err) return next(err);
+          if (err) return callback(err);
   
           return callback(null, {
             _id: target_group._id,
