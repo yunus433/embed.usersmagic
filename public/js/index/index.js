@@ -1,6 +1,8 @@
 let pieChartColors = [];
+let company;
 
 window.addEventListener('load', () => {
+  company = JSON.stringify(document.getElementById('company').value);
   pieChartColors = JSON.parse(document.getElementById('pie-chart-colors').value);
   
   const dataContentWrapper = document.getElementById('data-content-wrapper');

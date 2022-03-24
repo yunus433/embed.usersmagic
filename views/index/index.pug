@@ -319,6 +319,7 @@ block content
           .general-bordered-button#back-banner-info-form-button Back
           .general-button#banner-target-group-continue-button(style="margin-left: 15px;") Continue
 
+  input.display-none#company(type="text" value=JSON.stringify(company))
   input.display-none#pie-chart-colors(type="text" value=JSON.stringify(pie_chart_colors))
   input.display-none#target-groups(type="text" value=JSON.stringify(target_groups))
   input.display-none#banners(type="text" value=JSON.stringify(ads))
@@ -397,6 +398,13 @@ block content
                         .pie-chart-white
                           span.general-text No Data
                   .each-banner-content-preview-wrapper(style="display: none")
+                    .each-banner-preview
+                      span.each-banner-preview-title Recommended For You
+                      .each-banner-preview-image-wrapper
+                        img(src=ad.image_url alt="usersmagic banner image")
+                      span.each-banner-preview-title= ad.title
+                      span.each-banner-preview-text= ad.text
+                      span.each-banner-preview-button(style=`background-color: ${company.preferred_color}`) Satın Al
                   .each-banner-content-info-wrapper
                     span.general-text Title: #{ad.title}
                     span.general-text Text: #{ad.text}
@@ -416,9 +424,9 @@ block content
                         .each-banner-button.each-banner-activate-button(style="border-color: rgb(254, 211, 85)")
                           i.fas.fa-play(style="color: rgb(254, 211, 85)")
                           span(style="color: rgb(254, 211, 85)") Activate
-                      .each-banner-button(style="border-color: rgb(45, 136, 196)")
-                        i.fas.fa-edit(style="color: rgb(45, 136, 196)")
-                        span(style="color: rgb(45, 136, 196)") Edit
-                      .each-banner-button(style="border-color: rgba(92, 196, 110, 1)")
-                        i.fas.fa-eye(style="color: rgba(92, 196, 110, 1)")
-                        span(style="color: rgba(92, 196, 110, 1)") Preview
+                      //- .each-banner-button(style="border-color: rgb(45, 136, 196)")
+                      //-   i.fas.fa-edit(style="color: rgb(45, 136, 196)")
+                      //-   span(style="color: rgb(45, 136, 196)") Edit
+                      //- .each-banner-button(style="border-color: rgba(92, 196, 110, 1)")
+                      //-   i.fas.fa-eye(style="color: rgba(92, 196, 110, 1)")
+                      //-   span(style="color: rgba(92, 196, 110, 1)") Preview

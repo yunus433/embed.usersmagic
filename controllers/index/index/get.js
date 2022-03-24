@@ -32,7 +32,7 @@ module.exports = (req, res) => {
                 title: 'Dashboard',
                 includes: {
                   external: {
-                    css: ['button', 'confirm', 'form', 'input', 'fontawesome', 'general', 'text', 'page'],
+                    css: ['button', 'confirm', 'form', 'input', 'fontawesome', 'general', 'preview', 'text', 'page'],
                     js: ['confirm', 'dragAndDrop', 'duplicateElement', 'error', 'form', 'input', 'page', 'serverRequest']
                   }
                 },

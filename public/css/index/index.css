@@ -457,3 +457,65 @@
   flex-direction: column;
   margin-bottom: 15px;
 }
+
+.each-banner-preview {
+  width: calc(min(95%, 200px));
+  height: 275px;
+  align-self: center;
+  background-color: rgb(254, 254, 254);
+  border: 0.5px solid rgba(242, 242, 242, 0.7);
+  box-shadow: 0px 0px 38.72px rgba(0, 0, 0, 0.05);
+  border-radius: 5px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px;
+}
+.each-banner-preview-title {
+  font-weight: 600;
+  color: rgb(98, 98, 103);
+  font-size: 12px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 10px;
+  margin-top: 5px;
+}
+.each-banner-preview-image-wrapper {
+  width: 125px;
+  height: fit-content;
+  max-height: 150px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: hidden;
+}
+.each-banner-preview-image-wrapper img {
+  width: 100%;
+  height: auto;
+}
+.each-banner-preview-text {
+  font-weight: 400;
+  font-size: 11px;
+  color: rgb(98, 98, 103);
+  line-height: 20px;
+  margin-bottom: 5px;
+}
+.each-banner-preview-button {
+  align-self: center;
+  font-weight: 800;
+  color: rgb(254, 254, 254);
+  font-size: 12px;
+  padding: 0px 20px;
+  height: 30px;
+  min-height: 30px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(98, 98, 103, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  margin-top: 5px;
+}
