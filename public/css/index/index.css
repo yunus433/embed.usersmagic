@@ -129,7 +129,6 @@
   display: flex;
   align-items: center;
   background-color: rgb(140, 212, 224);
-  /* box-shadow: 250px 0 10px rgba(98, 98, 103, 0.6); */
   box-shadow: 0px 0 10px rgba(98, 98, 103, 0.6);
   z-index: 2;
 }
