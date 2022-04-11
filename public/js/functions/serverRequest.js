@@ -3,6 +3,9 @@ function serverRequest (url, method, data, callback) {
   if (!url || typeof url != 'string' || !method || typeof method != 'string' || (method != 'GET' && method != 'POST') || !data || typeof data != 'object')
     return callback({ success: false, error: 'bad_request' });
 
+  if (is_demo)
+    url = url.split('?')[0] + '/demo' + (url.includes('?') ? ('?' + url.split('?')[1]) : '');
+
   const xhr = new XMLHttpRequest();
   xhr.open(method, url);
   
