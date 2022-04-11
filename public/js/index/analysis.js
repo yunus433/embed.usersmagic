@@ -1,5 +1,6 @@
 let newTargetGroup = {
   name: '',
+  description: '',
   filters: []
 };
 let targetGroups = [];
@@ -148,6 +149,7 @@ window.addEventListener('load', () => {
     if (event.target.id == 'create-target-group-button') {
       const error = document.getElementById('create-target-group-error');
       newTargetGroup.name = document.getElementById('target-group-name-input').value;
+      newTargetGroup.description = document.getElementById('target-group-description-input').value;
 
       if (!newTargetGroup.name || !newTargetGroup.name.length)
         return error.innerHTML = 'Please write a name for your target group.';
@@ -158,6 +160,8 @@ window.addEventListener('load', () => {
       serverRequest('/target_groups/create', 'POST', newTargetGroup, res => {
         if (!res.success)
           return throwError(res.error);
+
+        return location.reload();
 
         createNewTargetGroup(res.id);
         document.getElementById('create-target-group-form-outer-wrapper').style.display = 'none';

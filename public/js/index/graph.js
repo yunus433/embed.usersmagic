@@ -33,21 +33,44 @@ function createGraph(graph) {
   const eachGraphWrapper = document.createElement('div');
   eachGraphWrapper.classList.add('each-graph-wrapper');
   eachGraphWrapper.id = graph._id;
+  document.querySelector('.graph-outer-wrapper').appendChild(eachGraphWrapper);
 
   const eachGraphTitleWrapper = document.createElement('div');
   eachGraphTitleWrapper.classList.add('each-graph-title-wrapper');
+
+  const eachGraphPausedIcon = document.createElement('span');
+  eachGraphPausedIcon.classList.add('each-graph-paused-icon');
+  eachGraphPausedIcon.innerHTML = 'Paused';
+  eachGraphTitleWrapper.appendChild(eachGraphPausedIcon);
+
+  const eachGraphTitleInnerWrapper = document.createElement('div');
+  eachGraphTitleInnerWrapper.classList.add('each-graph-title-inner-wrapper');
+
+  if (graph.is_active) {
+    eachGraphPausedIcon.style.width = '0px';
+    eachGraphPausedIcon.style.marginRight = '0px';
+    eachGraphPausedIcon.style.border = 'none';
+    eachGraphTitleInnerWrapper.style.width = (eachGraphWrapper.offsetWidth - 30 - 44) + 'px';
+  }
 
   const eachGraphTitle = document.createElement('span');
   eachGraphTitle.classList.add('general-subtitle');
   eachGraphTitle.classList.add('general-text-overflow');
   eachGraphTitle.innerHTML = graph.title;
-  eachGraphTitleWrapper.appendChild(eachGraphTitle);
+  eachGraphTitleInnerWrapper.appendChild(eachGraphTitle);
 
   const eachGraphSubtitle = document.createElement('span');
   eachGraphSubtitle.classList.add('general-text');
   eachGraphSubtitle.classList.add('general-text-overflow');
   eachGraphSubtitle.innerHTML = graph.description;
-  eachGraphTitleWrapper.appendChild(eachGraphSubtitle);
+  eachGraphTitleInnerWrapper.appendChild(eachGraphSubtitle);
+
+  eachGraphTitleWrapper.appendChild(eachGraphTitleInnerWrapper);
+
+  const eachGraphOptionsButton = document.createElement('span');
+  eachGraphOptionsButton.classList.add('each-graph-options-button');
+  eachGraphOptionsButton.innerHTML = '•••';
+  eachGraphTitleWrapper.appendChild(eachGraphOptionsButton);
 
   eachGraphWrapper.appendChild(eachGraphTitleWrapper);
 
@@ -59,61 +82,14 @@ function createGraph(graph) {
 
   if (graph.data && graph.data.length && graph.data[0].value) {
     if (graph.type == 'pie_chart') {
-      const pieChartLabelWrapper = document.createElement('div');
-      pieChartLabelWrapper.classList.add('pie-chart-label-wrapper');
-  
       let conicGradientValueArray = [];
   
-      for (let i = 0; i < pieChartColors.length && i < graph.data.length && graph.data[i].value > 0; i++) {
-        const pieChartEachColorWrapper = document.createElement('div');
-        pieChartEachColorWrapper.classList.add('pie-chart-each-color-wrapper');
-  
-        const pieChartEachColor = document.createElement('div');
-        pieChartEachColor.classList.add('pie-chart-each-color');
-        pieChartEachColor.style.backgroundColor = pieChartColors[i];
-        pieChartEachColorWrapper.appendChild(pieChartEachColor);
-  
-        const pieChartEachLabel = document.createElement('span');
-        pieChartEachLabel.classList.add('pie-chart-each-label');
-        pieChartEachLabel.innerHTML = graph.data[i].name;
-        pieChartEachColorWrapper.appendChild(pieChartEachLabel);
-  
-        pieChartLabelWrapper.appendChild(pieChartEachColorWrapper);
-  
+      for (let i = 0; i < graph.data.length && graph.data[i].value > 0; i++) {
         const lastPercentage = i > 0 ? conicGradientValueArray[conicGradientValueArray.length-1].percentage : 0;
   
-        conicGradientValueArray.push({ color: pieChartColors[i], percentage: lastPercentage + (graph.data[i].value / graph.total * 100) });
+        conicGradientValueArray.push({ color: pieChartColors[i % pieChartColors.length], percentage: lastPercentage + (graph.data[i].value / graph.total * 100) });
       }
-  
-      if (graph.data.length > pieChartColors.length && graph.data[pieChartColors.length].value > 0) {
-        const pieChartEachColorWrapper = document.createElement('div');
-        pieChartEachColorWrapper.classList.add('pie-chart-each-color-wrapper');
-  
-        const pieChartEachColor = document.createElement('div');
-        pieChartEachColor.classList.add('pie-chart-each-color');
-        pieChartEachColor.style.backgroundColor = 'rgb(186, 183, 178)';
-        pieChartEachColorWrapper.appendChild(pieChartEachColor);
-  
-        const pieChartEachLabel = document.createElement('span');
-        pieChartEachLabel.classList.add('pie-chart-each-label');
-        pieChartEachLabel.innerHTML = 'Others';
-        pieChartEachColorWrapper.appendChild(pieChartEachLabel);
-  
-        pieChartLabelWrapper.appendChild(pieChartEachColorWrapper);
-      }
-  
-      eachGraphContentDataWrapper.appendChild(pieChartLabelWrapper);
-  
-      let otherCount = 0;
-  
-      for (let i = pieChartColors.length; i < graph.data.length; i++)
-        otherCount += graph.data[i].value;
-  
-      if (otherCount > 0) {
-        const lastPercentageOther = conicGradientValueArray.length > 0 ? conicGradientValueArray[conicGradientValueArray.length-1].percentage : 0;
-        conicGradientValueArray.push({ color: 'rgb(186, 183, 178)', percentage: lastPercentageOther + (otherCount / graph.total * 100) });  
-      }
-  
+
       const pieChartWrapper = document.createElement('div');
       pieChartWrapper.classList.add('pie-chart-wrapper');
   
@@ -126,16 +102,20 @@ function createGraph(graph) {
             conicGradientValueArray[i-1].percentage
             :
             0
-          ) + '% ' +
-          conicGradientValueArray[i].percentage + '%').join(', ')}${(
-            conicGradientValueArray[conicGradientValueArray.length-1].percentage < 100) ?
-              ', rgb(186, 183, 178) ' + conicGradientValueArray[conicGradientValueArray.length-1].percentage + '% 100%'
-              :
-              ''})`;
+          ) + '% ' + (conicGradientValueArray[i].percentage - 0.5) + '%'
+        ).join(', ')}`;
       pieChartWrapper.appendChild(pieChartColor);
   
       const pieChartWhite = document.createElement('div');
       pieChartWhite.classList.add('pie-chart-white');
+      const pieChartAnswerCount = document.createElement('span');
+      pieChartAnswerCount.classList.add('pie-chart-answer-count');
+      pieChartAnswerCount.innerHTML = graph.total;
+      pieChartWhite.appendChild(pieChartAnswerCount);
+      const pieChartAnswersText = document.createElement('span');
+      pieChartAnswersText.classList.add('general-text');
+      pieChartAnswersText.innerHTML = graph.total > 1 ? 'answers' : 'answer';
+      pieChartWhite.appendChild(pieChartAnswersText);
       pieChartWrapper.appendChild(pieChartWhite);
   
       eachGraphContentDataWrapper.appendChild(pieChartWrapper);
@@ -221,7 +201,6 @@ function createGraph(graph) {
 
     const pieChartWhite = document.createElement('div');
     pieChartWhite.classList.add('pie-chart-white');
-    
     const noDataText = document.createElement('span');
     noDataText.classList.add('general-text');
     noDataText.innerHTML = 'No Data';
@@ -237,108 +216,81 @@ function createGraph(graph) {
   const eachGraphContentInfoWrapper = document.createElement('div');
   eachGraphContentInfoWrapper.classList.add('each-graph-content-info-wrapper');
 
-  const eachGraphCreatedAt = document.createElement('span');
-  eachGraphCreatedAt.classList.add('general-text');
-  eachGraphCreatedAt.innerHTML = 'Created At: ' + graph.created_at;
-  eachGraphContentInfoWrapper.appendChild(eachGraphCreatedAt);
+  if (graph.data && graph.data.length && graph.data[0].value) {
+    const eachGraphContentInfoTitle = document.createElement('div');
+    eachGraphContentInfoTitle.classList.add('each-graph-content-info-title');
+    const countTitle = document.createElement('span');
+    countTitle.innerHTML = 'count';
+    eachGraphContentInfoTitle.appendChild(countTitle);
+    const percentTitle = document.createElement('span');
+    percentTitle.innerHTML = 'rate (%)';
+    eachGraphContentInfoTitle.appendChild(percentTitle);
+    eachGraphContentInfoWrapper.appendChild(eachGraphContentInfoTitle);
 
-  const eachGraphStatus = document.createElement('span');
-  eachGraphStatus.classList.add('general-text');
-  eachGraphStatus.innerHTML = 'Status: ' + (graph.is_active ? 'Active' : 'Paused');
-  eachGraphContentInfoWrapper.appendChild(eachGraphStatus);
+    const eachGraphContentInfoItemOuterWrapper = document.createElement('div');
+    eachGraphContentInfoItemOuterWrapper.classList.add('each-graph-content-info-item-outer-wrapper');
 
-  const eachGraphTotalCount = document.createElement('span');
-  eachGraphTotalCount.classList.add('general-text');
-  eachGraphTotalCount.innerHTML = 'Answer Count: ' + (graph.total >= 1000 ? (graph.total >= 1000000 ? (Math.floor(graph.total / 1000000 * 10) / 10  + 'm') : (Math.floor(graph.total / 1000 * 10) / 10  + 'k') ) : graph.total);
-  eachGraphContentInfoWrapper.appendChild(eachGraphTotalCount);
+    for (let i = 0; i < graph.data.length; i++) {
+      const eachGraphContentInfoItemWrapper = document.createElement('div');
+      eachGraphContentInfoItemWrapper.classList.add('each-graph-content-info-item-wrapper');
 
-  const eachGraphIntegrationPathCount = document.createElement('span');
-  eachGraphIntegrationPathCount.classList.add('general-text');
-  eachGraphIntegrationPathCount.innerHTML = 'Integrated Path Count: ' + graph.integration_path_id_list.length;
-  eachGraphContentInfoWrapper.appendChild(eachGraphIntegrationPathCount);
+      const eachGraphContentInfoItemColor = document.createElement('div');
+      eachGraphContentInfoItemColor.classList.add('each-graph-content-info-item-color');
+      eachGraphContentInfoItemColor.style.backgroundColor = pieChartColors[i % pieChartColors.length];
+      eachGraphContentInfoItemWrapper.appendChild(eachGraphContentInfoItemColor);
 
-  const eachGraphButtonsWrapper = document.createElement('div');
-  eachGraphButtonsWrapper.classList.add('each-graph-buttons-wrapper');
+      const eachGraphContentInfoItemTitle = document.createElement('span');
+      eachGraphContentInfoItemTitle.classList.add('each-graph-content-info-item-title');
+      eachGraphContentInfoItemTitle.innerHTML = graph.data[i].name;
+      eachGraphContentInfoItemWrapper.appendChild(eachGraphContentInfoItemTitle);
 
-  const deleteButton = document.createElement('div');
-  deleteButton.classList.add('each-graph-button');
-  deleteButton.classList.add('each-graph-delete-button');
-  deleteButton.style.borderColor = 'rgb(237, 72, 80)';
-  const deleteButtonI = document.createElement('i');
-  deleteButtonI.classList.add('fas');
-  deleteButtonI.classList.add('fa-trash-alt');
-  deleteButtonI.style.color = 'rgb(237, 72, 80)';
-  deleteButton.appendChild(deleteButtonI);
-  const deleteButtonSpan = document.createElement('span');
-  deleteButtonSpan.innerHTML = 'Delete';
-  deleteButtonSpan.style.color = 'rgb(237, 72, 80)';
-  deleteButton.appendChild(deleteButtonSpan);
-  eachGraphButtonsWrapper.appendChild(deleteButton);
+      const eachGraphContentInfoItemCount = document.createElement('span');
+      eachGraphContentInfoItemCount.classList.add('each-graph-content-info-item-count');
+      eachGraphContentInfoItemCount.innerHTML = graph.data[i].value;
+      eachGraphContentInfoItemWrapper.appendChild(eachGraphContentInfoItemCount);
 
-  const statusButton = document.createElement('div');
-  statusButton.classList.add('each-graph-button');
-  statusButton.classList.add('each-graph-status-button');
-  if (graph.is_active)
-    statusButton.classList.add('each-graph-deactivate-button');
-  else
-    statusButton.classList.add('each-graph-activate-button')
-  statusButton.style.borderColor = 'rgba(254, 211, 85, 1)';
-  const statusButtonI = document.createElement('i');
-  statusButtonI.classList.add('fas');
-  if (graph.is_active)
-    statusButtonI.classList.add('fa-pause');
-  else
-    statusButtonI.classList.add('fa-play');
-  statusButtonI.style.color = 'rgba(254, 211, 85, 1)';
-  statusButton.appendChild(statusButtonI);
-  const statusButtonSpan = document.createElement('span');
-  if (graph.is_active)
-    statusButtonSpan.innerHTML = 'Pause';
-  else
-    statusButtonSpan.innerHTML = 'Activate';
-  statusButtonSpan.style.color = 'rgba(254, 211, 85, 1)';
-  statusButton.appendChild(statusButtonSpan);
-  eachGraphButtonsWrapper.appendChild(statusButton);
+      const eachGraphContentInfoItemRate = document.createElement('span');
+      eachGraphContentInfoItemRate.classList.add('each-graph-content-info-item-rate');
+      eachGraphContentInfoItemRate.innerHTML = Math.round(graph.data[i].value / graph.total * 1000) / 10;
+      eachGraphContentInfoItemWrapper.appendChild(eachGraphContentInfoItemRate);
 
-  const integrateButton = document.createElement('div');
-  integrateButton.classList.add('each-graph-button');
-  integrateButton.classList.add('each-graph-integrate-button');
-  integrateButton.style.borderColor = 'rgba(45, 136, 196, 1)';
-  const integrateButtonI = document.createElement('i');
-  integrateButtonI.classList.add('fas');
-  integrateButtonI.classList.add('fa-plus-circle');
-  integrateButtonI.style.color = 'rgba(45, 136, 196, 1)';
-  integrateButton.appendChild(integrateButtonI);
-  const integrateButtonSpan = document.createElement('span');
-  integrateButtonSpan.innerHTML = 'Integrate';
-  integrateButtonSpan.style.color = 'rgba(45, 136, 196, 1)';
-  integrateButton.appendChild(integrateButtonSpan);
-  eachGraphButtonsWrapper.appendChild(integrateButton);
+      eachGraphContentInfoItemOuterWrapper.appendChild(eachGraphContentInfoItemWrapper);
+    }
 
-  const exportButton = document.createElement('a');
-  exportButton.href = '/questions/csv?id=' + graph._id;
-  exportButton.classList.add('each-graph-button');
-  exportButton.classList.add('each-graph-export-button');
-  exportButton.style.borderColor = 'rgba(92, 196, 110, 1)';
-  const exportButtonI = document.createElement('i');
-  exportButtonI.classList.add('far');
-  exportButtonI.classList.add('fa-file-excel');
-  exportButtonI.style.color = 'rgba(92, 196, 110, 1)';
-  exportButton.appendChild(exportButtonI);
-  const exportButtonSpan = document.createElement('span');
-  exportButtonSpan.innerHTML = 'Export';
-  exportButtonSpan.style.color = 'rgba(92, 196, 110, 1)';
-  exportButton.appendChild(exportButtonSpan);
-  eachGraphButtonsWrapper.appendChild(exportButton);
+    eachGraphContentInfoWrapper.appendChild(eachGraphContentInfoItemOuterWrapper);
 
-  eachGraphContentInfoWrapper.appendChild(eachGraphButtonsWrapper);
+    const eachGraphGoDetailsButton = document.createElement('div');
+    eachGraphGoDetailsButton.classList.add('each-graph-go-details-button');
+    const eachGraphGoDetailsButtonSpan = document.createElement('span');
+    eachGraphGoDetailsButtonSpan.innerHTML = 'See Details';
+    eachGraphGoDetailsButton.appendChild(eachGraphGoDetailsButtonSpan);
+    const eachGraphGoDetailsButtonI = document.createElement('span');
+    eachGraphGoDetailsButtonI.classList.add('fas');
+    eachGraphGoDetailsButtonI.classList.add('fa-chevron-right');
+    eachGraphGoDetailsButton.appendChild(eachGraphGoDetailsButtonI);
+    eachGraphContentInfoWrapper.appendChild(eachGraphGoDetailsButton);
+  } else {
+    const eachGraphInfoNoDataText = document.createElement('span');
+    eachGraphInfoNoDataText.classList.add('each-graph-info-no-data-text');
+    eachGraphInfoNoDataText.innerHTML = 'Integrating your question on more pages may help you collect more responses.';
+    eachGraphContentInfoWrapper.appendChild(eachGraphInfoNoDataText);
+  }
 
   eachGraphContentWrapper.appendChild(eachGraphContentInfoWrapper);
 
   eachGraphWrapper.appendChild(eachGraphContentWrapper);
-
-  document.querySelector('.graph-outer-wrapper').appendChild(eachGraphWrapper);
 };
+
+function createGraphTitle(graph) {
+  const wrapper = document.getElementById('graph-navigation-bar-title-wrapper');
+
+  const eachGraphTitle = document.createElement('span');
+  eachGraphTitle.id = 'graph-navigation-bar-title-id-' + graph._id;
+  eachGraphTitle.classList.add('each-navigation-bar-title');
+  eachGraphTitle.classList.add('general-text-overflow');
+  eachGraphTitle.innerHTML = '-> ' + graph.title;
+  wrapper.appendChild(eachGraphTitle);
+}
 
 function createGraphs() {
   document.getElementById('loading-data-wrapper').style.display = 'flex';
@@ -353,17 +305,115 @@ function createGraphs() {
 
     document.getElementById('graph-wrapper').style.display = 'flex';
 
-    graphs.forEach(graph => createGraph(graph));
+    graphs.forEach(graph => {
+      createGraph(graph);
+      createGraphTitle(graph);
+    });
   });
 };
 
+function createGraphOptionsMenu(id, x, y) {
+  const graph = graphs.find(each => each._id == id);
+
+  const eachGraphOptionsMenu = document.createElement('div');
+  eachGraphOptionsMenu.id = 'graph-options-id-' + id;
+  eachGraphOptionsMenu.classList.add('each-graph-options-menu');
+  eachGraphOptionsMenu.style.left = (x - 120) + 'px';
+  eachGraphOptionsMenu.style.top = (y + 10) + 'px';
+
+  const eachGraphStatusButton = document.createElement('div');
+  if (graph.is_active)
+    eachGraphStatusButton.classList.add('each-graph-deactivate-button');
+  else
+    eachGraphStatusButton.classList.add('each-graph-activate-button');
+  eachGraphStatusButton.classList.add('each-graph-option-button');
+  const eachGraphStatusButtonI = document.createElement('i');
+  eachGraphStatusButtonI.classList.add('fas');
+  if (graph.is_active)
+    eachGraphStatusButtonI.classList.add('fa-pause');
+  else
+    eachGraphStatusButtonI.classList.add('fa-play');
+  const eachGraphStatusButtonText = document.createElement('span');
+  eachGraphStatusButton.appendChild(eachGraphStatusButtonI);
+  if (graph.is_active)
+    eachGraphStatusButtonText.innerHTML = 'Pause';
+  else
+    eachGraphStatusButtonText.innerHTML = 'Activate';
+  eachGraphStatusButton.appendChild(eachGraphStatusButtonText);
+  eachGraphOptionsMenu.appendChild(eachGraphStatusButton);
+
+  const eachGraphEditButton = document.createElement('div');
+  eachGraphEditButton.classList.add('each-graph-edit-button');
+  eachGraphEditButton.classList.add('each-graph-option-button');
+  const eachGraphEditButtonI = document.createElement('i');
+  eachGraphEditButtonI.classList.add('fas');
+  eachGraphEditButtonI.classList.add('fa-edit');
+  const eachGraphEditButtonText = document.createElement('span');
+  eachGraphEditButton.appendChild(eachGraphEditButtonI);
+  eachGraphEditButtonText.innerHTML = 'Edit';
+  eachGraphEditButton.appendChild(eachGraphEditButtonText);
+  eachGraphOptionsMenu.appendChild(eachGraphEditButton);
+
+  const eachGraphExportButton = document.createElement('div');
+  eachGraphExportButton.classList.add('each-graph-export-button');
+  eachGraphExportButton.classList.add('each-graph-option-button');
+  const eachGraphExportButtonI = document.createElement('i');
+  eachGraphExportButtonI.classList.add('far');
+  eachGraphExportButtonI.classList.add('fa-file-excel');
+  const eachGraphExportButtonText = document.createElement('span');
+  eachGraphExportButton.appendChild(eachGraphExportButtonI);
+  eachGraphExportButtonText.innerHTML = 'Export';
+  eachGraphExportButton.appendChild(eachGraphExportButtonText);
+  eachGraphOptionsMenu.appendChild(eachGraphExportButton);
+
+  const eachGraphReloadButton = document.createElement('div');
+  eachGraphReloadButton.classList.add('each-graph-reload-button');
+  eachGraphReloadButton.classList.add('each-graph-option-button');
+  const eachGraphReloadButtonI = document.createElement('i');
+  eachGraphReloadButtonI.classList.add('fas');
+  eachGraphReloadButtonI.classList.add('fa-redo');
+  const eachGraphReloadButtonText = document.createElement('span');
+  eachGraphReloadButton.appendChild(eachGraphReloadButtonI);
+  eachGraphReloadButtonText.innerHTML = 'Reload';
+  eachGraphReloadButton.appendChild(eachGraphReloadButtonText);
+  eachGraphOptionsMenu.appendChild(eachGraphReloadButton);
+
+  const eachGraphDeleteButton = document.createElement('div');
+  eachGraphDeleteButton.classList.add('each-graph-delete-button');
+  eachGraphDeleteButton.classList.add('each-graph-delete-button');
+  const eachGraphDeleteButtonI = document.createElement('i');
+  eachGraphDeleteButtonI.classList.add('fas');
+  eachGraphDeleteButtonI.classList.add('fa-trash');
+  const eachGraphDeleteButtonText = document.createElement('span');
+  eachGraphDeleteButton.appendChild(eachGraphDeleteButtonI);
+  eachGraphDeleteButtonText.innerHTML = 'Delete';
+  eachGraphDeleteButton.appendChild(eachGraphDeleteButtonText);
+  eachGraphOptionsMenu.appendChild(eachGraphDeleteButton);
+
+  document.querySelector('body').appendChild(eachGraphOptionsMenu);
+}
+
 window.addEventListener('load', () => {
-  createGraphs();
+  setTimeout(() => {
+    createGraphs();
+  }, 200);
 
   document.addEventListener('click', event => {
+    if (event.target.classList.contains('each-graph-options-button')) {
+      const id = event.target.parentNode.parentNode.id;
+
+      if (document.querySelector('.each-graph-options-menu'))
+        document.querySelector('.each-graph-options-menu').remove();
+
+      createGraphOptionsMenu(id, event.target.getBoundingClientRect().right, event.target.getBoundingClientRect().bottom)
+    } else if (!event.target.classList.contains('each-graph-options-menu') && !event.target.parentNode.classList.contains('each-graph-options-menu') && !event.target.parentNode.parentNode.classList.contains('each-graph-options-menu')) {
+      if (document.querySelector('.each-graph-options-menu'))
+        document.querySelector('.each-graph-options-menu').remove();
+    }
+
     if (event.target.classList.contains('each-graph-delete-button') || event.target.parentNode.classList.contains('each-graph-delete-button')) {
       const target = event.target.classList.contains('each-graph-delete-button') ? event.target : event.target.parentNode;
-      const id = target.parentNode.parentNode.parentNode.parentNode.id;
+      const id = target.parentNode.id.replace('graph-options-id-', '');
 
       createConfirm({
         title: 'Are you sure you want to delete this question?',
@@ -377,14 +427,15 @@ window.addEventListener('load', () => {
           if (!res.success)
             return throwError(res.error);
 
-          target.parentNode.parentNode.parentNode.parentNode.remove();
+          const graph = document.getElementById(id);
+          graph.remove();
         });
       });
     }
 
     if (event.target.classList.contains('each-graph-deactivate-button') || event.target.parentNode.classList.contains('each-graph-deactivate-button')) {
       const target = event.target.classList.contains('each-graph-deactivate-button') ? event.target : event.target.parentNode;
-      const id = target.parentNode.parentNode.parentNode.parentNode.id;
+      const id = target.parentNode.id.replace('graph-options-id-', '');
 
       serverRequest('/questions/deactivate?id=' + id, 'GET', {}, res => {
         if (!res.success)
@@ -395,12 +446,17 @@ window.addEventListener('load', () => {
         target.childNodes[0].classList.remove('fa-pause');
         target.childNodes[0].classList.add('fa-play');
         target.childNodes[1].innerHTML = 'Activate';
+        const graph = document.getElementById(id);
+        graph.childNodes[0].childNodes[0].style.width = '60px';
+        graph.childNodes[0].childNodes[0].style.marginRight = '10px';
+        graph.childNodes[0].childNodes[0].style.border = '2px solid rgb(140, 212, 224)';
+        graph.childNodes[0].childNodes[1].style.width = (graph.offsetWidth - 30 - 114) + 'px';
       });
     }
 
     if (event.target.classList.contains('each-graph-activate-button') || event.target.parentNode.classList.contains('each-graph-activate-button')) {
       const target = event.target.classList.contains('each-graph-activate-button') ? event.target : event.target.parentNode;
-      const id = target.parentNode.parentNode.parentNode.parentNode.id;
+      const id = target.parentNode.id.replace('graph-options-id-', '');
 
       serverRequest('/questions/activate?id=' + id, 'GET', {}, res => {
         if (!res.success)
@@ -411,7 +467,22 @@ window.addEventListener('load', () => {
         target.childNodes[0].classList.remove('fa-play');
         target.childNodes[0].classList.add('fa-pause');
         target.childNodes[1].innerHTML = 'Pause';
+        const graph = document.getElementById(id);
+        graph.childNodes[0].childNodes[0].style.width = '0px';
+        graph.childNodes[0].childNodes[0].style.marginRight = '0px';
+        graph.childNodes[0].childNodes[0].style.border = 'none';
+        graph.childNodes[0].childNodes[1].style.width = (graph.offsetWidth - 30 - 44) + 'px';
       });
+    }
+
+    if (event.target.classList.contains('each-graph-export-button') || event.target.parentNode.classList.contains('each-graph-export-button')) {
+      const target = event.target.classList.contains('each-graph-activate-button') ? event.target : event.target.parentNode;
+      const id = target.parentNode.id.replace('graph-options-id-', '');
+
+      if (is_demo)
+        location.href = '/questions/csv/demo?id=' + id;
+      else
+        location.href = '/questions/csv?id=' + id;
     }
 
     if (event.target.classList.contains('each-graph-integrate-button') || event.target.parentNode.classList.contains('each-graph-integrate-button')) {
@@ -445,7 +516,7 @@ window.addEventListener('load', () => {
   });
 
   document.addEventListener('mouseover', event => {
-    if (event.target.classList.contains('pie-chart-color') && !event.target.classList.contains('pie-chart-color-default') && !event.target.classList.contains('banner-pie-chart-color')) {
+    if (event.target.classList.contains('pie-chart-color') && !event.target.classList.contains('pie-chart-color-default')) {
       const graphWrapper = event.target.parentNode.parentNode.parentNode.parentNode;
       const graph = graphs.find(each => each._id == graphWrapper.id);
 
@@ -498,5 +569,10 @@ window.addEventListener('load', () => {
       document.querySelector('.graph-info').remove();
       graphInfoId = null;
     }
+  });
+
+  document.querySelector('.graph-outer-wrapper').addEventListener('scroll', event => {
+    if (document.querySelector('.each-graph-options-menu'))
+      document.querySelector('.each-graph-options-menu').remove();
   });
 });

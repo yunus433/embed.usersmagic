@@ -5,7 +5,6 @@ let is_demo;
 
 window.addEventListener('load', () => {
   is_demo = document.getElementById('is-demo') ? true : false;
-  state = JSON.stringify(document.getElementById('state').value);
   company = JSON.stringify(document.getElementById('company').value);
   pieChartColors = JSON.parse(document.getElementById('pie-chart-colors').value);
   

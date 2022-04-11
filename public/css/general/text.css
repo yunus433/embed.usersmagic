@@ -2,7 +2,6 @@
   font-weight: 700;
   color: rgb(35, 35, 50);
   font-size: 15px;
-  margin-bottom: 5px;
   cursor: default;
 }
 
@@ -10,17 +9,15 @@
   font-weight: 700;
   color: rgb(35, 35, 50);
   font-size: 13px;
-  margin-bottom: 3px;
   cursor: default;
 }
 
 .general-text {
-  font-weight: 500;
+  font-weight: 400;
   font-size: 13px;
-  line-height: 20px;
   color: rgb(98, 98, 103);
+  cursor: default;
   display: block;
-  margin-bottom: 5px;
 }
 
 .general-text-overflow {

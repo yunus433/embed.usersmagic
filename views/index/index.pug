@@ -225,9 +225,11 @@ block content
         i.general-form-close-button.fas.fa-times
       .general-form-inner-wrapper
         .general-form-inner-content-wrapper
-          span.general-title.general-required-input Target Group Name
+          span.general-title.general-required-input Segmentation Group Name
           input.general-input#target-group-name-input(type="text" placeholder="ex. Female 20-22 Basketball players" autocomplete="none" required)
-          span.general-title.general-required-input Target Group Filters
+          span.general-title.general-required-input Segmentation Group Description
+          input.general-input#target-group-description-input(type="text" placeholder="ex. Ad target audience for 22' collection" autocomplete="none" required)
+          span.general-title.general-required-input Segmentation Group Filters
           span.general-text Specify the filters you want to use to segment your customers from the questions you ask on your website.
           .general-selected-items-wrapper#create-target-group-selected-items-wrapper
           input.general-search-input(type="search" autocomplete="off" placeholder="Search Filters")
@@ -319,6 +321,9 @@ block content
           .general-bordered-button#back-banner-info-form-button Back
           .general-button#banner-target-group-continue-button(style="margin-left: 15px;") Continue
 
+  if is_demo
+    input.display-none#is-demo(type="text")
+  input.display-none#state(type="text" value=JSON.stringify(state ? state : 'data'))
   input.display-none#company(type="text" value=JSON.stringify(company))
   input.display-none#pie-chart-colors(type="text" value=JSON.stringify(pie_chart_colors))
   input.display-none#target-groups(type="text" value=JSON.stringify(target_groups))
@@ -336,10 +341,27 @@ block content
         span.each-all-header-button#banner-button Banner
         //- span.each-all-header-button#settings-button Settings
     .all-content-wrapper#data-content-wrapper
+      .all-content-navigation-bar-wrapper
+        span.general-title Data Collection
+        .navigation-bar-title-wrapper#graph-navigation-bar-title-wrapper
+        span.usersmagic-copyright-text Usersmagic Inc - 2022
       .all-content-inner-wrapper
-        span.general-title Data / All
-        span.general-text This dataset shows all of the data collected on your website
-        span.general-button.create-question-button(style="margin-left: auto") Create Question
+        .all-content-inner-header-wrapper
+          .all-content-inner-header-text-wrapper
+            span.general-title All
+            span.general-text Filter, sort, and search your questions to easily access your data.
+          .create-question-open-form-button.create-question-button
+            span Create New
+            .create-question-choose-type-wrapper
+              span.create-question-select-type-button#demographics(style="color: rgb(130, 106, 249)")
+                i.fas.fa-globe
+                span Demographics
+              span.create-question-select-type-button#brand(style="color: rgb(254, 211, 85)")
+                i.fas.fa-tags
+                span Brand
+              span.create-question-select-type-button#product(style="color: rgb(237, 72, 80)")
+                i.fas.fa-tshirt
+                span Product
         .all-content-inner-content-wrapper#loading-data-wrapper(style="display: none")
           span.general-text Loading the Data...
         .all-content-inner-content-wrapper#no-data-wrapper(style="display: none")
@@ -348,27 +370,72 @@ block content
         .all-content-inner-content-wrapper#graph-wrapper
           .graph-outer-wrapper
     .all-content-wrapper#analysis-content-wrapper(style="display: none")
+      .all-content-navigation-bar-wrapper
+        span.general-title Segmentation Groups
+        .navigation-bar-title-wrapper#analysis-navigation-bar-title-wrapper
+          each target_group in target_groups
+            span.each-navigation-bar-title -> #{target_group.name}
+        span.usersmagic-copyright-text Usersmagic Inc - 2022
       .all-content-inner-wrapper
-        span.general-title Analysis
-        span.general-text Create target groups to analyse and target your customers
-        span.general-button#create-target-group-open-form-button(style="margin-left: auto") Create Target Group
+        .all-content-inner-header-wrapper
+          .all-content-inner-header-text-wrapper
+            span.general-title All
+            span.general-text Filter, sort, and search your segmentation groups to easily analyze your data.
+          span.all-content-inner-header-open-form-button#create-target-group-open-form-button Create New
         .all-content-inner-content-wrapper
-          .target-groups-outer-wrapper
+          .target-group-outer-wrapper
             each target_group, i in target_groups
               .each-target-group-wrapper
-                .each-target-group-header-wrapper
-                  .each-target-group-color(style=`background-color: ${pie_chart_colors[i % pie_chart_colors.length]}`)
-                  span.general-subtitle #{target_group.name} - (Estimated Count: #{target_group.estimated_people_count})
-                  a.each-target-group-export-button(href=`/target_groups/facebook?id=${target_group._id.toString()}`) Facebook Export
+                .each-target-group-title-wrapper
+                  .each-target-group-title-inner-wrapper
+                    span.general-subtitle.general-text-overflow= target_group.name
+                    span.general-text.general-text-overflow= target_group.description || '---'
+                  span.each-target-group-export-button Export
+                  span.each-target-group-options-button •••
                 .each-target-group-content-wrapper
-                  each filter in target_group.filters
-                    span.general-subtitle #{filter.name}:
-                    span.general-text= filter.allowed_answers
+                  .each-target-group-content-left-wrapper
+                    .each-target-group-content-title-wrapper
+                      span.each-target-group-content-title Your Data
+                      .each-target-group-content-count-wrapper
+                        span.each-target-group-content-count= target_group.estimated_people_count.collected_data
+                        span= target_group.estimated_people_count.collected_data > 1 ? 'people' : 'person'
+                    .each-target-group-content-filters-wrapper
+                      each filter in target_group.filters
+                        .each-target-group-filter
+                          span.each-target-group-filter-title= filter.name
+                          span.each-target-group-filter-allowed-answers= filter.allowed_answers
+                          .each-target-group-filter-data-wrapper
+                            .each-target-group-filter-data-percent-wrapper
+                              .each-target-group-filter-data-percent(style=`width: ${(filter.collected_data.total ? filter.collected_data.match / filter.collected_data.total * 100 : 0)}%`)
+                            span.each-target-group-filter-data-count= filter.collected_data.match
+                  .each-target-group-content-right-wrapper
+                    .each-target-group-content-title-wrapper
+                      span.each-target-group-content-title Global Data
+                      .each-target-group-content-count-wrapper
+                        span.each-target-group-content-count(style="color: rgb(237, 72, 80) !important")= target_group.estimated_people_count.global_data
+                        span= target_group.estimated_people_count.global_data > 1 ? 'people' : 'person'
+                    .each-target-group-content-filters-wrapper
+                      each filter in target_group.filters
+                        .each-target-group-filter
+                          span.each-target-group-filter-title= filter.name
+                          span.each-target-group-filter-allowed-answers= filter.allowed_answers
+                          .each-target-group-filter-data-wrapper
+                            .each-target-group-filter-data-percent-wrapper
+                              .each-target-group-filter-data-percent(style=`width: ${(filter.global_data.total ? filter.global_data.match / filter.global_data.total * 100 : 0)}%`)
+                            span.each-target-group-filter-data-count= filter.global_data.match
     .all-content-wrapper#banner-content-wrapper(style="display: none")
+      .all-content-navigation-bar-wrapper
+        span.general-title Banner Creation
+        .navigation-bar-title-wrapper#banner-navigation-bar-title-wrapper
+          each ad in ads
+            span.each-navigation-bar-title -> #{ad.name}
+        span.usersmagic-copyright-text Usersmagic Inc - 2022
       .all-content-inner-wrapper
-        span.general-title Banners
-        span.general-text Create banners and use your target groups to show your banners to your customers
-        span.general-button#create-banner-open-form-button(style="margin-left: auto") Create Banner
+        .all-content-inner-header-wrapper
+          .all-content-inner-header-text-wrapper
+            span.general-title All
+            span.general-text Filter, sort, and search your banners to easily target your customers.
+          span.all-content-inner-header-open-form-button#create-banner-open-form-button Create New
         .all-content-inner-content-wrapper
           .banner-outer-wrapper
             each ad in ads
@@ -409,7 +476,7 @@ block content
                     span.general-text Title: #{ad.title}
                     span.general-text Text: #{ad.text}
                     span.general-text Button Text: #{ad.button_text}
-                    span.general-text
+                    span.general-text.general-text-overflow
                       span Button URL: 
                       a(href=ad.button_url target="_blank" style="color: rgb(140, 212, 224)") #{ad.button_url}
                     .each-banner-buttons-wrapper

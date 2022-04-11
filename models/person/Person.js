@@ -191,4 +191,46 @@ PersonSchema.statics.getCSVDataForQuestionById = function (data, callback) {
   });
 };
 
+PersonSchema.statics.getAnswerCountForQuestionByIdAndFilters = function (data, callback) {
+  const Person = this;
+
+  if (!data || !data.allowed_answers || !Array.isArray(data.allowed_answers))
+    return callback('bad_request');
+
+  Question.findQuestionById(data.question_id, (err, question) => {
+    if (err) return callback(err);
+
+    Template.findTemplateById(question.template_id, (err, template) => {
+      if (err) return callback(err);
+
+      const choices = template.subtype == 'yes_no' ? ['yes', 'no'] : (['single', 'multiple', 'list'].includes(template.subtype) ? template.choices : Array.from({ length: template.max_value - template.min_value + 1 }, (each, i) => (i + template.min_value).toString()));
+      let total = 0, match = 0;
+
+      async.timesSeries(
+        choices.length,
+        (time, next) => {
+          data.answer_given_to_question = choices[time].toString().trim();
+  
+          Answer.findAnswersAndCountUsersByFilters(data, (err, count) => {
+            if (err) return next(err);
+            
+            total += count;
+            if (data.allowed_answers.includes(choices[time].toString().trim()))
+              match += count;
+  
+            return next(null);
+          });
+        },
+        err => {
+          if (err) return callback(err);
+
+          return callback(null, {
+            total, match
+          });
+        }
+      );
+    });
+  });
+}
+
 module.exports = mongoose.model('Person', PersonSchema);

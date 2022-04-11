@@ -322,49 +322,7 @@ QuestionSchema.statics.findQuestionsForCompany = function (company_id, callback)
     .then(questions => {
       async.timesSeries(
         questions.length,
-        (time, next) => {
-          const question = questions[time];
-
-          Template.findTemplateById(question.template_id, (err, template) => {
-            if (err) return next(err);
-
-            if (template.type == 'demographics' || template.type == 'brand')
-              return next(null, {
-                _id: question._id.toString(),
-                template_id: question.template_id,
-                timeout_duration_in_week: template.timeout_duration_in_week,
-                order_number: template.order_number,
-                name: template.name,
-                text: template.text,
-                type: template.type,
-                subtype: template.subtype,
-                choices: template.choices,
-                min_value: template.min_value,
-                max_value: template.max_value,
-                labels: template.labels
-              });
-
-            Product.findProductById(question.product_id, (err, product) => {
-              if (err) return next(err);
-
-              return next(null, {
-                _id: question._id.toString(),
-                template_id: question.template_id,
-                timeout_duration_in_week: template.timeout_duration_in_week,
-                order_number: template.order_number,
-                name: template.name.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
-                text: template.text.split('{').map(each => each.includes('}') ? product[each.split('}')[0]] + each.split('}')[1] : each).join(''),
-                product_link: product.link,
-                type: template.type,
-                subtype: template.subtype,
-                choices: template.choices,
-                min_value: template.min_value,
-                max_value: template.max_value,
-                labels: template.labels
-              });
-            });
-          });
-        },
+        (time, next) => Question.findQuestionByIdAndFormat(questions[time]._id, (err, question) => next(err, question)),
         (err, questions) => {
           if (err) return callback(err);
 

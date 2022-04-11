@@ -28,6 +28,12 @@ const TargetGroupSchema = new Schema({
     maxlength: MAX_DATABASE_TEXT_FIELD_LENGTH,
     required: true
   },
+  description: {
+    type: String,
+    minlength: 1,
+    maxlength: MAX_DATABASE_TEXT_FIELD_LENGTH,
+    required: true
+  },
   filters: {
     type: Array,
     default: [],
@@ -62,17 +68,32 @@ TargetGroupSchema.statics.findTargetGroupByIdAndFormat = function (id, callback)
     TargetGroup.findTargetGroupByIdAndEstimatePeopleCount({
       company_id: target_group.company_id,
       target_group_id: target_group._id
-    }, (err, count) => {
+    }, (err, collected_estimated_people_count) => {
       if (err) return callback(err);
 
       async.timesSeries(
         target_group.filters.length,
         (time, next) => Question.findQuestionByIdAndFormat(target_group.filters[time].question_id, (err, question) => {
           if (err) return next(err);
-  
-          return next(null, {
-            name: question.name,
-            allowed_answers: (question.subtype == 'number' ? `[${target_group.filters[time].allowed_answers[0]} - ${target_group.filters[time].allowed_answers[target_group.filters[time].allowed_answers.length-1]}]` : target_group.filters[time].allowed_answers)
+
+          Person.getAnswerCountForQuestionByIdAndFilters({
+            question_id: question._id,
+            allowed_answers: target_group.filters[time].allowed_answers
+          }, (err, data) => {
+            if (err) return next(err);
+
+            return next(null, {
+              name: question.name,
+              allowed_answers: (question.subtype == 'number' ? `[${target_group.filters[time].allowed_answers[0]} - ${target_group.filters[time].allowed_answers[target_group.filters[time].allowed_answers.length-1]}]` : target_group.filters[time].allowed_answers.join(' / ')),
+              collected_data: {
+                total: data.total,
+                match: data.match
+              },
+              global_data: {
+                total: data.total,
+                match: data.match
+              }
+            });
           });
         }),
         (err, filters) => {
@@ -82,8 +103,12 @@ TargetGroupSchema.statics.findTargetGroupByIdAndFormat = function (id, callback)
             _id: target_group._id,
             company_id: target_group.company_id,
             name: target_group.name,
+            description: target_group.description,
             filters,
-            estimated_people_count: count
+            estimated_people_count: {
+              collected_data: collected_estimated_people_count,
+              global_data: collected_estimated_people_count
+            }
           });
         }
       );
@@ -98,6 +123,9 @@ TargetGroupSchema.statics.createTargetGroup = function (data, callback) {
     return callback('bad_request');
 
   if (!data.name || typeof data.name != 'string' || !data.name.trim().length || data.name.trim().length > MAX_DATABASE_TEXT_FIELD_LENGTH)
+    return callback('bad_request');
+
+  if (!data.description || typeof data.description != 'string' || !data.description.trim().length || data.description.trim().length > MAX_DATABASE_TEXT_FIELD_LENGTH)
     return callback('bad_request');
 
   if (!data.filters || !Array.isArray(data.filters) || data.filters.length > MAX_FILTER_COUNT_PER_TARGET_GROUP)
@@ -142,6 +170,7 @@ TargetGroupSchema.statics.createTargetGroup = function (data, callback) {
           const newTargetGroupData = {
             company_id: company._id,
             name: data.name.trim(),
+            description: data.description.trim(),
             filters
           };
       
@@ -173,38 +202,7 @@ TargetGroupSchema.statics.findTargetGroupsByCompanyIdAndFormat = function (compa
       .then(target_groups => {
         async.timesSeries(
           target_groups.length,
-          (time, next) => {
-            const target_group = target_groups[time];
-
-            TargetGroup.findTargetGroupByIdAndEstimatePeopleCount({
-              company_id: company._id,
-              target_group_id: target_group._id
-            }, (err, count) => {
-              if (err) return next(err);
-
-              async.timesSeries(
-                target_group.filters.length,
-                (time, next) => Question.findQuestionByIdAndFormat(target_group.filters[time].question_id, (err, question) => {
-                  if (err) return next(err);
-
-                  return next(null, {
-                    name: question.name,
-                    allowed_answers: (question.subtype == 'number' ? `[${target_group.filters[time].allowed_answers[0]} - ${target_group.filters[time].allowed_answers[target_group.filters[time].allowed_answers.length-1]}]` : target_group.filters[time].allowed_answers)
-                  });
-                }),
-                (err, filters) => {
-                  if (err) return next(err);
-
-                  return next(null, {
-                    _id: target_group._id,
-                    name: target_group.name,
-                    filters,
-                    estimated_people_count: count
-                  });
-                }
-              );
-            });
-          },
+          (time, next) => TargetGroup.findTargetGroupByIdAndFormat(target_groups[time]._id, (err, target_group) => next(err, target_group)),
           (err, target_groups) => {
             if (err) return callback(err);
 

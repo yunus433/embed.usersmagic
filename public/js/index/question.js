@@ -119,7 +119,7 @@ function createProductTemplates(id) {
 
 window.addEventListener('load', () => {
   document.addEventListener('click', event => {
-    if (event.target.classList.contains('create-question-button')) {
+    if (event.target.classList.contains('create-question-button') || event.target.parentNode.classList.contains('create-question-button')) {
       document.getElementById('create-question-form-outer-wrapper').style.display = 'flex';
     }
 

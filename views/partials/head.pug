@@ -12,6 +12,11 @@ html(lang="en")
         each file_name in includes.external.css
           if file_name == 'page'
             link(rel='stylesheet' href=`/css/${page}.css`)
+            if page == 'index/index'
+              link(rel='stylesheet' href=`/css/index/graph.css`)
+              link(rel='stylesheet' href=`/css/index/question.css`)
+              link(rel='stylesheet' href=`/css/index/analysis.css`)
+              link(rel='stylesheet' href=`/css/index/banner.css`)
           else if file_name == 'fontawesome'
             link(rel='stylesheet' href='https://use.fontawesome.com/releases/v5.2.0/css/all.css' integrity='sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ', crossorigin='anonymous')
           else
