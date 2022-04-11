@@ -12,14 +12,14 @@ const uploadPostController = require('../controllers/image/upload/post');
 
 router.get(
   '/delete',
-    isLoggedIn,
+    // isLoggedIn,
     deleteGetController
 );
 
 router.post(
   '/upload',
     upload.single('file'),
-    isLoggedIn,
+    // isLoggedIn,
     uploadPostController
 )
 

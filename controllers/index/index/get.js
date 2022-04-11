@@ -32,7 +32,7 @@ module.exports = (req, res) => {
                 title: 'Dashboard',
                 includes: {
                   external: {
-                    css: ['button', 'confirm', 'form', 'input', 'fontawesome', 'general', 'preview', 'text', 'page'],
+                    css: ['button', 'confirm', 'form', 'input', 'fontawesome', 'general', 'text', 'page'],
                     js: ['confirm', 'dragAndDrop', 'duplicateElement', 'error', 'form', 'input', 'page', 'serverRequest']
                   }
                 },
@@ -40,14 +40,20 @@ module.exports = (req, res) => {
                   'rgba(92, 196, 110, 1)',
                   'rgba(45, 136, 196, 1)',
                   'rgba(237, 72, 80, 1)',
-                  'rgba(254, 211, 85, 1)'
+                  'rgba(254, 211, 85, 1)',
+                  'rgba(188, 141, 167, 1)',
+                  'rgba(254, 93, 38, 1)',
+                  'rgba(35, 201, 255, 1)',
+                  'rgba(255, 153, 20, 1)',
+                  'rgba(94, 11, 21, 1)',
+                  'rgba(5, 41, 158, 1)',
+                  'rgba(242, 108, 167, 1)'
                 ],
                 ads,
                 questions,
                 templates,
                 products,
                 target_groups,
-                filters,
                 company: req.session.user.company
               });
             });

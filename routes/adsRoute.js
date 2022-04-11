@@ -5,12 +5,17 @@ const isConfirmed = require('../middleware/isConfirmed');
 const hasLeftWaitlist = require('../middleware/hasLeftWaitlist');
 const isLoggedIn = require('../middleware/isLoggedIn');
 
-const activateGetController = require('../controllers/ads/activate/get');
-const deactivateGetController = require('../controllers/ads/deactivate/get');
-const deleteGetController = require('../controllers/ads/delete/get');
+const activateIndexGetController = require('../controllers/ads/activate/index/get');
+const activateDemoGetController = require('../controllers/ads/activate/demo/get');
+const deactivateIndexGetController = require('../controllers/ads/deactivate/index/get');
+const deactivateDemoGetController = require('../controllers/ads/deactivate/demo/get');
+const deleteIndexGetController = require('../controllers/ads/delete/index/get');
+const deleteDemoGetController = require('../controllers/ads/delete/demo/get');
 const indexGetController = require('../controllers/ads/index/get');
+const demoGetController = require('../controllers/ads/demo/get');
 
-const createPostController = require('../controllers/ads/create/post');
+const createIndexPostController = require('../controllers/ads/create/index/post');
+const createDemoPostController = require('../controllers/ads/create/demo/post');
 
 router.get(
   '/',
@@ -20,25 +25,41 @@ router.get(
     indexGetController
 );
 router.get(
+  '/demo',
+    demoGetController
+);
+router.get(
   '/activate',
     isLoggedIn,
     isConfirmed,
     hasLeftWaitlist,
-    activateGetController
+    activateIndexGetController
+);
+router.get(
+  '/activate/demo',
+    activateDemoGetController
 );
 router.get(
   '/deactivate',
     isLoggedIn,
     isConfirmed,
     hasLeftWaitlist,
-    deactivateGetController
+    deactivateIndexGetController
+);
+router.get(
+  '/deactivate/demo',
+    deactivateDemoGetController
 );
 router.get(
   '/delete',
     isLoggedIn,
     isConfirmed,
     hasLeftWaitlist,
-    deleteGetController
+    deleteIndexGetController
+);
+router.get(
+  '/delete/demo',
+    deleteDemoGetController
 );
 
 router.post(
@@ -46,7 +67,11 @@ router.post(
     isLoggedIn,
     isConfirmed,
     hasLeftWaitlist,
-    createPostController
+    createIndexPostController
+);
+router.post(
+  '/create/demo',
+    createDemoPostController
 );
 
 module.exports = router;

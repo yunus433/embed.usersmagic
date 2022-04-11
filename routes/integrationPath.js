@@ -5,11 +5,15 @@ const isConfirmed = require('../middleware/isConfirmed');
 const hasLeftWaitlist = require('../middleware/hasLeftWaitlist');
 const isLoggedIn = require('../middleware/isLoggedIn');
 
-const deleteGetController = require('../controllers/integration/delete/get');
+const deleteIndexGetController = require('../controllers/integration/delete/index/get');
+const deleteDemoGetController = require('../controllers/integration/delete/demo/get');
+const demoGetController = require('../controllers/integration/demo/get');
 const indexGetController = require('../controllers/integration/index/get');
-const productGetController = require('../controllers/integration/product/get');
+const productIndexGetController = require('../controllers/integration/product/index/get');
+const productDemoGetController = require('../controllers/integration/product/demo/get');
 
-const createPostController = require('../controllers/integration/create/post');
+const createIndexPostController = require('../controllers/integration/create/index/post');
+const createDemoPostController = require('../controllers/integration/create/demo/post');
 
 router.get(
   '/',
@@ -19,18 +23,30 @@ router.get(
     indexGetController
 );
 router.get(
+  '/demo',
+    demoGetController
+);
+router.get(
   '/delete',
     isLoggedIn,
     isConfirmed,
     hasLeftWaitlist,
-    deleteGetController
+    deleteIndexGetController
+);
+router.get(
+  '/delete/demo',
+    deleteDemoGetController
 );
 router.get(
   '/product',
     isLoggedIn,
     isConfirmed,
     hasLeftWaitlist,
-    productGetController
+    productIndexGetController
+);
+router.get(
+  '/product/demo',
+    productDemoGetController
 );
 
 router.post(
@@ -38,7 +54,11 @@ router.post(
     isLoggedIn,
     isConfirmed,
     hasLeftWaitlist,
-    createPostController
+    createIndexPostController
+);
+router.post(
+  '/create/demo',
+    createDemoPostController
 );
 
 module.exports = router;

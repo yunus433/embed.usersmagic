@@ -5,11 +5,15 @@ const isConfirmed = require('../middleware/isConfirmed');
 const hasLeftWaitlist = require('../middleware/hasLeftWaitlist');
 const isLoggedIn = require('../middleware/isLoggedIn');
 
-const deleteGetController = require('../controllers/target_groups/delete/get');
-const facebookGetController = require('../controllers/target_groups/facebook/get');
+const deleteIndexGetController = require('../controllers/target_groups/delete/index/get');
+const deleteDemoGetController = require('../controllers/target_groups/delete/demo/get');
+const facebookIndexGetController = require('../controllers/target_groups/facebook/index/get');
+const facebookDemoGetController = require('../controllers/target_groups/facebook/demo/get');
 const indexGetController = require('../controllers/target_groups/index/get');
+const demoGetController = require('../controllers/target_groups/demo/get');
 
-const createPostController = require('../controllers/target_groups/create/post');
+const createIndexPostController = require('../controllers/target_groups/create/index/post');
+const createDemoPostController = require('../controllers/target_groups/create/demo/post');
 
 router.get(
   '/',
@@ -19,18 +23,30 @@ router.get(
     indexGetController
 );
 router.get(
+  '/demo',
+    demoGetController
+);
+router.get(
   '/delete',
     isLoggedIn,
     isConfirmed,
     hasLeftWaitlist,
-    deleteGetController
+    deleteIndexGetController
+);
+router.get(
+  '/delete/demo',
+    deleteDemoGetController
 );
 router.get(
   '/facebook',
     isLoggedIn,
     isConfirmed,
     hasLeftWaitlist,
-    facebookGetController
+    facebookIndexGetController
+);
+router.get(
+  '/facebook/demo',
+    facebookDemoGetController
 );
 
 router.post(
@@ -38,7 +54,11 @@ router.post(
     isLoggedIn,
     isConfirmed,
     hasLeftWaitlist,
-    createPostController
+    createIndexPostController
+);
+router.post(
+  '/create/demo',
+    createDemoPostController
 );
 
 module.exports = router;

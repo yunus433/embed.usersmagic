@@ -5,10 +5,13 @@ const isConfirmed = require('../middleware/isConfirmed');
 const hasLeftWaitlist = require('../middleware/hasLeftWaitlist');
 const isLoggedIn = require('../middleware/isLoggedIn');
 
-const indexGetController = require('../controllers/product/index/get');
-const templatesGetController = require('../controllers/product/templates/get');
+const demoGetController = require('../controllers/product/index/get');
+const indexGetController = require('../controllers/product/demo/get');
+const templatesIndexGetController = require('../controllers/product/templates/index/get');
+const templatesDemoGetController = require('../controllers/product/templates/demo/get');
 
-const createPostController = require('../controllers/product/create/post');
+const createIndexPostController = require('../controllers/product/create/index/post');
+const createDemoPostController = require('../controllers/product/create/demo/post');
 
 router.get(
   '/',
@@ -18,11 +21,19 @@ router.get(
     indexGetController
 );
 router.get(
+  '/demo',
+    demoGetController
+);
+router.get(
   '/templates',
     isLoggedIn,
     isConfirmed,
     hasLeftWaitlist,
-    templatesGetController
+    templatesIndexGetController
+);
+router.get(
+  '/templates/demo',
+    templatesDemoGetController
 );
 
 router.post(
@@ -30,7 +41,11 @@ router.post(
     isLoggedIn,
     isConfirmed,
     hasLeftWaitlist,
-    createPostController
+    createIndexPostController
+);
+router.post(
+  '/create/demo',
+    createDemoPostController
 );
 
 module.exports = router;
