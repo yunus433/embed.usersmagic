@@ -49,6 +49,65 @@
   padding-right: 10px;
 }
 
+.banner-pie-chart-label-wrapper {
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.banner-pie-chart-each-color-wrapper {
+  display: flex;
+  align-items: center;
+  margin: 0px 4px;
+}
+.banner-pie-chart-each-color {
+  width: 12px;
+  height: 12px;
+  margin-right: 4px;
+}
+.banner-pie-chart-each-label {
+  font-weight: 600;
+  font-size: 12px;
+  color: rgb(98, 98, 103);
+  max-width: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  white-space: nowrap;
+}
+
+.banner-pie-chart-wrapper {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.banner-pie-chart-color {
+  width: 125px;
+  height: 125px;
+  border-radius: 62.5px;
+  cursor: pointer;
+}
+.banner-pie-chart-color-default {
+  background: conic-gradient(at center, rgb(186, 183, 178) 0% 20%, rgb(233, 233, 233) 20% 60%, rgb(98, 98, 103) 60% 100%);
+  cursor: default !important;
+}
+.banner-pie-chart-white {
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+  margin-top: -112.5px;
+  background-color: rgb(254, 254, 254);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.banner-pie-chart-white span {
+  cursor: default;
+}
+
 .each-banner-content-info-wrapper {
   flex: 1;
   width: 50%;

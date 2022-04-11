@@ -446,23 +446,23 @@ block content
                 .each-banner-content-wrapper
                   .each-banner-content-data-wrapper
                     if ad.statistics.total
-                      .pie-chart-label-wrapper
-                        .pie-chart-each-color-wrapper  
-                          .pie-chart-each-color(style=`background-color: ${pie_chart_colors[0]}`)
-                          span.pie-chart-each-label Clicked
-                        .pie-chart-each-color-wrapper  
-                          .pie-chart-each-color(style=`background-color: ${pie_chart_colors[1]}`)
-                          span.pie-chart-each-label Showed
-                        .pie-chart-each-color-wrapper  
-                          .pie-chart-each-color(style=`background-color: ${pie_chart_colors[2]}`)
-                          span.pie-chart-each-label Closed
-                      .pie-chart-wrapper
-                        .pie-chart-color.banner-pie-chart-color(style=`background: conic-gradient(at center, ${pie_chart_colors[0]} 0%, ${pie_chart_colors[0]} ${ad.statistics.clicked / ad.statistics.total * 100}%, ${pie_chart_colors[1]} ${ad.statistics.clicked / ad.statistics.total * 100}%, ${pie_chart_colors[1]} ${(ad.statistics.clicked + ad.statistics.showed) / ad.statistics.total * 100}%, ${pie_chart_colors[2]} ${(ad.statistics.clicked + ad.statistics.showed) / ad.statistics.total * 100}%, ${pie_chart_colors[2]} 100%);`)
-                        .pie-chart-white
+                      .banner-pie-chart-label-wrapper
+                        .banner-pie-chart-each-color-wrapper  
+                          .banner-pie-chart-each-color(style=`background-color: ${pie_chart_colors[0]}`)
+                          span.banner-pie-chart-each-label Clicked
+                        .banner-pie-chart-each-color-wrapper  
+                          .banner-pie-chart-each-color(style=`background-color: ${pie_chart_colors[1]}`)
+                          span.banner-pie-chart-each-label Showed
+                        .banner-pie-chart-each-color-wrapper  
+                          .banner-pie-chart-each-color(style=`background-color: ${pie_chart_colors[2]}`)
+                          span.banner-pie-chart-each-label Closed
+                      .banner-pie-chart-wrapper
+                        .banner-pie-chart-color.banner-pie-chart-color(style=`background: conic-gradient(at center, ${pie_chart_colors[0]} 0%, ${pie_chart_colors[0]} ${ad.statistics.clicked / ad.statistics.total * 100}%, ${pie_chart_colors[1]} ${ad.statistics.clicked / ad.statistics.total * 100}%, ${pie_chart_colors[1]} ${(ad.statistics.clicked + ad.statistics.showed) / ad.statistics.total * 100}%, ${pie_chart_colors[2]} ${(ad.statistics.clicked + ad.statistics.showed) / ad.statistics.total * 100}%, ${pie_chart_colors[2]} 100%);`)
+                        .banner-pie-chart-white
                     else
-                      .pie-chart-wrapper
-                        .pie-chart-color.pie-chart-color-default
-                        .pie-chart-white
+                      .banner-pie-chart-wrapper
+                        .banner-pie-chart-color.banner-pie-chart-color-default
+                        .banner-pie-chart-white
                           span.general-text No Data
                   .each-banner-content-preview-wrapper(style="display: none")
                     .each-banner-preview

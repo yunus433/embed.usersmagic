@@ -44,40 +44,40 @@ function createBanner(banner) {
 
   if (banner.statistics.total) {
     const pieChartLabelWrapper = document.createElement('div');
-    pieChartLabelWrapper.classList.add('pie-chart-label-wrapper');
+    pieChartLabelWrapper.classList.add('banner-pie-chart-label-wrapper');
 
     const clicked = document.createElement('div');
-    clicked.classList.add('pie-chart-each-color-wrapper');
+    clicked.classList.add('banner-pie-chart-each-color-wrapper');
     const clickedColor = document.createElement('div');
-    clickedColor.classList.add('pie-chart-each-color');
+    clickedColor.classList.add('banner-pie-chart-each-color');
     clickedColor.style.backgroundColor = pie_chart_colors[0];
     clicked.appendChild(clickedColor);
     const clickedSpan = document.createElement('span');
-    clickedSpan.classList.add('pie-chart-each-label');
+    clickedSpan.classList.add('banner-pie-chart-each-label');
     clickedSpan.innerHTML = 'Clicked';
     clicked.appendChild(clickedSpan);
     pieChartLabelWrapper.appendChild(clicked);
 
     const showed = document.createElement('div');
-    showed.classList.add('pie-chart-each-color-wrapper');
+    showed.classList.add('banner-pie-chart-each-color-wrapper');
     const showedColor = document.createElement('div');
-    showedColor.classList.add('pie-chart-each-color');
+    showedColor.classList.add('banner-pie-chart-each-color');
     showedColor.style.backgroundColor = pie_chart_colors[1];
     showed.appendChild(showedColor);
     const showedSpan = document.createElement('span');
-    showedSpan.classList.add('pie-chart-each-label');
+    showedSpan.classList.add('banner-pie-chart-each-label');
     showedSpan.innerHTML = 'Showed';
     showed.appendChild(showedSpan);
     pieChartLabelWrapper.appendChild(showed);
 
     const closed = document.createElement('div');
-    closed.classList.add('pie-chart-each-color-wrapper');
+    closed.classList.add('banner-pie-chart-each-color-wrapper');
     const closedColor = document.createElement('div');
-    closedColor.classList.add('pie-chart-each-color');
+    closedColor.classList.add('banner-pie-chart-each-color');
     closedColor.style.backgroundColor = pie_chart_colors[2];
     closed.appendChild(closedColor);
     const closedSpan = document.createElement('span');
-    closedSpan.classList.add('pie-chart-each-label');
+    closedSpan.classList.add('banner-pie-chart-each-label');
     closedSpan.innerHTML = 'Closed';
     closed.appendChild(closedSpan);
     pieChartLabelWrapper.appendChild(closed);
@@ -85,30 +85,30 @@ function createBanner(banner) {
     eachBannerContentDataWrapper.appendChild(pieChartLabelWrapper);
 
     const pieChartWrapper = document.createElement('div');
-    pieChartWrapper.classList.add('pie-chart-wrapper');
+    pieChartWrapper.classList.add('banner-pie-chart-wrapper');
 
     const pieChartColor = document.createElement('div');
-    pieChartColor.classList.add('pie-chart-color');
+    pieChartColor.classList.add('banner-pie-chart-color');
     pieChartColor.classList.add('banner-pie-chart-color');
     pieChartColor.style.background = `background: conic-gradient(at center, ${pie_chart_colors[0]} 0%, ${pie_chart_colors[0]} ${banner.statistics.clicked / banner.statistics.total * 100}%, ${pie_chart_colors[1]} ${banner.statistics.clicked / banner.statistics.total * 100}%, ${pie_chart_colors[1]} ${(banner.statistics.clicked + banner.statistics.showed) / banner.statistics.total * 100}%, ${pie_chart_colors[2]} ${(banner.statistics.clicked + banner.statistics.showed) / banner.statistics.total * 100}%, ${pie_chart_colors[2]} 100%);`
     pieChartWrapper.appendChild(pieChartColor);
 
     const pieChartWhite = document.createElement('div');
-    pieChartWhite.classList.add('pie-chart-white');
+    pieChartWhite.classList.add('banner-pie-chart-white');
     pieChartWrapper.appendChild(pieChartWhite);
 
     eachBannerContentDataWrapper.appendChild(pieChartWrapper);
   } else {
     const pieChartWrapper = document.createElement('div');
-    pieChartWrapper.classList.add('pie-chart-wrapper');
+    pieChartWrapper.classList.add('banner-pie-chart-wrapper');
 
     const pieChartColor = document.createElement('div');
-    pieChartColor.classList.add('pie-chart-color');
-    pieChartColor.classList.add('pie-chart-color-default');
+    pieChartColor.classList.add('banner-pie-chart-color');
+    pieChartColor.classList.add('banner-pie-chart-color-default');
     pieChartWrapper.appendChild(pieChartColor);
 
     const pieChartWhite = document.createElement('div');
-    pieChartWhite.classList.add('pie-chart-white');
+    pieChartWhite.classList.add('banner-pie-chart-white');
     const pieChartWhiteSpan = document.createElement('span');
     pieChartWhiteSpan.classList.add('general-text');
     pieChartWhiteSpan.innerHTML = 'No Data';
