@@ -1,3 +1,5 @@
+let is_demo;
+
 // POST request to the given url, return the json objet
 function serverRequest (url, method, data, callback) {
   if (!url || typeof url != 'string' || !method || typeof method != 'string' || (method != 'GET' && method != 'POST') || !data || typeof data != 'object')

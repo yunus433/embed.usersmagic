@@ -259,16 +259,16 @@ function createGraph(graph) {
 
     eachGraphContentInfoWrapper.appendChild(eachGraphContentInfoItemOuterWrapper);
 
-    const eachGraphGoDetailsButton = document.createElement('div');
-    eachGraphGoDetailsButton.classList.add('each-graph-go-details-button');
-    const eachGraphGoDetailsButtonSpan = document.createElement('span');
-    eachGraphGoDetailsButtonSpan.innerHTML = 'See Details';
-    eachGraphGoDetailsButton.appendChild(eachGraphGoDetailsButtonSpan);
-    const eachGraphGoDetailsButtonI = document.createElement('span');
-    eachGraphGoDetailsButtonI.classList.add('fas');
-    eachGraphGoDetailsButtonI.classList.add('fa-chevron-right');
-    eachGraphGoDetailsButton.appendChild(eachGraphGoDetailsButtonI);
-    eachGraphContentInfoWrapper.appendChild(eachGraphGoDetailsButton);
+    // const eachGraphGoDetailsButton = document.createElement('div');
+    // eachGraphGoDetailsButton.classList.add('each-graph-go-details-button');
+    // const eachGraphGoDetailsButtonSpan = document.createElement('span');
+    // eachGraphGoDetailsButtonSpan.innerHTML = 'See Details';
+    // eachGraphGoDetailsButton.appendChild(eachGraphGoDetailsButtonSpan);
+    // const eachGraphGoDetailsButtonI = document.createElement('span');
+    // eachGraphGoDetailsButtonI.classList.add('fas');
+    // eachGraphGoDetailsButtonI.classList.add('fa-chevron-right');
+    // eachGraphGoDetailsButton.appendChild(eachGraphGoDetailsButtonI);
+    // eachGraphContentInfoWrapper.appendChild(eachGraphGoDetailsButton);
   } else {
     const eachGraphInfoNoDataText = document.createElement('span');
     eachGraphInfoNoDataText.classList.add('each-graph-info-no-data-text');
@@ -342,17 +342,17 @@ function createGraphOptionsMenu(id, x, y) {
   eachGraphStatusButton.appendChild(eachGraphStatusButtonText);
   eachGraphOptionsMenu.appendChild(eachGraphStatusButton);
 
-  const eachGraphEditButton = document.createElement('div');
-  eachGraphEditButton.classList.add('each-graph-edit-button');
-  eachGraphEditButton.classList.add('each-graph-option-button');
-  const eachGraphEditButtonI = document.createElement('i');
-  eachGraphEditButtonI.classList.add('fas');
-  eachGraphEditButtonI.classList.add('fa-edit');
-  const eachGraphEditButtonText = document.createElement('span');
-  eachGraphEditButton.appendChild(eachGraphEditButtonI);
-  eachGraphEditButtonText.innerHTML = 'Edit';
-  eachGraphEditButton.appendChild(eachGraphEditButtonText);
-  eachGraphOptionsMenu.appendChild(eachGraphEditButton);
+  // const eachGraphEditButton = document.createElement('div');
+  // eachGraphEditButton.classList.add('each-graph-edit-button');
+  // eachGraphEditButton.classList.add('each-graph-option-button');
+  // const eachGraphEditButtonI = document.createElement('i');
+  // eachGraphEditButtonI.classList.add('fas');
+  // eachGraphEditButtonI.classList.add('fa-edit');
+  // const eachGraphEditButtonText = document.createElement('span');
+  // eachGraphEditButton.appendChild(eachGraphEditButtonI);
+  // eachGraphEditButtonText.innerHTML = 'Edit';
+  // eachGraphEditButton.appendChild(eachGraphEditButtonText);
+  // eachGraphOptionsMenu.appendChild(eachGraphEditButton);
 
   const eachGraphExportButton = document.createElement('div');
   eachGraphExportButton.classList.add('each-graph-export-button');
@@ -366,17 +366,17 @@ function createGraphOptionsMenu(id, x, y) {
   eachGraphExportButton.appendChild(eachGraphExportButtonText);
   eachGraphOptionsMenu.appendChild(eachGraphExportButton);
 
-  const eachGraphReloadButton = document.createElement('div');
-  eachGraphReloadButton.classList.add('each-graph-reload-button');
-  eachGraphReloadButton.classList.add('each-graph-option-button');
-  const eachGraphReloadButtonI = document.createElement('i');
-  eachGraphReloadButtonI.classList.add('fas');
-  eachGraphReloadButtonI.classList.add('fa-redo');
-  const eachGraphReloadButtonText = document.createElement('span');
-  eachGraphReloadButton.appendChild(eachGraphReloadButtonI);
-  eachGraphReloadButtonText.innerHTML = 'Reload';
-  eachGraphReloadButton.appendChild(eachGraphReloadButtonText);
-  eachGraphOptionsMenu.appendChild(eachGraphReloadButton);
+  // const eachGraphReloadButton = document.createElement('div');
+  // eachGraphReloadButton.classList.add('each-graph-reload-button');
+  // eachGraphReloadButton.classList.add('each-graph-option-button');
+  // const eachGraphReloadButtonI = document.createElement('i');
+  // eachGraphReloadButtonI.classList.add('fas');
+  // eachGraphReloadButtonI.classList.add('fa-redo');
+  // const eachGraphReloadButtonText = document.createElement('span');
+  // eachGraphReloadButton.appendChild(eachGraphReloadButtonI);
+  // eachGraphReloadButtonText.innerHTML = 'Reload';
+  // eachGraphReloadButton.appendChild(eachGraphReloadButtonText);
+  // eachGraphOptionsMenu.appendChild(eachGraphReloadButton);
 
   const eachGraphDeleteButton = document.createElement('div');
   eachGraphDeleteButton.classList.add('each-graph-delete-button');

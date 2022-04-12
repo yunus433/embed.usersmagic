@@ -1,7 +1,6 @@
 let pieChartColors = [];
 let company;
 let state;
-let is_demo;
 
 window.addEventListener('load', () => {
   is_demo = document.getElementById('is-demo') ? true : false;
