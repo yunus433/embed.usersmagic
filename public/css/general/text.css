@@ -2,13 +2,14 @@
   font-weight: 700;
   color: rgb(35, 35, 50);
   font-size: 15px;
+  margin-bottom: 5px;
   cursor: default;
 }
 
 .general-subtitle {
   font-weight: 700;
   color: rgb(35, 35, 50);
-  font-size: 13px;
+  font-size: 14px;
   cursor: default;
 }
 

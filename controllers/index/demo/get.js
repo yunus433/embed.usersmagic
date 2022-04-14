@@ -1,11 +1,5 @@
-const validateDemoData = require('../../../utils/validateDemoData');
-
 module.exports = (req, res) => {
-  // req.session.demo = {};
-
-  validateDemoData(req.session.demo, demo => {
-    req.session.user = null; // Delete login info
-    req.session.demo = demo;
+  demo = req.session.user.demo;
 
     return res.render('index/index', {
       page: 'index/index',
@@ -35,7 +29,8 @@ module.exports = (req, res) => {
       templates: demo.templates,
       products: demo.products,
       target_groups: demo.target_groups,
-      company: demo.company
+      company: demo.company,
+      user: demo.user,
+      team: demo.team
     });
-  })
 }

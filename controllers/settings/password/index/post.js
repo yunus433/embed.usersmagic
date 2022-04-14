@@ -1,7 +1,7 @@
-const Company = require('../../../models/company/Company');
+const User = require('../../../../models/user/User');
 
 module.exports = (req, res) => {
-  Company.findCompanyByIdAndUpdate(req.session.user.company._id, req.body, err => {
+  User.findUserByIdAndUpdatePassword(req.session.user._id, req.body, err => {
     if (err) {
       res.write(JSON.stringify({ error: err, success: false }));
       return res.end();

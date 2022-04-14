@@ -38,6 +38,14 @@ const defaultDemoData = {
     preferred_language: 'tr',
     preferred_color: 'rgba(140, 212, 224, 1)'
   },
+  user: {
+    _id: '6186b5ae4c86d13d62a88a93',
+    company_id: '6186b5ae4c86d13d62a88a90',
+    email: 'example@domain.com',
+    name: 'David Smith',
+    is_email_confirmed: true,
+    company_role: 'admin'
+  },
   products: [
     {
       _id: '61fd401ba310aacbf48999a1',
@@ -513,6 +521,16 @@ const defaultDemoData = {
       max_value: null,
       labels: { left: null, middle: null, right: null }
     }
+  ],
+  team: [
+    {
+      _id: '6186b5ae4c86d13d62a88a93',
+      company_id: '6186b5ae4c86d13d62a88a90',
+      email: 'example@domain.com',
+      name: 'David Smith',
+      is_email_confirmed: true,
+      company_role: 'admin'
+    },
   ]
 }
 
@@ -523,12 +541,14 @@ module.exports = (data, callback) => {
     data = {};
 
   demo.company = data.company ? data.company : defaultDemoData.company;
+  demo.user = data.user ? data.user : defaultDemoData.user;
   demo.products = data.products ? data.products : defaultDemoData.products;
   demo.ads = data.ads ? data.ads : defaultDemoData.ads;
   demo.target_groups = data.target_groups ? data.target_groups : defaultDemoData.target_groups;
   demo.questions = data.questions ? data.questions : defaultDemoData.questions;
   demo.graphs = data.graphs ? data.graphs : defaultDemoData.graphs;
   demo.templates = data.templates ? data.templates : defaultDemoData.templates;
+  demo.team = data.team ? data.team : defaultDemoData.team;
 
   return callback(demo);
 }

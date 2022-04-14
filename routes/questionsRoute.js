@@ -4,6 +4,7 @@ const router = express.Router();
 const isConfirmed = require('../middleware/isConfirmed');
 const hasLeftWaitlist = require('../middleware/hasLeftWaitlist');
 const isLoggedIn = require('../middleware/isLoggedIn');
+const updateDemoData = require('../middleware/updateDemoData');
 
 const activateIndexGetController = require('../controllers/questions/activate/index/get');
 const activateDemoGetController = require('../controllers/questions/activate/demo/get');
@@ -34,6 +35,7 @@ router.get(
 );
 router.get(
   '/demo',
+    updateDemoData,
     demoGetController
 );
 router.get(
@@ -45,6 +47,7 @@ router.get(
 );
 router.get(
   '/activate/demo',
+    updateDemoData,
     activateDemoGetController
 );
 router.get(
@@ -56,6 +59,7 @@ router.get(
 );
 router.get(
   '/csv/demo',
+    updateDemoData,
     csvDemoGetController
 );
 router.get(
@@ -67,6 +71,7 @@ router.get(
 );
 router.get(
   '/deactivate/demo',
+    updateDemoData,
     deactivateDemoGetController
 );
 router.get(
@@ -78,6 +83,7 @@ router.get(
 );
 router.get(
   '/delete/demo',
+    updateDemoData,
     deleteDemoGetController
 );
 router.get(
@@ -89,6 +95,7 @@ router.get(
 );
 router.get(
   '/format/demo',
+    updateDemoData,
     formatDemoGetController
 );
 router.get(
@@ -100,6 +107,7 @@ router.get(
 );
 router.get(
   '/integrate/demo',
+    updateDemoData,
     integrateDemoGetController
 );
 
@@ -112,6 +120,7 @@ router.post(
 );
 router.post(
   '/create/demo',
+    updateDemoData,
     createDemoPostController
 );
 router.post(
@@ -123,6 +132,7 @@ router.post(
 );
 router.post(
   '/integrate/demo',
+    updateDemoData,
     integrateDemoPostController
 );
 

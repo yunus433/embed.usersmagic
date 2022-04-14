@@ -4,6 +4,7 @@ const router = express.Router();
 const isConfirmed = require('../middleware/isConfirmed');
 const hasLeftWaitlist = require('../middleware/hasLeftWaitlist');
 const isLoggedIn = require('../middleware/isLoggedIn');
+const updateDemoData = require('../middleware/updateDemoData');
 
 const deleteIndexGetController = require('../controllers/target_groups/delete/index/get');
 const deleteDemoGetController = require('../controllers/target_groups/delete/demo/get');
@@ -24,6 +25,7 @@ router.get(
 );
 router.get(
   '/demo',
+    updateDemoData,
     demoGetController
 );
 router.get(
@@ -35,6 +37,7 @@ router.get(
 );
 router.get(
   '/delete/demo',
+    updateDemoData,
     deleteDemoGetController
 );
 router.get(
@@ -46,6 +49,7 @@ router.get(
 );
 router.get(
   '/facebook/demo',
+    updateDemoData,
     facebookDemoGetController
 );
 
@@ -58,6 +62,7 @@ router.post(
 );
 router.post(
   '/create/demo',
+    updateDemoData,
     createDemoPostController
 );
 

@@ -36,9 +36,9 @@ block content
         i.general-form-close-button.fas.fa-times
       .general-form-inner-wrapper
         span.general-title.general-required-input Integration Path Name
-        input.general-input#integration-path-name-input(type="text" placeholder="ex. Login Page" autocomplete="none" required)
+        input.general-old-input#integration-path-name-input(type="text" placeholder="ex. Login Page" autocomplete="none" required)
         span.general-title.general-required-input Integration Path Link
-        input.general-input#integration-path-link-input(type="text" placeholder="ex. /auth/login" autocomplete="none" required)
+        input.general-old-input#integration-path-link-input(type="text" placeholder="ex. /auth/login" autocomplete="none" required)
         span.general-title.general-required-input Integration Code
         span.general-text= 'Copy and paste the following code to the end of the <head></head> element for the .html files of the route you spesify. Use Copy button for better performance.'
         span.code-wrapper
@@ -188,9 +188,9 @@ block content
         i.general-form-close-button.fas.fa-times
       .general-form-inner-wrapper
         span.general-title.general-required-input Product Name
-        input.general-input#product-name-input(type="text" placeholder="ex. Black Sport Shoes / 12933" autocomplete="none" required)
+        input.general-old-input#product-name-input(type="text" placeholder="ex. Black Sport Shoes / 12933" autocomplete="none" required)
         span.general-title.general-required-input Product Link
-        input.general-input#product-link-input(type="text" placeholder="ex. /shoes?product_code=12933" autocomplete="none" required)
+        input.general-old-input#product-link-input(type="text" placeholder="ex. /shoes?product_code=12933" autocomplete="none" required)
         span.general-title.general-required-input Integration Code
         span.general-text= 'Copy and paste the following code to the end of the <head></head> element for the .html files of the link you spesify. Use Copy button for better performance.'
         span.code-wrapper
@@ -226,9 +226,9 @@ block content
       .general-form-inner-wrapper
         .general-form-inner-content-wrapper
           span.general-title.general-required-input Segmentation Group Name
-          input.general-input#target-group-name-input(type="text" placeholder="ex. Female 20-22 Basketball players" autocomplete="none" required)
+          input.general-old-input#target-group-name-input(type="text" placeholder="ex. Female 20-22 Basketball players" autocomplete="none" required)
           span.general-title.general-required-input Segmentation Group Description
-          input.general-input#target-group-description-input(type="text" placeholder="ex. Ad target audience for 22' collection" autocomplete="none" required)
+          input.general-old-input#target-group-description-input(type="text" placeholder="ex. Ad target audience for 22' collection" autocomplete="none" required)
           span.general-title.general-required-input Segmentation Group Filters
           span.general-text Specify the filters you want to use to segment your customers from the questions you ask on your website.
           .general-selected-items-wrapper#create-target-group-selected-items-wrapper
@@ -275,19 +275,19 @@ block content
         .general-form-inner-content-wrapper
           span.general-title.general-required-input Banner Name
           span.general-text This name is only visible to you
-          input.general-input#banner-name-input(type="text" placeholder="ex. T-shirt Ad")
+          input.general-old-input#banner-name-input(type="text" placeholder="ex. T-shirt Ad")
           span.general-title.general-required-input Banner Title
           span.general-text This title will be shown to your customers
-          input.general-input#banner-title-input(type="text" placeholder="ex. Our new T-Shirt series is now released!")
+          input.general-old-input#banner-title-input(type="text" placeholder="ex. Our new T-Shirt series is now released!")
           span.general-title.general-required-input Banner Text
           span.general-text This text will be shown to your customers
-          input.general-input#banner-text-input(type="text" placeholder="ex. Go to our new collection page to create your style.")
+          input.general-old-input#banner-text-input(type="text" placeholder="ex. Go to our new collection page to create your style.")
           span.general-title.general-required-input Banner Button Text
           span.general-text This text will be shown to your customers
-          input.general-input#banner-button-text-input(type="text" placeholder="ex. Go Now")
+          input.general-old-input#banner-button-text-input(type="text" placeholder="ex. Go Now")
           span.general-title.general-required-input Banner Button URL
           span.general-text Your customers will be redirected to this URL when they click the banner button
-          input.general-input#banner-button-url-input(type="text" placeholder="ex. https://example.com/new_collection?from_usersmagic=true")
+          input.general-old-input#banner-button-url-input(type="text" placeholder="ex. https://example.com/new_collection?from_usersmagic=true")
           span.general-title.general-required-input Banner Image
           .general-image-input-outer-wrapper#banner-image-input-outer-wrapper
             label.general-choose-image-input-text
@@ -323,6 +323,8 @@ block content
 
   if is_demo
     input.display-none#is-demo(type="text")
+  input.display-none#user(type="text" value=JSON.stringify(user))
+  input.display-none#team(type="text" value=JSON.stringify(team))
   input.display-none#state(type="text" value=JSON.stringify(state ? state : 'data'))
   input.display-none#company(type="text" value=JSON.stringify(company))
   input.display-none#pie-chart-colors(type="text" value=JSON.stringify(pie_chart_colors))
@@ -339,7 +341,10 @@ block content
         span.each-all-header-button.each-all-header-button-selected#data-button Data
         span.each-all-header-button#analysis-button Analysis
         span.each-all-header-button#banner-button Banner
-        //- span.each-all-header-button#settings-button Settings
+        span.each-all-header-button#settings-button Settings
+      a.logout-button(href="/auth/logout")
+        span Logout
+        i.fas.fa-sign-out-alt
     .all-content-wrapper#data-content-wrapper
       .all-content-navigation-bar-wrapper
         span.general-title Data Collection
@@ -497,3 +502,97 @@ block content
                       //- .each-banner-button(style="border-color: rgba(92, 196, 110, 1)")
                       //-   i.fas.fa-eye(style="color: rgba(92, 196, 110, 1)")
                       //-   span(style="color: rgba(92, 196, 110, 1)") Preview
+    .all-content-wrapper#settings-content-wrapper(style="display: none")
+      .all-content-navigation-bar-wrapper
+        span.general-title Settings
+        .navigation-bar-title-wrapper
+          span.each-navigation-bar-title -> Personal
+          span.each-navigation-bar-title -> Company
+          span.each-navigation-bar-title -> Security
+        span.usersmagic-copyright-text Usersmagic Inc - 2022
+      .all-content-inner-wrapper
+        .all-content-inner-header-wrapper
+          .all-content-inner-header-text-wrapper
+            span.general-title Settings
+            span.general-text Customize your account settings to improve your experience.
+          span.settings-unsaved-changes-text(style="display: none") You have unsaved changes
+          span.settings-save-error(style="display: none") 
+          span.all-content-inner-header-open-form-button.all-content-inner-header-open-form-button-not-allowed#settings-save-changes-button Saved
+        .all-content-inner-content-wrapper
+          .settings-content-wrapper
+            span.settings-title Personal
+            .settings-input-outer-wrapper
+              .each-settings-input-wrapper
+                span.general-input-title.general-required-input Email
+                span.general-input-text Your account email
+                span.general-input-not-allowed= user.email
+              .each-settings-input-wrapper
+                span.general-input-title Name
+                span.general-input-text Your full name
+                input.general-input.general-settings-input#user-name-input(type="search" autocomplete="off" placeholder="ex. David Smith" value=user.name)
+            span.settings-title Company
+            .settings-input-outer-wrapper
+              .each-settings-input-wrapper
+                span.general-input-title.general-required-input Company Name
+                span.general-input-text Your company's name
+                input.general-input.general-settings-input#company-name-input(type="search" autocomplete="off" placeholder="ex. Usersmagic Inc." value=company.name)
+              .each-settings-input-wrapper
+                span.general-input-title.general-required-input Color
+                span.general-input-text The button color in your pop-up design
+                input.general-input.general-settings-input#company-color-input(type="search" autocomplete="off" placeholder="ex. #8CD4E0 or rgb(140, 212, 224)" value=company.preferred_color)
+              .settings-team-outer-wrapper
+                .each-settings-input-wrapper
+                  span.general-input-title.general-required-input Team
+                  span.general-input-text You can add up-to 5 people to your team.
+                .settings-team-wrapper
+                  each member in team
+                    .each-team-member(id=member._id)
+                      span.each-team-member-email= member.email
+                      span.each-team-member-role= member.company_role
+                      if user._id.toString() != member._id.toString() && member.company_role != 'admin' && (user.company_role == 'admin' || user.company_role == 'manager')
+                        i.fas.fa-trash-alt.each-team-member-delete-button
+                if team.length < 5 && (user.company_role == 'admin' || user.company_role == 'manager')
+                  .settings-team-add-new-button
+                    i.fas.fa-plus
+                    span Invite New Member
+                .settings-team-add-new-inputs-wrapper(style="display: none")
+                  .each-settings-input-wrapper
+                    span.general-input-title.general-required-input New Member Email
+                    span.general-input-text Email address your team member will use.
+                    input.general-input#team-member-email-input(type="search" autocomplete="new-password" placeholder="ex. user@example.com.")
+                  .each-settings-input-wrapper
+                    span.general-input-title.general-required-input Company Role
+                    span.general-input-text The role the new member will have in the team.
+                    .general-select-input
+                      span#team-member-role-input-text Click to choose
+                      input#team-member-role-input
+                      .general-select-input-options
+                        span.each-general-select-input-option manager
+                        span.each-general-select-input-option user
+                  .each-settings-input-newline
+                  .each-settings-input-wrapper
+                    span.general-input-title.general-required-input New Member Password
+                    span.general-input-text Write a temporary password for the first-time login.
+                    input.general-input#team-member-password-input(type="password" autocomplete="new-password" placeholder="••••••")
+                  .each-settings-input-wrapper
+                    span.general-input-title.general-required-input New Member Confirm Password
+                    span.general-input-text Confirm the new password.
+                    input.general-input#team-member-confirm-password-input(type="password" autocomplete="new-password" placeholder="••••••")
+                  .each-settings-input-newline
+                  span.settings-team-back-button Cancel
+                  span.settings-team-create-button Invite
+                  span.settings-team-invite-error
+            span.settings-title Security
+            .settings-input-outer-wrapper
+              .each-settings-input-wrapper
+                span.general-input-title.general-required-input New Password
+                span.general-input-text Your new password.
+                input.general-input.general-settings-input#password-input(type="password" autocomplete="new-password" placeholder="••••••")
+              .each-settings-input-wrapper
+                span.general-input-title.general-required-input Confirm Password
+                span.general-input-text Confirm your new password.
+                input.general-input.general-settings-input#confirm-password-input(type="password" autocomplete="new-password" placeholder="••••••")
+              .each-settings-input-wrapper
+                span.general-input-title.general-required-input Old Password
+                span.general-input-text Write your old password to authenticate your action.
+                input.general-input.general-settings-input#old-password-input(type="password" autocomplete="new-password" placeholder="••••••")

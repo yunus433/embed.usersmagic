@@ -4,6 +4,7 @@ const router = express.Router();
 const isConfirmed = require('../middleware/isConfirmed');
 const hasLeftWaitlist = require('../middleware/hasLeftWaitlist');
 const isLoggedIn = require('../middleware/isLoggedIn');
+const updateDemoData = require('../middleware/updateDemoData');
 
 const companyGetController = require('../controllers/index/company/get');
 const demoGetController = require('../controllers/index/demo/get');
@@ -26,6 +27,7 @@ router.get(
 );
 router.get(
   '/demo',
+    updateDemoData,
     demoGetController
 );
 router.get(

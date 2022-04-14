@@ -59,7 +59,7 @@ const CompanySchema = new Schema({
 CompanySchema.statics.createCompany = function (data, callback) {
   const Company = this;
 
-  if (!data || !data.name || typeof data.name != 'string' || !data.name.length || data.name.length > MAX_DATABASE_TEXT_FIELD_LENGTH)
+  if (!data || !data.name || typeof data.name != 'string' || !data.name.length || data.name.length > MAX_DATABASE_TEXT_FIELD_LENGTH)
     return callback('bad_request');
 
   const newCompanyData = {
@@ -89,29 +89,16 @@ CompanySchema.statics.findCompanyById = function (id, callback) {
   });
 };
 
-CompanySchema.statics.findCompanyByIdAndRemoveFromWaitlist = function (id, data, callback) {
+CompanySchema.statics.findCompanyByIdAndFormat = function (id, callback) {
   const Company = this;
-
-  if (!data)
-    return callback('bad_request');
-
-  if (!data.preferred_language || !preferred_language_values.includes(data.preferred_language))
-    return callback('bad_request');
-
-  if (!data.preferred_color || typeof data.preferred_color != 'string' || !data.preferred_color.trim().length)
-    return callback('bad_request');  
 
   Company.findCompanyById(id, (err, company) => {
     if (err) return callback(err);
 
-    Company.findByIdAndUpdate(company._id, {$set: {
-      is_on_waitlist: false,
-      preferred_language: data.preferred_language,
-      preferred_color: data.preferred_color.trim()
-    }}, err => {
-      if (err) return callback('bad_request');
+    getCompany(company, (err, company) => {
+      if (err) return callback(err);
 
-      return callback(null);
+      return callback(null, company);
     });
   });
 };
@@ -129,20 +116,6 @@ CompanySchema.statics.findCompanyByDomain = function (domain, callback) {
     if (!company) return callback('document_not_found');
 
     return callback(null, company);
-  });
-};
-
-CompanySchema.statics.findCompanyByIdAndFormat = function (id, callback) {
-  const Company = this;
-
-  Company.findCompanyById(id, (err, company) => {
-    if (err) return callback(err);
-
-    getCompany(company, (err, company) => {
-      if (err) return callback(err);
-
-      return callback(null, company);
-    });
   });
 };
 
@@ -222,26 +195,8 @@ CompanySchema.statics.findCompanyByIdAndUpdate = function (id, data, callback) {
     if (err) return callback(err);
 
     Company.findByIdAndUpdate(company._id, {$set: {
-      name: data.name && typeof data.name == 'string' && data.name.length && data.name.length < MAX_DATABASE_TEXT_FIELD_LENGTH ? data.name : company.name,
-    }}, err => {
-      if (err) return callback('database_error');
-
-      return callback(null);
-    });
-  });
-};
-
-CompanySchema.statics.findCompanyByIdAndUpdatePreferredLanguage = function (id, data, callback) {
-  const Company = this;
-
-  if (!data || !data.preferred_language || !preferred_language_values.includes(data.preferred_language))
-    return callback('bad_request');
-
-  Company.findCompanyById(id, (err, company) => {
-    if (err) return callback(err);
-
-    Company.findByIdAndUpdate(company._id, {$set: {
-      preferred_language: data.preferred_language
+      name: data.company_name && typeof data.company_name == 'string' && data.company_name.length && data.company_name.length < MAX_DATABASE_TEXT_FIELD_LENGTH ? data.company_name : company.name,
+      preferred_color: data.preferred_color && typeof data.preferred_color == 'string' && data.preferred_color.length && data.preferred_color.length < MAX_DATABASE_TEXT_FIELD_LENGTH ? data.preferred_color : company.preferred_color,
     }}, err => {
       if (err) return callback('database_error');
 

@@ -10,6 +10,8 @@ const hashPassword = require('./functions/hashPassword');
 const getUser = require('./functions/getUser');
 const verifyPassword = require('./functions/verifyPassword');
 
+const company_roles = ['admin', 'manager', 'user'];
+
 const DUPLICATED_UNIQUE_FIELD_ERROR_CODE = 11000;
 const MIN_PASSWORD_LENGTH = 6;
 const MAX_DATABASE_TEXT_FIELD_LENGTH = 1e4;
@@ -21,6 +23,10 @@ const UserSchema = new Schema({
   company_id: {
     type: mongoose.Types.ObjectId,
     required: true
+  },
+  company_role: {
+    type: String,
+    default: 'user'
   },
   email: {
     type: String,
@@ -56,6 +62,26 @@ const UserSchema = new Schema({
 
 UserSchema.pre('save', hashPassword);
 
+UserSchema.statics.findUserByEmailAndVerifyPassword = function (data, callback) {
+  const User = this;
+
+  if (!data || !data.email || !validator.isEmail(data.email) || !data.password)
+    return callback('bad_request');
+
+  User.findOne({
+    email: data.email.trim()
+  }, (err, user) => {
+    if (err) return callback('database_error');
+    if (!user) return callback('document_not_found');
+
+    verifyPassword(data.password.trim(), user.password, res => {
+      if (!res) return callback('password_verification');
+
+      return callback(null, user);
+    });
+  });
+};
+
 UserSchema.statics.findUserById = function (id, callback) {
   const User = this;
 
@@ -84,6 +110,65 @@ UserSchema.statics.findUserByIdAndFormat = function (id, callback) {
   });
 };
 
+UserSchema.statics.findUserByIdAndDelete = function (id, callback) {
+  const User = this;
+
+  User.findUserById(id, (err, user) => {
+    if (err) return callback(err);
+
+    User.findByIdAndDelete(user._id, err => {
+      if (err) return callback('database_error');
+
+      return callback(null);
+    });
+  });
+};
+
+UserSchema.statics.findUserByIdAndUpdate = function (id, data, callback) {
+  const User = this;
+
+  User.findUserById(id, (err, user) => {
+    if (err) return callback(err);
+
+    User.findByIdAndUpdate(user._id, {
+      name: data.name && typeof data.name == 'string' && data.name.length < MAX_DATABASE_TEXT_FIELD_LENGTH ? data.name.trim() : user.name 
+    }, err => {
+      if (err) return callback(err);
+
+      return callback(null);
+    });
+  });
+};
+
+UserSchema.statics.findUserByIdAndUpdatePassword = function (id, data, callback) {
+  const User = this;
+
+  if (!data || !data.old_password || !data.password)
+    return callback('bad_request');
+
+  if (!data.password.length || data.password.length < MIN_PASSWORD_LENGTH)
+    return callback('password_length');
+
+  User.findUserById(id, (err, user) => {
+    if (err) return callback(err);
+
+    User.findUserByEmailAndVerifyPassword({
+      email: user.email,
+      password: data.old_password
+    }, (err, user) => {
+      if (err) return callback(err);
+
+      user.password = data.password;
+
+      user.save(err => {
+        if (err) return callback('database_error');
+
+        return callback(null);
+      });
+    });
+  });
+};
+
 UserSchema.statics.createUser = function (data, callback) {
   const User = this;
 
@@ -97,6 +182,9 @@ UserSchema.statics.createUser = function (data, callback) {
 
   if (data.password.length < MIN_PASSWORD_LENGTH)
     return callback('password_length');
+
+  if (!data.company_role || !company_roles.includes(data.company_role))
+    return callback('bad_request');
   
   Company.findCompanyById(data.company_id, (err, company) => {
     if (err) return callback(err);
@@ -104,7 +192,8 @@ UserSchema.statics.createUser = function (data, callback) {
     const newUserData = {
       company_id: company._id,
       email: data.email.trim(),
-      password: data.password.trim()
+      password: data.password.trim(),
+      company_role: data.company_role
     };
 
     const newUser = new User(newUserData);
@@ -118,30 +207,6 @@ UserSchema.statics.createUser = function (data, callback) {
       return callback(null, user._id.toString());
     });
   });  
-};
-
-UserSchema.statics.findUserByEmailAndVerifyPassword = function (data, callback) {
-  const User = this;
-
-  if (!data || !data.email || !validator.isEmail(data.email) || !data.password)
-    return callback('bad_request');
-
-  User.findOne({
-    email: data.email.trim()
-  }, (err, user) => {
-    if (err) return callback('database_error');
-    if (!user) return callback('document_not_found');
-
-    verifyPassword(data.password.trim(), user.password, res => {
-      if (!res) return callback('password_verification');
-
-      getUser(user, (err, user) => {
-        if (err) return callback(err);
-
-        return callback(null, user);
-      });
-    });
-  });
 };
 
 UserSchema.statics.findUserByIdAndSendConfirmationCode = function (id, callback) {
@@ -201,6 +266,29 @@ UserSchema.statics.findUserByIdAndConfirmEmail = function (id, data, callback) {
 
       return callback(null);
     });
+  });
+};
+
+UserSchema.statics.findUsersByCompanyId = function (company_id, callback) {
+  const User = this;
+
+  if (!company_id || !validator.isMongoId(company_id.toString()))
+    return callback('bad_request');
+
+  User.find({
+    company_id: mongoose.Types.ObjectId(company_id.toString())
+  }, (err, users) => {
+    if (err) return callback('database_error');
+
+    async.timesSeries(
+      users.length,
+      (time, next) => getUser(users[time], (err, user) => next(err, user)),
+      (err, users) => {
+        if (err) return callback(err);
+
+        return callback(null, users);
+      }
+    );
   });
 };
 

@@ -12,6 +12,7 @@ module.exports = (user, callback) => {
       email: user.email,
       name: user.name || '',
       is_email_confirmed: user.is_email_confirmed,
+      company_role: user.company_role,
       company
     });
   });

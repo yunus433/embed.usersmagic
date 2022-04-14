@@ -44,6 +44,7 @@ window.addEventListener('load', () => {
       serverRequest('/auth/register', 'POST', {
         name: document.getElementById('company-name-input').value,
         email: document.getElementById('email-input').value,
+        company_role: 'admin',
         password
       }, res => {
         if (res.success)

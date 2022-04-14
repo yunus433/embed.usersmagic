@@ -1,3 +1,5 @@
+let lastOpenSelectInput = null;
+
 function uploadImage (file, callback) {
   const formdata = new FormData();
   formdata.append('file', file);
@@ -120,6 +122,46 @@ window.addEventListener('load', () => {
 
       event.target.parentNode.classList.add('general-each-search-item-wrapper-selected');
       event.target.parentNode.scrollIntoView(true);
+    }
+
+    if (event.target.classList.contains('general-select-input') || event.target.parentNode.classList.contains('general-select-input')) {
+      const target = event.target.classList.contains('general-select-input') ? event.target : event.target.parentNode;
+
+      if (lastOpenSelectInput) {
+        lastOpenSelectInput.style.overflow = 'hidden';
+        lastOpenSelectInput.style.borderBottomLeftRadius = '5px';
+        lastOpenSelectInput.style.borderBottomRightRadius = '5px';
+        lastOpenSelectInput.childNodes[0].style.borderBottomLeftRadius = '5px';
+        lastOpenSelectInput.childNodes[0].style.borderBottomRightRadius = '5px';
+      }
+
+      lastOpenSelectInput = target;
+
+      target.style.overflow = 'visible';
+      target.style.borderBottomLeftRadius = '0px';
+      target.style.borderBottomRightRadius = '0px';
+      target.childNodes[0].style.borderBottomLeftRadius = '0px';
+      target.childNodes[0].style.borderBottomRightRadius = '0px';
+    } else if (event.target.classList.contains('each-general-select-input-option')) {
+      const target = event.target.parentNode.parentNode;
+      target.childNodes[0].innerHTML = event.target.innerHTML;
+      target.childNodes[0].style.color = 'rgb(98, 98, 103)';
+      target.childNodes[1].value = event.target.innerHTML;
+
+      lastOpenSelectInput.style.overflow = 'hidden';
+      lastOpenSelectInput.style.borderBottomLeftRadius = '5px';
+      lastOpenSelectInput.style.borderBottomRightRadius = '5px';
+      lastOpenSelectInput.childNodes[0].style.borderBottomLeftRadius = '5px';
+      lastOpenSelectInput.childNodes[0].style.borderBottomRightRadius = '5px';
+
+      lastOpenSelectInput = null;
+    } else if (lastOpenSelectInput) {
+      lastOpenSelectInput.style.overflow = 'hidden';
+      lastOpenSelectInput.style.borderBottomLeftRadius = '5px';
+      lastOpenSelectInput.style.borderBottomRightRadius = '5px';
+      lastOpenSelectInput.childNodes[0].style.borderBottomLeftRadius = '5px';
+      lastOpenSelectInput.childNodes[0].style.borderBottomRightRadius = '5px';
+      lastOpenSelectInput = null;
     }
   });
 

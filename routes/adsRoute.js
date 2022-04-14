@@ -4,6 +4,7 @@ const router = express.Router();
 const isConfirmed = require('../middleware/isConfirmed');
 const hasLeftWaitlist = require('../middleware/hasLeftWaitlist');
 const isLoggedIn = require('../middleware/isLoggedIn');
+const updateDemoData = require('../middleware/updateDemoData');
 
 const activateIndexGetController = require('../controllers/ads/activate/index/get');
 const activateDemoGetController = require('../controllers/ads/activate/demo/get');
@@ -26,6 +27,7 @@ router.get(
 );
 router.get(
   '/demo',
+    updateDemoData,
     demoGetController
 );
 router.get(
@@ -37,6 +39,7 @@ router.get(
 );
 router.get(
   '/activate/demo',
+    updateDemoData,
     activateDemoGetController
 );
 router.get(
@@ -48,6 +51,7 @@ router.get(
 );
 router.get(
   '/deactivate/demo',
+    updateDemoData,
     deactivateDemoGetController
 );
 router.get(
@@ -59,6 +63,7 @@ router.get(
 );
 router.get(
   '/delete/demo',
+    updateDemoData,
     deleteDemoGetController
 );
 
@@ -71,6 +76,7 @@ router.post(
 );
 router.post(
   '/create/demo',
+    updateDemoData,
     createDemoPostController
 );
 
