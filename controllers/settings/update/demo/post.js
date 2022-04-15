@@ -1,5 +1,6 @@
 module.exports = (req, res) => {
   const user = req.session.demo.user;
+  const company = req.session.demo.company;
   user.name == req.body.name && typeof req.body.name == 'string' ? req.body.name : user.name;
 
   if (!user.company_role || (user.company_role != 'admin' && user.company_role != 'manager')) {
