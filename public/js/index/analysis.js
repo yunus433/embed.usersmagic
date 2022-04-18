@@ -97,7 +97,16 @@ function createNewTargetGroup(id) {
 
     wrapper.appendChild(eachTargetGroupWrapper);
   });
-}
+};
+
+function createTargetGroupInfo(percentage, position) {
+  const targetGroupInfo = document.createElement('span');
+  targetGroupInfo.classList.add('target-group-info');
+  targetGroupInfo.innerHTML = Math.round(percentage * 100) / 100 + '%';
+  targetGroupInfo.style.left = position.x + 'px';
+  targetGroupInfo.style.top = position.y + 'px';
+  document.querySelector('body').appendChild(targetGroupInfo);
+};
 
 window.addEventListener('load', () => {
   targetGroups = JSON.parse(document.getElementById('target-groups').value);
@@ -168,10 +177,36 @@ window.addEventListener('load', () => {
       });
     }
 
-    if (event.target.classList.contains('each-target-group-wrapper') || (event.target.parentNode && (event.target.parentNode.classList.contains('each-target-group-wrapper' || (event.target.parentNode.parentNode && (event.target.parentNode.parentNode.classList.contains('each-target-group-wrapper'))))))) {
-      const target = event.target.classList.contains('each-target-group-wrapper') ? event.target : (event.target.parentNode.classList.contains('each-target-group-wrapper') ? event.target.parentNode : event.target.parentNode.parentNode);
+    if (event.target.classList.contains('each-target-group-delete-button')) {
+      const id = event.target.parentNode.parentNode.id;
 
-      target.classList.add('each-target-group-wrapper-opened');
+      createConfirm({
+        title: 'Are you sure you want to delete this segmentation group?',
+        text: 'You can recreate a segmentation group whenever you like. Deleting them may help you organize your dashboard.',
+        reject: 'Cancel',
+        accept: 'Delete'
+      }, res => {
+        if (!res) return;
+
+        serverRequest('/target_groups/delete?id=' + id, 'GET', {}, res => {
+          if (!res.success) return throwError(res.error);
+
+          event.target.parentNode.parentNode.remove();
+        })
+      })
     }
   });
+
+  document.addEventListener('mouseover', event => {
+    if (event.target.classList.contains('each-target-group-filter-data-percent') && !document.querySelector('.target-group-info')) {
+      const percentage = parseFloat(event.target.style.width.replace('%', ''))
+      
+      createTargetGroupInfo(percentage, {
+        x: event.clientX,
+        y: event.clientY
+      });
+    } else if (!event.target.classList.contains('each-target-group-filter-data-percent') && !event.target.classList.contains('target-group-info') && document.querySelector('.target-group-info')) {
+      document.querySelector('.target-group-info').remove();
+    }
+  })
 });

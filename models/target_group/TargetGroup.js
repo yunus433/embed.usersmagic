@@ -396,7 +396,7 @@ TargetGroupSchema.statics.findTargetGroupByIdAndEstimatePeopleCount = function (
   });
 };
 
-TargetGroupSchema.statics.findTargetGroupByIdAndGetHashedPersonEmailListForFacebook = function (data, callback) { // Each item in array is a 10k length hashed JASON stringify array
+TargetGroupSchema.statics.findTargetGroupByIdAndGetHashedPersonEmailListToExport = function (data, callback) { // Each item in array is a 10k length hashed JASON stringify array
   const TargetGroup = this;
 
   TargetGroup.findTargetGroupById(data.target_group_id, (err, target_group) => {

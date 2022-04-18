@@ -8,8 +8,8 @@ const updateDemoData = require('../middleware/updateDemoData');
 
 const deleteIndexGetController = require('../controllers/target_groups/delete/index/get');
 const deleteDemoGetController = require('../controllers/target_groups/delete/demo/get');
-const facebookIndexGetController = require('../controllers/target_groups/facebook/index/get');
-const facebookDemoGetController = require('../controllers/target_groups/facebook/demo/get');
+const exportIndexGetController = require('../controllers/target_groups/export/index/get');
+const exportDemoGetController = require('../controllers/target_groups/export/demo/get');
 const indexGetController = require('../controllers/target_groups/index/get');
 const demoGetController = require('../controllers/target_groups/demo/get');
 
@@ -41,16 +41,16 @@ router.get(
     deleteDemoGetController
 );
 router.get(
-  '/facebook',
+  '/export',
     isLoggedIn,
     isConfirmed,
     hasLeftWaitlist,
-    facebookIndexGetController
+    exportIndexGetController
 );
 router.get(
-  '/facebook/demo',
+  '/export/demo',
     updateDemoData,
-    facebookDemoGetController
+    exportDemoGetController
 );
 
 router.post(

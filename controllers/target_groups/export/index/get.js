@@ -9,7 +9,7 @@ module.exports = (req, res) => {
   TargetGroup.findTargetGroupById(req.query.id, (err, target_group) => {
     if (err) return res.redirecy('/');
 
-    TargetGroup.findTargetGroupByIdAndGetHashedPersonEmailListForFacebook({
+    TargetGroup.findTargetGroupByIdAndGetHashedPersonEmailListToExport({
       company_id: req.session.user.company._id,
       target_group_id: req.query.id
     }, (err, files) => {
@@ -18,7 +18,7 @@ module.exports = (req, res) => {
       json2csv.json2csv(files[0], (err, csv) => {
         if (err) return res.redirect('/');
 
-        return res.attachment(`${target_group.name} (Usersmagic Facebook Email List - 1).csv`).send(csv);
+        return res.attachment(`${target_group.name} (Usersmagic Hashed Email List - 1).csv`).send(csv);
       });
   
       // async.timesSeries(

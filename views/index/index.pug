@@ -345,12 +345,12 @@ block content
       a.logout-button(href="/auth/logout")
         span Logout
         i.fas.fa-sign-out-alt
-    .all-content-wrapper#data-content-wrapper
+    .all-content-wrapper#data-content-wrapper(style="display: none")
       .all-content-navigation-bar-wrapper
         span.general-title Data Collection
         .navigation-bar-title-wrapper#graph-navigation-bar-title-wrapper
         span.usersmagic-copyright-text Usersmagic Inc - 2022
-      .all-content-inner-wrapper
+      .all-content-inner-wrapper#data-content-inner-wrapper(style="display: none")
         .all-content-inner-header-wrapper
           .all-content-inner-header-text-wrapper
             span.general-title All
@@ -374,7 +374,7 @@ block content
           span.general-button.create-question-button Create Question
         .all-content-inner-content-wrapper#graph-wrapper
           .graph-outer-wrapper
-    .all-content-wrapper#analysis-content-wrapper(style="display: none")
+    .all-content-wrapper#analysis-content-wrapper
       .all-content-navigation-bar-wrapper
         span.general-title Segmentation Groups
         .navigation-bar-title-wrapper#analysis-navigation-bar-title-wrapper
@@ -390,17 +390,18 @@ block content
         .all-content-inner-content-wrapper
           .target-group-outer-wrapper
             each target_group, i in target_groups
-              .each-target-group-wrapper
+              .each-target-group-wrapper(id=target_group._id)
                 .each-target-group-title-wrapper
                   .each-target-group-title-inner-wrapper
                     span.general-subtitle.general-text-overflow= target_group.name
                     span.general-text.general-text-overflow= target_group.description || '---'
-                  span.each-target-group-export-button Export
-                  span.each-target-group-options-button •••
+                  i.fas.fa-trash-alt.each-target-group-delete-button
                 .each-target-group-content-wrapper
                   .each-target-group-content-left-wrapper
                     .each-target-group-content-title-wrapper
-                      span.each-target-group-content-title Your Data
+                      .each-target-group-export-wrapper
+                        span.each-target-group-content-title Your Data
+                        a.each-target-group-export-button(href="/target_groups/export?id=" + target_group._id) Export
                       .each-target-group-content-count-wrapper
                         span.each-target-group-content-count= target_group.estimated_people_count.collected_data
                         span= target_group.estimated_people_count.collected_data > 1 ? 'people' : 'person'
@@ -411,11 +412,16 @@ block content
                           span.each-target-group-filter-allowed-answers= filter.allowed_answers
                           .each-target-group-filter-data-wrapper
                             .each-target-group-filter-data-percent-wrapper
-                              .each-target-group-filter-data-percent(style=`width: ${(filter.collected_data.total ? filter.collected_data.match / filter.collected_data.total * 100 : 0)}%`)
+                              if filter.collected_data.match
+                                .each-target-group-filter-data-percent(style=`width: ${filter.collected_data.match / filter.collected_data.total * 100}%`)
+                              else
+                                .each-target-group-filter-data-percent-min
                             span.each-target-group-filter-data-count= filter.collected_data.match
                   .each-target-group-content-right-wrapper
                     .each-target-group-content-title-wrapper
-                      span.each-target-group-content-title Global Data
+                      .each-target-group-export-wrapper
+                        span.each-target-group-content-title Global Data
+                        a.each-target-group-export-button(href="/target_groups/export?id=" + target_group._id) Export
                       .each-target-group-content-count-wrapper
                         span.each-target-group-content-count(style="color: rgb(237, 72, 80) !important")= target_group.estimated_people_count.global_data
                         span= target_group.estimated_people_count.global_data > 1 ? 'people' : 'person'

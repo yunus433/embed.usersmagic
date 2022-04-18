@@ -35,5 +35,18 @@ window.addEventListener('load', () => {
       else if (event.target.id == 'settings-button')
         settingsContentWrapper.style.display = 'flex';
     }
+
+    if (event.target.classList.contains('copy-code-button') || event.target.parentNode.classList.contains('copy-code-button')) {
+      const range = document.createRange();
+      range.selectNodeContents(document.getElementById('copy-data'));
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      document.execCommand('copy');
+      event.target.childNodes[0].innerHTML = 'Copied!';
+      setTimeout(() => {
+        event.target.childNodes[0].innerHTML = 'Copy';
+      }, 1500);
+    }
   });
 });

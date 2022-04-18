@@ -50,96 +50,19 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: calc(100% - 100px);
-}
-.each-target-group-export-button {
-  width: 50px;
-  min-width: 50px;
-  height: 20px;
-  margin-left: 10px;
-  border-radius: 2px;
-  border: 1px solid rgb(140, 212, 224);
-  color: rgb(140, 212, 224);
-  font-weight: 800;
-  font-size: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-.each-target-group-options-button {
-  width: 30px;
-  min-width: 30px;
-  height: 20px;
-  margin-left: 10px;
-  border: 0.5px solid rgb(232, 232, 232);
-  box-shadow: 0px 0px 2px rgba(98, 98, 103, 0.4);
-  border-radius: 2px;
-  color: rgb(233, 233, 233);
-  font-weight: 700;
-  font-size: 14px;
-  letter-spacing: -0.2em;
-  padding-right: 2px;
-  margin-right: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.each-target-group-options-menu {
-  width: 120px;
-  height: fit-content;
-  min-height: fit-content;
-  position: absolute;
-  background-color: rgb(254, 254, 254);
-  box-shadow: 0 0 2px rgba(98, 98, 103, 0.4);
-  border: 1px solid rgba(233, 233, 233, 1);
-}
-.each-target-group-option-button {
-  height: 30px;
-  width: 100%;
-  padding: 0px 10px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  cursor: pointer;
-}
-.each-target-group-option-button:hover {
-  background-color: rgb(248, 248, 248);
-}
-.each-target-group-option-button span {
-  font-size: 13px;
-  font-weight: 500;
-  color: rgb(98, 98, 103);
-}
-.each-target-group-option-button i {
-  font-size: 13px;
-  color: rgba(98, 98, 103, 0.4);
-  width: 20px;
+  width: calc(100% - 15px);
 }
 .each-target-group-delete-button {
-  border-top: 1px solid rgb(233, 233, 233);
-  height: 35px;
-  width: 100%;
-  padding: 5px 10px;
+  margin-left: auto;
+  color: rgba(237, 72, 80, 0.8);
+  width: 15px;
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  justify-content: flex-end;
+  font-size: 16px;
   cursor: pointer;
 }
 .each-target-group-delete-button:hover {
-  background-color: rgba(237, 72, 80, 0.1);
-}
-.each-target-group-delete-button span {
-  font-size: 13px;
-  font-weight: 500;
   color: rgb(237, 72, 80);
-}
-.each-target-group-delete-button i {
-  font-size: 13px;
-  color: rgba(237, 72, 80, 0.9);
-  width: 20px;
 }
 
 .each-target-group-content-wrapper {
@@ -180,10 +103,30 @@
   min-height: 30px;
   width: 100%;
 }
+.each-target-group-export-wrapper {
+  display: flex;
+  flex-direction: column; 
+}
 .each-target-group-content-title {
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 800;
+  font-size: 12px;
   color: rgb(98, 98, 103);
+  margin-bottom: 2px;
+}
+.each-target-group-export-button {
+  width: 55px;
+  min-width: 55px;
+  height: 20px;
+  border-radius: 2px;
+  border: 1px solid rgb(140, 212, 224);
+  color: rgb(140, 212, 224);
+  font-weight: 800;
+  font-size: 10px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 .each-target-group-content-count-wrapper {
   display: flex;
@@ -244,12 +187,20 @@
 .each-target-group-filter-data-percent-wrapper {
   width: calc(100% - 35px);
   height: 20px;
+  display: flex;
+  align-items: center;
+}
+.each-target-group-filter-data-percent-min {
+  height: 20px;
+  background-color: rgb(140, 212, 224);
+  width: 3px;
+  border-radius: 2px;
 }
 .each-target-group-filter-data-percent {
   height: 20px;
   background-color: rgb(140, 212, 224);
-  border-radius: 5px;
-  min-width: 3px;
+  border-radius: 2px;
+  cursor: pointer;
 }
 .each-target-group-filter-data-count {
   width: 35px;
