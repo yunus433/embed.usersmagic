@@ -39,7 +39,6 @@ const IntegrationPathSchema = new Schema({
   product_id: {
     type: mongoose.Types.ObjectId,
     default: null,
-    unique: true,
     sparse: true
   }
 });

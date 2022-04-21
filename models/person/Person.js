@@ -55,7 +55,7 @@ PersonSchema.statics.getCumulativeResponsesForQuestionById = function (data, cal
           total: 0
         };
 
-        const choices = template.subtype == 'yes_no' ? ['yes', 'no'] : (['single', 'multiple', 'list'].includes(template.subtype) ? template.choices : Array.from({ length: template.max_value - template.min_value + 1 }, (each, i) => (i + template.min_value).toString()));
+        const choices = template.subtype == 'yes_no' ? ['yes', 'no'] : (['single', 'multiple', 'list', 'time'].includes(template.subtype) ? template.choices : Array.from({ length: template.max_value - template.min_value + 1 }, (each, i) => (i + template.min_value).toString()));
 
         async.timesSeries(
           choices.length,
@@ -103,7 +103,7 @@ PersonSchema.statics.getCumulativeResponsesForQuestionById = function (data, cal
             total: 0
           };
 
-          const choices = template.subtype == 'yes_no' ? ['yes', 'no'] : (['single', 'multiple', 'list'].includes(template.subtype) ? template.choices : Array.from({ length: template.max_value - template.min_value + 1 }, (each, i) => (i + template.min_value).toString()));
+          const choices = template.subtype == 'yes_no' ? ['yes', 'no'] : (['single', 'multiple', 'list', 'time'].includes(template.subtype) ? template.choices : Array.from({ length: template.max_value - template.min_value + 1 }, (each, i) => (i + template.min_value).toString()));
 
           async.timesSeries(
             choices.length,
@@ -203,7 +203,7 @@ PersonSchema.statics.getAnswerCountForQuestionByIdAndFilters = function (data, c
     Template.findTemplateById(question.template_id, (err, template) => {
       if (err) return callback(err);
 
-      const choices = template.subtype == 'yes_no' ? ['yes', 'no'] : (['single', 'multiple', 'list'].includes(template.subtype) ? template.choices : Array.from({ length: template.max_value - template.min_value + 1 }, (each, i) => (i + template.min_value).toString()));
+      const choices = template.subtype == 'yes_no' ? ['yes', 'no'] : (['single', 'multiple', 'list', 'time'].includes(template.subtype) ? template.choices : Array.from({ length: template.max_value - template.min_value + 1 }, (each, i) => (i + template.min_value).toString()));
       let total = 0, match = 0;
 
       async.timesSeries(
