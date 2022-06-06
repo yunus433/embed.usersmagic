@@ -2,7 +2,7 @@ const async = require('async');
 const mongoose = require('mongoose');
 const validator = require('validator');
 
-const getWeek = require('../../middleware/getWeek');
+const getWeek = require('../../utils/getWeek');
 
 const LIMIT_FOR_ANSWER_DELETE = 1000;
 const MAX_DATABASE_TEXT_FIELD_LENGTH = 1e4;
